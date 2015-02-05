@@ -29,19 +29,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: stm32f4_aoa
+all: stm32f407_aoa
 
 # Tool invocations
-stm32f4_aoa: $(OBJS) $(USER_OBJS)
+stm32f407_aoa: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross GCC Linker'
-	arm-none-eabi-gcc -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 --specs=rdimon.specs -lc -lrdimon -T"C:/cygwin/home/ma/github/stm32f4_aoa/Projects/GCC/stm32f4_aoa/STM32F407VE_RAM.ld" -o "stm32f4_aoa" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc  -o "stm32f407_aoa" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) stm32f4_aoa
+	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) stm32f407_aoa
 	-@echo ' '
 
 .PHONY: all clean dependents

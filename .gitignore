@@ -28,5 +28,5 @@
 *.x86_64
 *.hex
 *.mk
-Debug/*
+Projects/GCC/stm32f4_aoa/Debug/*
 
