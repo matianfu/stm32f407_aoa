@@ -66,6 +66,62 @@
 /** @defgroup USBH_CORE_Private_Variables
   * @{
   */ 
+
+typedef enum {
+	USBH_LL_EVT_NULL = 0,
+	USBH_LL_EVT_CONNECT,
+	USBH_LL_EVT_DISCONNECT,
+	USBH_LL_EVT_PORTUP,
+	USBH_LL_EVT_PORTDOWN,
+	USBH_LL_EVT_OVERFLOW
+} USBH_LL_EventTypeDef;
+
+#define USBH_LL_EVENT_RING_SIZE				(16)
+
+static USBH_LL_EventTypeDef USBH_LL_Events[USBH_LL_EVENT_RING_SIZE] = { 0 };
+static int get_event_index = 0;
+static int put_event_index = 0;
+
+static inline int next_event_index(int i) {
+
+	if (i == USBH_LL_EVENT_RING_SIZE - 1)
+		return 0;
+
+	return i++;
+}
+
+static USBH_LL_EventTypeDef USBH_GetEvent(void) {
+
+	USBH_LL_EventTypeDef e;
+
+	if (get_event_index == put_event_index) {
+		return USBH_LL_EVT_NULL;
+	}
+
+	e = USBH_LL_Events[get_event_index];
+	USBH_LL_Events[get_event_index] = 0;
+
+	get_event_index = next_event_index(get_event_index);
+
+	return e;
+}
+
+static void USBH_PutEvent(USBH_LL_EventTypeDef e) {
+
+	int i;
+	if (next_event_index(put_event_index) == get_event_index) {
+
+		for (i = 0; i < USBH_LL_EVENT_RING_SIZE; i++)
+			USBH_LL_Events[i] = USBH_LL_EVT_OVERFLOW;
+
+		return;
+	}
+
+	USBH_LL_Events[put_event_index] = e;
+	put_event_index = next_event_index(put_event_index);
+}
+
+
 /**
   * @}
   */ 
@@ -396,9 +452,72 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 {
+  USBH_LL_EventTypeDef e;
   __IO USBH_StatusTypeDef status = USBH_FAIL;
   uint8_t idx = 0;
   
+  e = USBH_GetEvent();
+  if (e == USBH_LL_EVT_OVERFLOW) {
+	  // Todo: disaster recovery
+
+  } else
+  if (e == USBH_LL_EVT_CONNECT) {
+
+	  switch (phost->gState) {
+	  case HOST_IDLE:
+
+		  if(phost->pUser != NULL)
+		  {
+			  phost->pUser(phost, HOST_USER_CONNECTION);
+		  }
+
+		  phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
+
+		  USBH_Delay(200);
+		  USBH_LL_ResetPort(phost);
+		  break;
+	  default:
+		  // TODO illegal state
+		  break;
+	  }
+
+  } else
+  if (e == USBH_LL_EVT_DISCONNECT) {
+
+	  switch (phost->gState) {
+	  case HOST_IDLE:
+		  // TODO illegal
+		  break;
+	  case HOST_DEV_WAIT_FOR_ATTACHMENT:
+		  phost->gState = HOST_IDLE;
+		  break;
+	  default:
+		  // TODO do disconnect processing
+		  break;
+	  }
+
+  } else
+  if (e == USBH_LL_EVT_PORTUP) {
+
+	  switch(phost->gState) {
+	  case HOST_IDLE:
+		  // TODO illegal
+		  break;
+	  case HOST_DEV_WAIT_FOR_ATTACHMENT:
+		  phost->gState = HOST_DEV_ATTACHED ;
+		  break;
+	  default:
+		  // TODO illegal
+		  break;
+	  }
+
+  } else
+  if (e == USBH_LL_EVT_PORTDOWN) {
+
+  } else {
+  // ToDo /** assert null event**/
+  /** the following code should be considered the handler of null event **/
+
   switch (phost->gState)
   {
   case HOST_IDLE :
@@ -597,7 +716,8 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
   default :
     break;
   }
- return USBH_OK;  
+  }
+ return USBH_OK;
 }
 
 
@@ -826,25 +946,31 @@ void  USBH_HandleSof  (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 {
-  if(phost->gState == HOST_IDLE )
-  {
-    phost->device.is_connected = 1;
-    phost->gState = HOST_IDLE ;
-    
-    if(phost->pUser != NULL)
-    {    
-      phost->pUser(phost, HOST_USER_CONNECTION);
-    }
-  } 
-  else if(phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT )
-  {
-    phost->gState = HOST_DEV_ATTACHED ;
-  }
-#if (USBH_USE_OS == 1)
-  osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
-#endif 
-  
-  return USBH_OK;
+//  if(phost->gState == HOST_IDLE )
+//  {
+//    phost->device.is_connected = 1;
+//    phost->gState = HOST_IDLE ;
+//
+//    if(phost->pUser != NULL)
+//    {
+//      phost->pUser(phost, HOST_USER_CONNECTION);
+//    }
+//  }
+//  else if(phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT )
+//  {
+//    phost->gState = HOST_DEV_ATTACHED ;
+//  }
+//#if (USBH_USE_OS == 1)
+//  osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
+//#endif
+	USBH_PutEvent(USBH_LL_EVT_CONNECT);
+	return USBH_OK;
+}
+
+USBH_StatusTypeDef USBH_LL_PortUp (USBH_HandleTypeDef *phost)
+{
+	USBH_PutEvent(USBH_LL_EVT_PORTUP);
+	return USBH_OK;
 }
 
 /**
@@ -855,33 +981,38 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
 {
-  /*Stop Host */ 
-  USBH_LL_Stop(phost);  
-  
-  /* FRee Control Pipes */
-  USBH_FreePipe  (phost, phost->Control.pipe_in);
-  USBH_FreePipe  (phost, phost->Control.pipe_out);  
-   
-  phost->device.is_connected = 0; 
-   
-  if(phost->pUser != NULL)
-  {    
-    phost->pUser(phost, HOST_USER_DISCONNECTION);
-  }
-  USBH_UsrLog("USB Device disconnected"); 
-  
-  /* Start the low level driver  */
-  USBH_LL_Start(phost);
-  
-  phost->gState = HOST_DEV_DISCONNECTED;
-  
-#if (USBH_USE_OS == 1)
-  osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
-#endif 
-  
+//  /*Stop Host */
+//  USBH_LL_Stop(phost);
+//
+//  /* FRee Control Pipes */
+//  USBH_FreePipe  (phost, phost->Control.pipe_in);
+//  USBH_FreePipe  (phost, phost->Control.pipe_out);
+//
+//  phost->device.is_connected = 0;
+//
+//  if(phost->pUser != NULL)
+//  {
+//    phost->pUser(phost, HOST_USER_DISCONNECTION);
+//  }
+//  USBH_UsrLog("USB Device disconnected");
+//
+//  /* Start the low level driver  */
+//  USBH_LL_Start(phost);
+//
+//  phost->gState = HOST_DEV_DISCONNECTED;
+//
+//#if (USBH_USE_OS == 1)
+//  osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
+//#endif
+  USBH_PutEvent(USBH_LL_EVT_DISCONNECT);
   return USBH_OK;
 }
 
+USBH_StatusTypeDef USBH_LL_PortDown (USBH_HandleTypeDef *phost)
+{
+	USBH_PutEvent(USBH_LL_EVT_PORTDOWN);
+	return USBH_OK;
+}
 
 #if (USBH_USE_OS == 1)  
 /**

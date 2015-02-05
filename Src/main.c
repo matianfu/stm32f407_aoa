@@ -33,10 +33,12 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
 #include "stm32f4xx_hal.h"
 #include "usart.h"
 #include "usb_host.h"
 #include "gpio.h"
+
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -48,11 +50,26 @@
 void SystemClock_Config(void);
 void MX_USB_HOST_Process(void);
 
+#ifdef SEMIHOSTING
+extern void initialise_monitor_handles(void);
+#endif
+
+
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+#ifdef SEMIHOSTING
+	initialise_monitor_handles();
 
+//	setbuf(stdout, NULL);
+//	while(1) {
+//		printf("Hello, Semi Hosting\n");
+//		fflush(stdout);
+//	}
+
+	printf("Hello, Semihosting\n");
+#endif
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/

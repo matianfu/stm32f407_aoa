@@ -565,6 +565,11 @@ __weak void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
    */
 }
 
+__weak void HAL_HCD_PortUp_Callback(HCD_HandleTypeDef *hhcd)
+{
+
+}
+
 /**
   * @brief  Disonnexion Event callback.
   * @param  hhcd: HCD handle
@@ -1148,7 +1153,8 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
           USBx_HOST->HFIR = (uint32_t)60000;
         }
       }
-      HAL_HCD_Connect_Callback(hhcd);
+      // HAL_HCD_Connect_Callback(hhcd);
+      HAL_HCD_PortUp_Callback(hhcd);
       
       if(hhcd->Init.speed == HCD_SPEED_HIGH)
       {

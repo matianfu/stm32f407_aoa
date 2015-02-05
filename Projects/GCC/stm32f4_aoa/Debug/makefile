@@ -35,7 +35,7 @@ all: stm32f4_aoa
 stm32f4_aoa: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross GCC Linker'
-	arm-none-eabi-gcc -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -T"C:/cygwin/home/ma/github/stm32f4_aoa/Projects/GCC/stm32f4_aoa/STM32F407VE_FLASH.ld" -o "stm32f4_aoa" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 --specs=rdimon.specs -lc -lrdimon -T"C:/cygwin/home/ma/github/stm32f4_aoa/Projects/GCC/stm32f4_aoa/STM32F407VE_RAM.ld" -o "stm32f4_aoa" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

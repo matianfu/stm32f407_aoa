@@ -11,7 +11,7 @@
 **
 **  Environment : Atollic TrueSTUDIO
 **
-**  Distribution: The file is distributed “as is,” without any warranty
+**  Distribution: The file is distributed as is, without any warranty
 **                of any kind.
 **
 **  (c)Copyright Atollic AB.
@@ -44,6 +44,7 @@ register uint8_t * stack_ptr asm("sp");
 uint8_t *__env[1] = { 0 };
 uint8_t **environ = __env;
 
+#ifndef SEMIHOSTING
 
 /* Functions */
 void initialise_monitor_handles()
@@ -66,6 +67,8 @@ void _exit (int32_t status)
 	_kill(status, -1);
 	while (1) {}		/* Make sure we hang here */
 }
+
+#endif
 
 int _write(int32_t file, uint8_t *ptr, int32_t len)
 {
@@ -96,17 +99,22 @@ caddr_t _sbrk(int32_t incr)
 	return (caddr_t) prev_heap_end;
 }
 
+#ifndef SEMIHOSTING
+
 int _close(int32_t file)
 {
 	return -1;
 }
 
+#endif
 
 int _fstat(int32_t file, struct stat *st)
 {
 	st->st_mode = S_IFCHR;
 	return 0;
 }
+
+#ifndef SEMIHOSTING
 
 int _isatty(int32_t file)
 {
@@ -118,10 +126,14 @@ int _lseek(int32_t file, int32_t ptr, int32_t dir)
 	return 0;
 }
 
+#endif
+
 int _read(int32_t file, uint8_t *ptr, int32_t len)
 {
 	return 0;
 }
+
+#ifndef SEMIHOSTING
 
 int _open(const uint8_t *path, int32_t flags, int32_t mode)
 {
@@ -129,11 +141,15 @@ int _open(const uint8_t *path, int32_t flags, int32_t mode)
 	return -1;
 }
 
+#endif
+
 int _wait(int32_t *status)
 {
 	errno = ECHILD;
 	return -1;
 }
+
+#ifndef SEMIHOSTING
 
 int _unlink(const uint8_t *name)
 {
@@ -145,6 +161,8 @@ int _times(struct tms *buf)
 {
 	return -1;
 }
+
+#endif
 
 int _stat(const uint8_t *file, struct stat *st)
 {

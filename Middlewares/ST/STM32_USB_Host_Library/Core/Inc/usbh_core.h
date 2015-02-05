@@ -118,6 +118,8 @@ USBH_StatusTypeDef   USBH_LL_Start        (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_Stop         (USBH_HandleTypeDef *phost);
 
 USBH_StatusTypeDef   USBH_LL_Connect      (USBH_HandleTypeDef *phost);
+USBH_StatusTypeDef   USBH_LL_PortUp       (USBH_HandleTypeDef *phost);
+USBH_StatusTypeDef   USBH_LL_PortDown     (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_Disconnect   (USBH_HandleTypeDef *phost);
 USBH_SpeedTypeDef    USBH_LL_GetSpeed     (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_ResetPort    (USBH_HandleTypeDef *phost);
