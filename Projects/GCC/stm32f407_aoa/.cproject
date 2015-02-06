@@ -60,18 +60,31 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.1440143350" name="/" resourcePath="Drivers">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.exe.debug.1564285737" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.exe.debug" unusedChildren="">
+							<option id="cdt.managedbuild.option.gnu.cross.prefix.2043532020.1966762575" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix.2043532020"/>
+							<option id="cdt.managedbuild.option.gnu.cross.path.1795875747.1328378127" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path.1795875747"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.870639805" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler.412019346"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.353973" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler.205708989"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.591800385" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker.930062843"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.210864278" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker.1143530011"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.archiver.1047880311" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver.94278635"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.assembler.1201293065" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler.371318788"/>
+						</toolChain>
+					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.1469594115" name="startup_stm32f401xc.s" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xc.s" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.1870898317" name="stm32f411xe.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h" toolsToInvoke=""/>
-					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.1339148600" name="stm32f401xc.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.25286561" name="stm32f437xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f437xx.h" toolsToInvoke=""/>
+					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.1339148600" name="stm32f401xc.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.519960251" name="stm32f429xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h" toolsToInvoke=""/>
-					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.1458553129" name="stm32f405xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.816790805" name="stm32f427xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f427xx.h" toolsToInvoke=""/>
+					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.1458553129" name="stm32f405xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.1258266592" name="stm32f415xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f415xx.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.276524055" name="stm32f417xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f417xx.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.1174682007" name="stm32f401xe.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1896814724.711261235" name="stm32f439xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f439xx.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f439xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f437xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f427xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f417xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f415xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h|Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xc.s|Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/arm" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xc.s|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f439xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f437xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f427xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f417xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f415xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h|Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/arm" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -135,18 +148,19 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.728746224" name="startup_stm32f401xc.s" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xc.s" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.776337853" name="stm32f411xe.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h" toolsToInvoke=""/>
-					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.1932635445" name="stm32f401xc.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.136972135" name="stm32f437xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f437xx.h" toolsToInvoke=""/>
+					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.1932635445" name="stm32f401xc.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.457288904" name="stm32f429xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h" toolsToInvoke=""/>
-					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.563367617" name="stm32f405xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.1067647112" name="stm32f427xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f427xx.h" toolsToInvoke=""/>
+					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.563367617" name="stm32f405xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.2083787876" name="stm32f415xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f415xx.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.1304163240" name="stm32f417xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f417xx.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.2043382503" name="stm32f401xe.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h" toolsToInvoke=""/>
 					<fileInfo id="cdt.managedbuild.config.gnu.cross.exe.release.1023077232.1515070174" name="stm32f439xx.h" rcbsApplicability="disable" resourcePath="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f439xx.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f439xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f437xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f427xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f417xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f415xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h|Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xc.s" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xc.s|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f439xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f437xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f427xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f417xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f415xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h|Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

@@ -650,11 +650,6 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/arm/startup_stm32f407xx.s</locationURI>
 		</link>
 		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xc.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xc.s</locationURI>
-		</link>
-		<link>
 			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xe.s</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xe.s</locationURI>
