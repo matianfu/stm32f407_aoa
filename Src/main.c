@@ -84,6 +84,7 @@ int main(void)
   /* Sets the priority grouping field */
   HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_0);
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  // HAL_NVIC_EnableIRQ(irqn);
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
