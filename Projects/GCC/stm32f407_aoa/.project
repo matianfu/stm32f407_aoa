@@ -485,59 +485,9 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_pipes.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xc.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f401xe.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h</locationURI>
-		</link>
-		<link>
 			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f411xe.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f415xx.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f415xx.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f417xx.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f417xx.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f427xx.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f427xx.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f437xx.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f437xx.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f439xx.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f439xx.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h</name>
@@ -630,11 +580,6 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/MSC/Src/usbh_msc_scsi.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/arm</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -645,59 +590,9 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/arm/startup_stm32f407xx.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/arm/startup_stm32f407xx.s</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xe.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f401xe.s</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f405xx.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f405xx.s</locationURI>
-		</link>
-		<link>
 			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f407xx.S</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f407xx.S</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f411xe.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f411xe.s</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f415xx.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f415xx.s</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f417xx.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f417xx.s</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f427xx.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f427xx.s</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f429xx.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f429xx.s</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f437xx.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f437xx.s</locationURI>
-		</link>
-		<link>
-			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f439xx.s</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f439xx.s</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
