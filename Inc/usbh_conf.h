@@ -63,7 +63,7 @@
 #define USBH_KEEP_CFG_DESCRIPTOR      0 
  
 /*----------   -----------*/
-#define USBH_MAX_NUM_SUPPORTED_CLASS      1 
+#define USBH_MAX_NUM_SUPPORTED_CLASS     2
  
 /*----------   -----------*/
 #define USBH_MAX_SIZE_CONFIGURATION      255 
@@ -72,7 +72,7 @@
 #define USBH_MAX_DATA_BUFFER      512 
  
 /*----------   -----------*/
-#define USBH_DEBUG_LEVEL      3
+#define USBH_DEBUG_LEVEL      0
  
 /*----------   -----------*/
 #define USBH_USE_OS      0 
@@ -100,8 +100,9 @@
  /* DEBUG macros */  
 
 #if (USBH_DEBUG_LEVEL > 0)
-#define  USBH_UsrLog(...)   printf(__VA_ARGS__);\
-                            printf("\n");
+#define  USBH_UsrLog(...)	printf("%010u  ", (unsigned int)HAL_GetTick());\
+ 	 	 	 	 	 	 	printf(__VA_ARGS__);\
+ 	 	 	 	 	 	 	printf("\n");
 #else
 #define USBH_UsrLog(...)   
 #endif 

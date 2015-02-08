@@ -75,7 +75,7 @@
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
   */
-
+extern int adk_switching;
 /** @defgroup HCD 
   * @brief HCD HAL module driver
   * @{
@@ -482,7 +482,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
     /* Handle Host Disconnect Interrupts */
     if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT))
     {
-      
+      if (!adk_switching) {
       /* Cleanup HPRT */
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
         USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
@@ -490,6 +490,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
       /* Handle Host Port Interrupts */
       HAL_HCD_Disconnect_Callback(hhcd);
        USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
+      }
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
     }
     
@@ -570,6 +571,10 @@ __weak void HAL_HCD_PortUp_Callback(HCD_HandleTypeDef *hhcd)
 
 }
 
+__weak void HAL_HCD_PortDown_Callback(HCD_HandleTypeDef *hhcd)
+{
+
+}
 /**
   * @brief  Disonnexion Event callback.
   * @param  hhcd: HCD handle
@@ -659,6 +664,16 @@ HAL_StatusTypeDef HAL_HCD_Stop(HCD_HandleTypeDef *hhcd)
 HAL_StatusTypeDef HAL_HCD_ResetPort(HCD_HandleTypeDef *hhcd)
 {
   return (USB_ResetPort(hhcd->Instance));
+}
+
+HAL_StatusTypeDef HAL_HCD_ResetAssert(HCD_HandleTypeDef *hhcd)
+{
+  return (USB_ResetAssert(hhcd->Instance));
+}
+
+HAL_StatusTypeDef HAL_HCD_ResetDeassert(HCD_HandleTypeDef *hhcd)
+{
+  return (USB_ResetDeassert(hhcd->Instance));
 }
 
 /**
@@ -1116,16 +1131,18 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
   hprt0_dup &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
                  USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
   
-  /* Check wether Port Connect Detected */
+  /* Check whether Port Connect Detected */
   if((hprt0 & USB_OTG_HPRT_PCDET) == USB_OTG_HPRT_PCDET)
-  {  
-    if((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
-    {
-      USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
+  {
+	// These code may prevent CONNECT/DISCONNECT events in pair
+    // if((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
+    //{
+      // USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
+	if (!adk_switching) {
       HAL_HCD_Connect_Callback(hhcd);
-    }
+	}
+    //}
     hprt0_dup  |= USB_OTG_HPRT_PCDET;
-    
   }
   
   /* Check whether Port Enable Changed */
@@ -1133,6 +1150,8 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
   {
     hprt0_dup |= USB_OTG_HPRT_PENCHNG;
     
+    if (!adk_switching) {
+
     if((hprt0 & USB_OTG_HPRT_PENA) == USB_OTG_HPRT_PENA)
     {    
       if(hhcd->Init.phy_itface  == USB_OTG_EMBEDDED_PHY)
@@ -1154,6 +1173,7 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
         }
       }
       // HAL_HCD_Connect_Callback(hhcd);
+      // USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
       HAL_HCD_PortUp_Callback(hhcd);
       
       if(hhcd->Init.speed == HCD_SPEED_HIGH)
@@ -1167,8 +1187,10 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
         USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
       
-      USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT); 
+      HAL_HCD_PortDown_Callback(hhcd);
+      // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
     }    
+    }	// debug
   }
   
   /* Check For an overcurrent */

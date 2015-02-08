@@ -1,8 +1,9 @@
 /**
   ******************************************************************************
-  * @file    stm32f4xx_it.c
-  * @date    04/02/2015 16:50:32
-  * @brief   Interrupt Service Routines.
+  * File Name          : dma.h
+  * Date               : 08/02/2015 13:32:38
+  * Description        : This file contains all the function prototypes for
+  *                      the dma.c file
   ******************************************************************************
   *
   * COPYRIGHT(c) 2015 STMicroelectronics
@@ -31,63 +32,27 @@
   *
   ******************************************************************************
   */
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __dma_H
+#define __dma_H
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-#include "stm32f4xx.h"
-#include "stm32f4xx_it.h"
 
-/* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef hdma_usart2_tx;
+void MX_DMA_Init(void);
 
-extern HCD_HandleTypeDef hhcd_USB_OTG_FS;
-extern HCD_HandleTypeDef hhcd_USB_OTG_HS;
+#ifdef __cplusplus
+}
+#endif
 
-/******************************************************************************/
-/*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
-/******************************************************************************/
+#endif /* __dma_H */
 
 /**
-* @brief This function handles USB On The Go FS global interrupt.
-*/
-void OTG_FS_IRQHandler(void)
-{
-  HAL_NVIC_ClearPendingIRQ(OTG_FS_IRQn);
-  HAL_HCD_IRQHandler(&hhcd_USB_OTG_FS);
-}
-
-extern void uart_ll_print(void);
-
-/**
-* @brief This function handles System tick timer.
-*/
-void SysTick_Handler(void)
-{
-  HAL_IncTick();
-  HAL_SYSTICK_IRQHandler();
-  uart_ll_print();
-}
-
-/**
-* @brief This function handles DMA1 Stream6 global interrupt.
-*/
-void DMA1_Stream6_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Stream6_IRQn 0 */
-
-  /* USER CODE END DMA1_Stream6_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart2_tx);
-  /* USER CODE BEGIN DMA1_Stream6_IRQn 1 */
-
-  /* USER CODE END DMA1_Stream6_IRQn 1 */
-}
-
-/**
-* @brief This function handles USB On The Go HS global interrupt.
-*/
-void OTG_HS_IRQHandler(void)
-{
-  HAL_NVIC_ClearPendingIRQ(OTG_HS_IRQn);
-  HAL_HCD_IRQHandler(&hhcd_USB_OTG_HS);
-}
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

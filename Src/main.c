@@ -35,6 +35,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
 #include "stm32f4xx_hal.h"
+#include "dma.h"
 #include "usart.h"
 #include "usb_host.h"
 #include "gpio.h"
@@ -62,12 +63,7 @@ int main(void)
 #ifdef SEMIHOSTING
 	initialise_monitor_handles();
 
-//	setbuf(stdout, NULL);
-//	while(1) {
-//		printf("Hello, Semi Hosting\n");
-//		fflush(stdout);
-//	}
-
+	setbuf(stdout, NULL);
 	printf("Hello, Semihosting\n");
 #endif
   /* USER CODE END 1 */
@@ -88,13 +84,15 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_UART4_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_USB_HOST_Init();
 
   /* USER CODE BEGIN 2 */
-
+  static char hello[] = "hello world aoa!" NEW_LINE;
+  HAL_UART_Transmit_DMA(&huart2, hello, strlen(hello));
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN 3 */

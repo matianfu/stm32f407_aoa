@@ -1239,6 +1239,30 @@ HAL_StatusTypeDef USB_ResetPort(USB_OTG_GlobalTypeDef *USBx)
   return HAL_OK;
 }
 
+HAL_StatusTypeDef USB_ResetAssert(USB_OTG_GlobalTypeDef *USBx)
+{
+  __IO uint32_t hprt0;
+
+  hprt0 = USBx_HPRT0;
+
+  hprt0 &= ~(USB_OTG_HPRT_PENA    | USB_OTG_HPRT_PCDET |\
+    USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
+
+  USBx_HPRT0 = (USB_OTG_HPRT_PRST | hprt0);
+
+  return HAL_OK;
+}
+
+HAL_StatusTypeDef USB_ResetDeassert(USB_OTG_GlobalTypeDef *USBx)
+{
+  __IO uint32_t hprt0;
+
+  hprt0 = USBx_HPRT0;
+
+  USBx_HPRT0 = ((~USB_OTG_HPRT_PRST) & hprt0);
+  return HAL_OK;
+}
+
 /**
   * @brief  USB_DriveVbus : activate or de-activate vbus
   * @param  state : VBUS state

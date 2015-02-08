@@ -109,6 +109,7 @@ uint8_t             USBH_FindInterfaceIndex(USBH_HandleTypeDef *phost,
 USBH_StatusTypeDef  USBH_Start            (USBH_HandleTypeDef *phost); 
 USBH_StatusTypeDef  USBH_Stop             (USBH_HandleTypeDef *phost); 
 USBH_StatusTypeDef  USBH_Process          (USBH_HandleTypeDef *phost);
+USBH_StatusTypeDef	USBH_ProcessEvent	  (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef  USBH_ReEnumerate      (USBH_HandleTypeDef *phost);
 
 /* USBH Low Level Driver */
@@ -123,6 +124,8 @@ USBH_StatusTypeDef   USBH_LL_PortDown     (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_Disconnect   (USBH_HandleTypeDef *phost);
 USBH_SpeedTypeDef    USBH_LL_GetSpeed     (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_ResetPort    (USBH_HandleTypeDef *phost);
+USBH_StatusTypeDef 	 USBH_LL_ResetAssert  (USBH_HandleTypeDef *phost);
+USBH_StatusTypeDef 	 USBH_LL_ResetDeassert(USBH_HandleTypeDef *phost);
 uint32_t             USBH_LL_GetLastXferSize   (USBH_HandleTypeDef *phost, uint8_t ); 
 USBH_StatusTypeDef   USBH_LL_DriverVBUS   (USBH_HandleTypeDef *phost, uint8_t );
 

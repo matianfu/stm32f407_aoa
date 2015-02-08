@@ -159,9 +159,14 @@ void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
   USBH_LL_Connect(hhcd->pData);
 }
 
-__weak void HAL_HCD_PortUp_Callback(HCD_HandleTypeDef *hhcd)
+void HAL_HCD_PortUp_Callback(HCD_HandleTypeDef *hhcd)
 {
   USBH_LL_PortUp(hhcd->pData);
+}
+
+void HAL_HCD_PortDown_Callback(HCD_HandleTypeDef *hhcd)
+{
+	USBH_LL_PortDown(hhcd->pData);
 }
 
 /**
@@ -315,6 +320,16 @@ USBH_StatusTypeDef USBH_LL_ResetPort (USBH_HandleTypeDef *phost)
 {
   HAL_HCD_ResetPort(phost->pData);
   return USBH_OK; 
+}
+
+USBH_StatusTypeDef 	 USBH_LL_ResetAssert  (USBH_HandleTypeDef *phost) {
+  HAL_HCD_ResetAssert(phost->pData);
+  return USBH_OK;
+}
+
+USBH_StatusTypeDef 	 USBH_LL_ResetDeassert(USBH_HandleTypeDef *phost) {
+  HAL_HCD_ResetDeassert(phost->pData);
+  return USBH_OK;
 }
 
 /**

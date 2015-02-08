@@ -55,6 +55,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Inc/dma.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Inc/dma.h</locationURI>
+		</link>
+		<link>
 			<name>Inc/gpio.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Inc/gpio.h</locationURI>
@@ -90,6 +95,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Src/dma.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/dma.c</locationURI>
+		</link>
+		<link>
 			<name>Src/gpio.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/gpio.c</locationURI>
@@ -108,6 +118,11 @@
 			<name>Src/syscalls.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/syscalls.c</locationURI>
+		</link>
+		<link>
+			<name>Src/uart_printf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/uart_printf.c</locationURI>
 		</link>
 		<link>
 			<name>Src/usart.c</name>
@@ -390,6 +405,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/AOA</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -416,6 +436,16 @@
 		</link>
 		<link>
 			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/AOA/Inc</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/AOA/Src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -503,6 +533,16 @@
 			<name>Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/AOA/Inc/usbh_adk_core.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/AOA/Inc/usbh_adk_core.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/AOA/Src/usbh_adk_core.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/AOA/Src/usbh_adk_core.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid.h</name>

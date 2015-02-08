@@ -443,7 +443,15 @@ typedef struct
 /* USB Host handle structure */
 typedef struct _USBH_HandleTypeDef
 {
-  __IO HOST_StateTypeDef     gState;       /*  Host State Machine Value */
+  __IO HOST_StateTypeDef     gState;       	/*  Host State Machine Value */
+
+  /** new member begin **/
+  int					wait_for_attachment_substate;	/* substate for HOST_DEV_WAIT_FOR_ATTACHMENT */
+  	  	  	  	  	  	  	  	  	  	  				/* 0 for debouncing, 1 for resetting, 2 for reset done */
+  uint32_t				PollingTimer;
+
+  /** new member end **/
+
   ENUM_StateTypeDef     EnumState;    /* Enumeration state Machine */
   CMD_StateTypeDef      RequestState;       
   USBH_CtrlTypeDef      Control;
