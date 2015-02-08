@@ -1,14 +1,33 @@
 #include <stdint.h>
 #include "stm32f4xx_hal.h"
 
+#define PRINT_BUFFER_SIZE			4096
+#define PRINT_BUFFER_SIZE_MASK
+
 extern UART_HandleTypeDef 	huart2;
 
-uint8_t print_buffer[256];
-uint8_t dma_buffer[256];
-uint8_t in = 0;
-uint8_t out = 0;
+uint8_t print_buffer[PRINT_BUFFER_SIZE];
+uint8_t dma_buffer[PRINT_BUFFER_SIZE];
+int in = 0;
+int out = 0;
+int printing = 0;
+
+static void uart_print(void);
 
 void uart_ll_print(void) {
+	if (printing)
+		return;
+
+	uart_print();
+}
+
+void uart_hl_print(void) {
+	printing = 1;
+	uart_print();
+	printing = 0;
+}
+
+static void uart_print(void) {
 
 	uint16_t count;
 	HAL_UART_StateTypeDef state = huart2.State;
@@ -19,12 +38,12 @@ void uart_ll_print(void) {
 			return;
 
 		if (in < out) {
-			memmove(dma_buffer, &print_buffer[out], 256 - out);
+			memmove(dma_buffer, &print_buffer[out], PRINT_BUFFER_SIZE - out);
 			if (in)
 			{
-				memmove(&dma_buffer[256-out], print_buffer, in);
+				memmove(&dma_buffer[PRINT_BUFFER_SIZE-out], print_buffer, in);
 			}
-			count = 256 - (out - in);
+			count = PRINT_BUFFER_SIZE - (out - in);
 		}
 		else {
 			memmove(dma_buffer, &print_buffer[out], in - out);
@@ -39,49 +58,27 @@ void uart_ll_print(void) {
 
 int uart_write(int32_t file, uint8_t *ptr, int32_t len) {
 
-#if 0
-	int n;
-    switch (file) {
-    case STDOUT_FILENO: /*stdout*/
-        for (n = 0; n < len; n++) {
-#if STDOUT_USART == 1
-            while ((USART1->SR & USART_FLAG_TC) == (uint16_t)RESET) {}
-            USART1->DR = (*ptr++ & (uint16_t)0x01FF);
-#elif  STDOUT_USART == 2
-            while ((USART2->SR & USART_FLAG_TC) == (uint16_t) RESET) {
-            }
-            USART2->DR = (*ptr++ & (uint16_t) 0x01FF);
-#elif  STDOUT_USART == 3
-            while ((USART3->SR & USART_FLAG_TC) == (uint16_t)RESET) {}
-            USART3->DR = (*ptr++ & (uint16_t)0x01FF);
-#endif
-        }
-        break;
-    case STDERR_FILENO: /* stderr */
-        for (n = 0; n < len; n++) {
-#if STDERR_USART == 1
-            while ((USART1->SR & USART_FLAG_TC) == (uint16_t)RESET) {}
-            USART1->DR = (*ptr++ & (uint16_t)0x01FF);
-#elif  STDERR_USART == 2
-            while ((USART2->SR & USART_FLAG_TC) == (uint16_t) RESET) {
-            }
-            USART2->DR = (*ptr++ & (uint16_t) 0x01FF);
-#elif  STDERR_USART == 3
-            while ((USART3->SR & USART_FLAG_TC) == (uint16_t)RESET) {}
-            USART3->DR = (*ptr++ & (uint16_t)0x01FF);
-#endif
-        }
-        break;
-    default:
-        errno = EBADF;
-        return -1;
-    }
-#endif
-
     int i;
 
     for (i = 0; i < len; i++) {
-    	print_buffer[in++] = ptr[i];
+    	print_buffer[in] = ptr[i];
+    	in++;
+    	if (in >= PRINT_BUFFER_SIZE) {
+    		in = in - PRINT_BUFFER_SIZE;
+    	}
+
+    	if (in == out) {
+    		return i;
+    	};
     }
+
+    uart_hl_print();
 	return len;
 }
+
+void uart_print_tx_complete_cb() {
+
+	uart_ll_print();
+}
+
+

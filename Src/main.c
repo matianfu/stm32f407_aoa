@@ -44,7 +44,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN 0 */
-
+extern void uart_hl_print(void);
 /* USER CODE END 0 */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -80,26 +80,29 @@ int main(void)
   /* Sets the priority grouping field */
   HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_0);
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-  // HAL_NVIC_EnableIRQ(irqn);
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_UART4_Init();
   MX_USART2_UART_Init();
+
+  static char hello[] = "hello world aoa!" NEW_LINE;
+  HAL_UART_Transmit_DMA(&huart2, hello, strlen(hello));
+  HAL_Delay(100);
+
   MX_USART3_UART_Init();
   MX_USB_HOST_Init();
 
   /* USER CODE BEGIN 2 */
-  static char hello[] = "hello world aoa!" NEW_LINE;
-  HAL_UART_Transmit_DMA(&huart2, hello, strlen(hello));
+
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN 3 */
   /* Infinite loop */
   while (1)
   {
-
+	uart_hl_print();
     MX_USB_HOST_Process();
 
   }

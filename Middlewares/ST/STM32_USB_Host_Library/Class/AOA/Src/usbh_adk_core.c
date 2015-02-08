@@ -69,6 +69,9 @@ static USBH_StatusTypeDef USBH_ADK_switch ( USBH_HandleTypeDef  *phost);
 static USBH_StatusTypeDef USBH_ADK_configAndroid ( USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef USBH_ADK_SOFProcess(USBH_HandleTypeDef *phost);
 
+/*
+ *
+ */
 USBH_ClassTypeDef USBH_ADK_cb =
 {
 	"AOA" ,
@@ -135,7 +138,6 @@ void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description, u
   */
 static USBH_StatusTypeDef USBH_ADK_InterfaceInit ( USBH_HandleTypeDef *phost)
 {	 
-#if 1
     uint8_t interface = 0; 
 	USBH_StatusTypeDef status = USBH_OK; //USBH_OK ;
 
@@ -156,10 +158,6 @@ static USBH_StatusTypeDef USBH_ADK_InterfaceInit ( USBH_HandleTypeDef *phost)
 		printf("> USB_ADK_Init\r\n");
 	}
 	return status ;
-#else
-	return USBH_OK ;
-#endif
-
 }
 
 /**
@@ -224,7 +222,7 @@ static USBH_StatusTypeDef USBH_ADK_ClassRequest(USBH_HandleTypeDef *phost)
 	switch (ADK_Machine.initstate)
 	{
 		case ADK_INIT_SETUP:
-			USBH_UsrLog("");
+			USBH_UsrLog("ADK");
 
 		//printf("USB_ADK_ClassRequest\r\n");
 #ifdef DEBUG
@@ -268,9 +266,7 @@ static USBH_StatusTypeDef USBH_ADK_ClassRequest(USBH_HandleTypeDef *phost)
 	  case ADK_INIT_SEND_MANUFACTURER:
 			if( USBH_ADK_sendString ( phost, ACCESSORY_STRING_MANUFACTURER, (uint8_t*)ADK_Machine.acc_manufacturer)== USBH_OK ){
 				ADK_Machine.initstate = ADK_INIT_SEND_MODEL;
-#ifdef DEBUG
-					printf("ADK:SEND_MANUFACTURER\r\n");
-#endif
+				USBH_UsrLog("ADK:SEND_MANUFACTURER");
 			}
 			break;
 	  case ADK_INIT_SEND_MODEL:
@@ -493,7 +489,7 @@ static USBH_StatusTypeDef USBH_ADK_configAndroid ( USBH_HandleTypeDef *phost)
 {
 	USBH_HandleTypeDef *pphost = phost;
 #ifdef DEBUG
-					printf("ADK:configure bulk endpoint\n");
+	printf("ADK:configure bulk endpoint -- " NEW_LINE);
 #endif
     if(pphost->device.CfgDesc.Itf_Desc[0].Ep_Desc[0].bEndpointAddress & 0x80)
     {

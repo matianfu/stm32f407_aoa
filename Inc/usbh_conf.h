@@ -72,7 +72,7 @@
 #define USBH_MAX_DATA_BUFFER      512 
  
 /*----------   -----------*/
-#define USBH_DEBUG_LEVEL      0
+#define USBH_DEBUG_LEVEL      3
  
 /*----------   -----------*/
 #define USBH_USE_OS      0 
@@ -100,9 +100,9 @@
  /* DEBUG macros */  
 
 #if (USBH_DEBUG_LEVEL > 0)
-#define  USBH_UsrLog(...)	printf("%010u  ", (unsigned int)HAL_GetTick());\
+#define  USBH_UsrLog(...)	printf("%08u  ", (unsigned int)HAL_GetTick());\
  	 	 	 	 	 	 	printf(__VA_ARGS__);\
- 	 	 	 	 	 	 	printf("\n");
+ 	 	 	 	 	 	 	printf(NEW_LINE);
 #else
 #define USBH_UsrLog(...)   
 #endif 
@@ -112,7 +112,7 @@
 
 #define  USBH_ErrLog(...)   printf("ERROR: ") ;\
                             printf(__VA_ARGS__);\
-                            printf("\n");
+                            printf(NEW_LINE);
 #else
 #define USBH_ErrLog(...)   
 #endif 
@@ -121,7 +121,7 @@
 #if (USBH_DEBUG_LEVEL > 2)                         
 #define  USBH_DbgLog(...)   printf("DEBUG : ") ;\
                             printf(__VA_ARGS__);\
-                            printf("\n");
+                            printf(NEW_LINE);
 #else
 #define USBH_DbgLog(...)                         
 #endif

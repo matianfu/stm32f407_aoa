@@ -52,8 +52,6 @@
 #define USBH_ADDRESS_ASSIGNED                    1      
 #define USBH_MPS_DEFAULT                         0x40
 
-// TODO move this statement to some low level header file
-// #define NEW_LINE								"\n"
 #define USBH_ILLEGAL_SE(s, e)					printf(NEW_LINE); 												\
 												printf("USBH ILLEGAL state/event combination encountered. "); 	\
 												USBH_LogSE(s, e); 												\
@@ -121,7 +119,7 @@ static void USBH_LogSE(HOST_StateTypeDef s, USBH_LL_EventTypeDef e) {
 
 	if ((s < sizeof_states) && (e.evt < sizeof_events))
 	{
-		USBH_UsrLog ("---- state: %s, event: %s @ %010u ",
+		USBH_UsrLog ("- s: %s, e: %s @ %08u ",
 				state_string[s], event_string[e.evt], (unsigned int)e.timestamp);
 	}
 	else
@@ -776,7 +774,6 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     {
       phost->gState  = HOST_CHECK_CLASS;
       USBH_UsrLog ("Default configuration set.");
-      
     }      
     
     break;
