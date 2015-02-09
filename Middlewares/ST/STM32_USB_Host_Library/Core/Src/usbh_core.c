@@ -883,7 +883,9 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 
   case HOST_HAND_SHAKE:
 
-    if (USBH_AOA_Handshake(phost) == USBH_FAIL) {
+    status = USBH_AOA_Handshake(phost);
+
+    if (status == USBH_FAIL || status == USBH_NOT_SUPPORTED) {
       phost->gState  = HOST_ABORT_STATE;
       USBH_UsrLog ("Handshake fail, abort.");
     }

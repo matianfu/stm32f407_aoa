@@ -130,6 +130,8 @@ void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description,
  */
 USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
 {
+  USBH_StatusTypeDef status;
+
   switch (ADK_Machine.initstate)
   {
   case ADK_INIT_SETUP:
@@ -138,18 +140,26 @@ USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
     break;
 
   case ADK_INIT_GET_PROTOCOL:
-    if (USBH_AOA_GetProtocol(phost) == USBH_OK)
+    status = USBH_AOA_GetProtocol(phost);
+    if (status == USBH_OK)
     {
       if (ADK_Machine.protocol >= 1)
       {
         ADK_Machine.initstate = ADK_INIT_SEND_MANUFACTURER;
-        USBH_UsrLog("AOA: protocol version %d", ADK_Machine.protocol);
+        USBH_UsrLog("AOA: protocol version %d.", ADK_Machine.protocol);
       }
       else
       {
         ADK_Machine.initstate = ADK_INIT_FAILED;
-        USBH_UsrLog("AOA: could not read device protocol version");
+        USBH_UsrLog("AOA: could not read device protocol version.");
       }
+    }
+    else if (status == USBH_BUSY) {
+      // wait
+    }
+    else {
+      USBH_UsrLog("AOA: get protocol command failed.")
+      return USBH_FAIL;
     }
     break;
 
