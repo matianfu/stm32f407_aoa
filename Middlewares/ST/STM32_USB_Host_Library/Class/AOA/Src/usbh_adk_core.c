@@ -155,7 +155,7 @@ static USBH_StatusTypeDef USBH_ADK_InterfaceInit ( USBH_HandleTypeDef *phost)
 
 ////		phost->pActiveClass->pData = &ADK_Machine;
 		USBH_SelectInterface (phost, interface);
-		printf("> USB_ADK_Init\r\n");
+		USBH_UsrLog(" aoa: interface claimed.");
 	}
 	return status ;
 }
@@ -174,7 +174,7 @@ USBH_StatusTypeDef USBH_ADK_InterfaceDeInit ( USBH_HandleTypeDef *phost)
    	USBH_StatusTypeDef status = USBH_OK; //USBH_OK ;
 	ADK_Machine.initstate = ADK_INIT_SETUP;
 
-	printf("> USB_ADK_DeInit\r\n");
+	("> USB_ADK_DeInit\r\n");
 //	pdev->host.URB_State[ADK_Machine.hc_num_in] =   URB_IDLE;
 	/* Switch to accessory mode,  Re-enumeration */
 	if(ADK_Machine.state == ADK_INITIALIZING)
@@ -302,12 +302,12 @@ static USBH_StatusTypeDef USBH_ADK_ClassRequest(USBH_HandleTypeDef *phost)
 			}
 			break;
 	  case ADK_INIT_SEND_SERIAL:
-		    // adk_switching = 1;
+
 			if( USBH_ADK_sendString ( phost, ACCESSORY_STRING_SERIAL, (uint8_t*)ADK_Machine.acc_serial)== USBH_OK ){
 				ADK_Machine.initstate = ADK_INIT_SWITCHING;
-#ifdef DEBUG
+
 					printf("ADK:SEND_SERIAL\r\n");
-#endif
+
 			}
 			break;
 	  case ADK_INIT_SWITCHING:
@@ -521,7 +521,7 @@ static USBH_StatusTypeDef USBH_ADK_configAndroid ( USBH_HandleTypeDef *phost)
 
     USBH_OpenPipe  (phost,
                         ADK_Machine.hc_num_out,
-						ADK_Machine.BulkOutEp,		   //��Ҫ�鿴
+						ADK_Machine.BulkOutEp,
                         pphost->device.address,
                         pphost->device.speed,
                         EP_TYPE_BULK,
@@ -529,7 +529,7 @@ static USBH_StatusTypeDef USBH_ADK_configAndroid ( USBH_HandleTypeDef *phost)
 
     USBH_OpenPipe  (phost,
                         ADK_Machine.hc_num_in,
-						ADK_Machine.BulkInEp,         //��Ҫ�鿴
+						ADK_Machine.BulkInEp,
                         pphost->device.address,
                         pphost->device.speed,
                         EP_TYPE_BULK,

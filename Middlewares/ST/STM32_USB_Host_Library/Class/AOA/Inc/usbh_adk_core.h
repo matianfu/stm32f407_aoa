@@ -45,31 +45,35 @@
 #define USB_ACCESSORY_AUDIO_PRODUCT_ID     	0x2D04
 #define USB_ACCESSORY_AUDIO_ADB_PRODUCT_ID 	0x2D05
 
-#define ACCESSORY_STRING_MANUFACTURER   0
-#define ACCESSORY_STRING_MODEL          1
-#define ACCESSORY_STRING_DESCRIPTION    2
-#define ACCESSORY_STRING_VERSION        3
-#define ACCESSORY_STRING_URI            4
-#define ACCESSORY_STRING_SERIAL         5
+#define ACCESSORY_STRING_MANUFACTURER   	0
+#define ACCESSORY_STRING_MODEL          	1
+#define ACCESSORY_STRING_DESCRIPTION    	2
+#define ACCESSORY_STRING_VERSION        	3
+#define ACCESSORY_STRING_URI            	4
+#define ACCESSORY_STRING_SERIAL         	5
 
 //AOA 1.0
-#define ACCESSORY_GET_PROTOCOL          51
-#define ACCESSORY_SEND_STRING           52
-#define ACCESSORY_START                 53
+#define ACCESSORY_GET_PROTOCOL          	51
+#define ACCESSORY_SEND_STRING           	52
+#define ACCESSORY_START                 	53
 
 //AOA 2.0
-#define ACCESSORY_REGISTER_HID          54
-#define ACCESSORY_UNREGISTER_HID        55
-#define ACCESSORY_SET_HID_REPORT_DESC   56
-#define ACCESSORY_SEND_HID_EVENT        57
-#define ACCESSORY_SET_AUDIO_MODE        58
+#define ACCESSORY_REGISTER_HID          	54
+#define ACCESSORY_UNREGISTER_HID        	55
+#define ACCESSORY_SET_HID_REPORT_DESC   	56
+#define ACCESSORY_SEND_HID_EVENT        	57
+#define ACCESSORY_SET_AUDIO_MODE        	58
 
-#define USBH_ADK_DATA_SIZE				64
-#define USBH_ADK_NAK_RETRY_LIMIT 		1
+#define USBH_ADK_DATA_SIZE					64
+#define USBH_ADK_NAK_RETRY_LIMIT 			1
 
 //added by fan
-#define USB_ADK_CLASS                   0xff
-#define AOA_CODE						0XFF    
+
+/*
+ * This is interface class
+ */
+#define USB_ADK_CLASS                   	0xff
+#define AOA_CODE							0XFF
 /**
   * @}
   */

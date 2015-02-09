@@ -544,7 +544,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 			/** debouncing **/
 			phost->wait_for_attachment_substate = 0;
 			phost->PollingTimer = HAL_GetTick();
-			USBH_UsrLog ("delay 200ms");
+			USBH_UsrLog ("Delay 200ms before port reset");
 
 //			printf("delay 200ms @ %u\n", (unsigned int)HAL_GetTick());
 //			USBH_Delay(200);
@@ -689,7 +689,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 		  }
 	  }
 	  else {
-		  // waiting for port up event
+		  // TODO waiting for port up event, need timeout mechanism
 	  }
     break;    
     
@@ -783,6 +783,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     if(phost->ClassNumber == 0)
     {
       USBH_UsrLog ("No Class has been registered.");
+      phost->gState = HOST_ABORT_STATE;
     }
     else
     {
@@ -923,10 +924,6 @@ static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
     {
       USBH_UsrLog("PID: %xh", phost->device.DevDesc.idProduct );  
       USBH_UsrLog("VID: %xh", phost->device.DevDesc.idVendor );  
-
-      printf("PID: %xh" NEW_LINE, phost->device.DevDesc.idProduct );
-      printf("VID: %xh" NEW_LINE, phost->device.DevDesc.idVendor );
-
       
       phost->EnumState = ENUM_SET_ADDR;
        
@@ -1106,7 +1103,7 @@ void  USBH_HandleSof  (USBH_HandleTypeDef *phost)
 USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 {
 	USBH_LL_EventTypeDef e;
-
+// TODO move to main thread
 //  if(phost->gState == HOST_IDLE )
 //  {
 	phost->device.is_connected = 1;

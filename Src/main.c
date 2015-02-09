@@ -87,8 +87,9 @@ int main(void)
   MX_UART4_Init();
   MX_USART2_UART_Init();
 
-  static char hello[] = "hello world aoa!" NEW_LINE;
-  HAL_UART_Transmit_DMA(&huart2, hello, strlen(hello));
+  static char hello[] = NEW_LINE NEW_LINE NEW_LINE "================ System Starts ================" NEW_LINE NEW_LINE;
+  // HAL_UART_Transmit_DMA(&huart2, hello, strlen(hello));
+  printf("%s", hello);
   HAL_Delay(100);
 
   MX_USART3_UART_Init();
