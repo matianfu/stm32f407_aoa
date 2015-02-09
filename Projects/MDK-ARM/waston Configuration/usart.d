@@ -28,3 +28,4 @@ waston Configuration\usart.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_h
 waston Configuration\usart.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h
 waston Configuration\usart.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h
 waston Configuration\usart.o: ..\..\Inc\gpio.h
+waston Configuration\usart.o: ..\..\Inc\dma.h

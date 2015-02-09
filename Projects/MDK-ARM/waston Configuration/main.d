@@ -1,4 +1,5 @@
 waston Configuration\main.o: ..\..\Src\main.c
+waston Configuration\main.o: C:\Keil\ARM\RV31\Inc\stdio.h
 waston Configuration\main.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h
 waston Configuration\main.o: ..\..\Inc\stm32f4xx_hal_conf.h
 waston Configuration\main.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h
@@ -26,6 +27,7 @@ waston Configuration\main.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ha
 waston Configuration\main.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h
 waston Configuration\main.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h
 waston Configuration\main.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h
+waston Configuration\main.o: ..\..\Inc\dma.h
 waston Configuration\main.o: ..\..\Inc\usart.h
 waston Configuration\main.o: ..\..\Inc\usb_host.h
 waston Configuration\main.o: ..\..\Inc\gpio.h

@@ -346,7 +346,7 @@
               <MiscControls>--C99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Inc;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc;..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc;..\..\Middlewares\ST\STM32_USB_Host_Library\Class\MSC\Inc;..\..\Drivers\CMSIS\Include;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include</IncludePath>
+              <IncludePath>..\..\Inc;..\..\Drivers\STM32F4xx_HAL_Driver\Inc;..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc;..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc;..\..\Middlewares\ST\STM32_USB_Host_Library\Class\MSC\Inc;..\..\Drivers\CMSIS\Include;..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -425,6 +425,16 @@
               <FileName>usbh_conf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Src\usbh_conf.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart_printf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\uart_printf.c</FilePath>
+            </File>
+            <File>
+              <FileName>dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Src\dma.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -575,6 +585,11 @@
               <FileName>usbh_pipes.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_pipes.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbh_adk_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c</FilePath>
             </File>
           </Files>
         </Group>

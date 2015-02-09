@@ -46,3 +46,4 @@ waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Cla
 waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h
 waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h
 waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h
+waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Inc\usbh_adk_core.h

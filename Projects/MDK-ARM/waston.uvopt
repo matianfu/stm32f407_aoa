@@ -230,10 +230,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>14</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>163</TopLine>
+      <CurrentLine>186</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\Src\usart.c</PathWithFileName>
       <FilenameWithoutPath>usart.c</FilenameWithoutPath>
@@ -265,6 +265,34 @@
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\Src\usbh_conf.c</PathWithFileName>
       <FilenameWithoutPath>usbh_conf.c</FilenameWithoutPath>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>0</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>43</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>81</TopLine>
+      <CurrentLine>104</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\Src\uart_printf.c</PathWithFileName>
+      <FilenameWithoutPath>uart_printf.c</FilenameWithoutPath>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>0</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\Src\dma.c</PathWithFileName>
+      <FilenameWithoutPath>dma.c</FilenameWithoutPath>
     </File>
   </Group>
 
@@ -508,7 +536,7 @@
 
   <Group>
     <GroupName>Middlewares/USB_Host_Library</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <File>
@@ -664,6 +692,20 @@
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_pipes.c</PathWithFileName>
       <FilenameWithoutPath>usbh_pipes.c</FilenameWithoutPath>
+    </File>
+    <File>
+      <GroupNumber>5</GroupNumber>
+      <FileNumber>0</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>0</TopLine>
+      <CurrentLine>0</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c</PathWithFileName>
+      <FilenameWithoutPath>usbh_adk_core.c</FilenameWithoutPath>
     </File>
   </Group>
 
