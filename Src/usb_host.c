@@ -81,7 +81,7 @@ void MX_USB_HOST_Init(void)
 	  * @retval None
 	  */
 	USBH_ADK_Init("Actnova",
-				  "Modle T",
+				  "Model T",
 				  "HID barcode scanner adapter",
 				  "1.0.0",
 				  "http://www.actnova.com/aoa.apk",
@@ -90,7 +90,7 @@ void MX_USB_HOST_Init(void)
   /* Init Host Library,Add Supported Class and Start the library*/
   USBH_Init(&hUsbHostHS, USBH_UserProcess1, HOST_HS);
 
-  // USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS);
+  USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS);
   USBH_RegisterClass(&hUsbHostHS, USBH_AOA_CLASS);
 
   USBH_Start(&hUsbHostHS);

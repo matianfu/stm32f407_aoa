@@ -109,6 +109,7 @@ static void USBH_LogSE(HOST_StateTypeDef s, USBH_LL_EventTypeDef e) {
 		"HOST_INPUT",
 		"HOST_SET_CONFIGURATION",
 		"HOST_CHECK_CLASS",
+		"HOST_HAND_SHAKE",
 		"HOST_CLASS",
 		"HOST_SUSPENDED",
 		"HOST_ABORT_STATE"
@@ -126,6 +127,59 @@ static void USBH_LogSE(HOST_StateTypeDef s, USBH_LL_EventTypeDef e) {
 	{
 		USBH_UsrLog ("!!!! illegal state or event, state: %d, event: %d @ %010u", s, e.evt, (unsigned int)e.timestamp);
 	}
+}
+
+static void USBH_Print_Descriptor(USBH_HandleTypeDef *phost)
+{
+	int i;
+
+	USBH_DevDescTypeDef* devdesc = &phost->device.DevDesc;
+	USBH_CfgDescTypeDef* cfgdesc = &phost->device.CfgDesc;
+	USBH_InterfaceDescTypeDef* itfdesc;
+	int bNumInterfaces =  cfgdesc->bNumInterfaces;
+
+	USBH_UsrLog("Device Descriptor:");
+	USBH_UsrLog("  bLength:            %d", 	devdesc->bLength);
+	USBH_UsrLog("  bDescriptionType:   %d", 	devdesc->bDescriptorType);
+	USBH_UsrLog("  bcdUSB:             0x%04x", devdesc->bcdUSB);
+	USBH_UsrLog("  bDeviceClass:       %d", 	devdesc->bDeviceClass);
+	USBH_UsrLog("  bDeviceSubClass:    %d", 	devdesc->bDeviceSubClass);
+	USBH_UsrLog("  bDeviceProtocol:    %d", 	devdesc->bDeviceProtocol);
+	USBH_UsrLog("  bMaxPacketSize:     %d", 	devdesc->bMaxPacketSize);
+	USBH_UsrLog("  idVendor:           0x%04x", devdesc->idVendor);
+	USBH_UsrLog("  idProduct:          0x%04x", devdesc->idProduct);
+	USBH_UsrLog("  bcdDevice:          0x%04x", devdesc->bcdDevice);
+	USBH_UsrLog("  iManufacturer:      %d", 	devdesc->iManufacturer);
+	USBH_UsrLog("  iProduct:           %d", 	devdesc->iProduct);
+	USBH_UsrLog("  iSerial:            %d", 	devdesc->iSerialNumber);
+	USBH_UsrLog("  bNumConfigurations: %d", 	devdesc->bNumConfigurations);
+
+	USBH_UsrLog("  Configuration Descriptor:");
+	USBH_UsrLog("    bLength:          %d",		cfgdesc->bLength);
+	USBH_UsrLog("    bDescriptorType:  %d",     cfgdesc->bDescriptorType);
+	USBH_UsrLog("    wTotalLength:     %d",	    cfgdesc->wTotalLength);
+	USBH_UsrLog("    bNumInterfaces:   %d",     cfgdesc->bNumInterfaces);
+	USBH_UsrLog("    bConfiguration:   %d",		cfgdesc->bConfigurationValue);
+	USBH_UsrLog("    iConfiguration:   %d",     cfgdesc->iConfiguration);
+	USBH_UsrLog("    bmAttributes:     0x%04x", cfgdesc->bmAttributes);
+	USBH_UsrLog("    bMaxPower:        %d",     cfgdesc->bMaxPower);
+
+for (i = 0; i < bNumInterfaces; i++) {
+	itfdesc = &cfgdesc->Itf_Desc[i];
+
+	USBH_UsrLog("    Interface Descriptor:");
+	USBH_UsrLog("      bLength:                %d",		itfdesc->bLength);
+	USBH_UsrLog("      bDescriptionType:       %d",		itfdesc->bDescriptorType);
+	USBH_UsrLog("      bInterfaceNumber:       %d",		itfdesc->bInterfaceNumber);
+	USBH_UsrLog("      bAlternateSetting:      %d", 	itfdesc->bAlternateSetting);
+	USBH_UsrLog("      bNumEndpoints:          %d", 	itfdesc->bNumEndpoints);
+	USBH_UsrLog("      bInterfaceClass:        %d", 	itfdesc->bInterfaceClass);
+	USBH_UsrLog("      bInterfaceSubClass:     %d", 	itfdesc->bInterfaceSubClass);
+	USBH_UsrLog("      bInterfaceProtocol:     %d", 	itfdesc->bInterfaceProtocol);
+	USBH_UsrLog("      iInterface:             %d", 	itfdesc->iInterface);
+}
+
+
 }
 
 
@@ -544,13 +598,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 			/** debouncing **/
 			phost->wait_for_attachment_substate = 0;
 			phost->PollingTimer = HAL_GetTick();
-			USBH_UsrLog ("Delay 200ms before port reset");
-
-//			printf("delay 200ms @ %u\n", (unsigned int)HAL_GetTick());
-//			USBH_Delay(200);
-//			printf("reset port @ %u\n", (unsigned int)HAL_GetTick());
-//			USBH_LL_ResetPort(phost);
-//			printf("reset port done @ %u\n", (unsigned int)HAL_GetTick());
+			USBH_UsrLog ("Delay 100ms before port reset");
 		}
 		else
 
@@ -642,6 +690,8 @@ ILLEGAL_STATE:
 	return USBH_OK;
 }
 
+extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
+
 /**
   * @brief  USBH_Process 
   *         Background process of the USB Core.
@@ -651,29 +701,18 @@ ILLEGAL_STATE:
 USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 {
   __IO USBH_StatusTypeDef status = USBH_FAIL;
-  uint8_t idx = 0;
+  uint8_t idx = 0, j;
 
   switch (phost->gState)
   {
   case HOST_IDLE :
-    
-//    if (phost->device.is_connected)
-//    {
-//      /* Wait for 200 ms after connection */
-//      phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
-//      USBH_Delay(200);
-//      USBH_LL_ResetPort(phost);
-//#if (USBH_USE_OS == 1)
-//      osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
-//#endif
-//    }
     break;
     
   case HOST_DEV_WAIT_FOR_ATTACHMENT:
 
 	  if (phost->wait_for_attachment_substate == 0) {	/** Debouncing **/
 
-		  if (HAL_GetTick() - phost->PollingTimer > 200) {
+		  if (HAL_GetTick() - phost->PollingTimer > 100) {
 			  phost->wait_for_attachment_substate = 1;	/** switching substate **/
 			  phost->PollingTimer = HAL_GetTick();
 			  USBH_LL_ResetAssert(phost);
@@ -738,6 +777,9 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     { 
       /* The function shall return USBH_OK when full enumeration is complete */
       USBH_UsrLog ("Enumeration done.");
+
+      USBH_Print_Descriptor(phost);
+
       phost->device.current_interface = 0;
       if(phost->device.DevDesc.bNumConfigurations == 1)
       {
@@ -772,29 +814,41 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     /* set configuration */
     if (USBH_SetCfg(phost, phost->device.CfgDesc.bConfigurationValue) == USBH_OK)
     {
-      phost->gState  = HOST_CHECK_CLASS;
       USBH_UsrLog ("Default configuration set.");
-    }      
-    
+
+      if (phost->ClassNumber == 0) {
+
+    	USBH_UsrLog ("No Class has been registered.");
+    	phost->gState = HOST_ABORT_STATE;
+      }
+      else {
+
+    	USBH_UsrLog ("Checking class.")
+    	phost->gState  = HOST_CHECK_CLASS;
+    	phost->pActiveClass = NULL;
+      }
+    }
     break;
     
   case HOST_CHECK_CLASS:
-    
-    if(phost->ClassNumber == 0)
-    {
-      USBH_UsrLog ("No Class has been registered.");
-      phost->gState = HOST_ABORT_STATE;
-    }
-    else
-    {
-      phost->pActiveClass = NULL;
       
-      for (idx = 0; idx < USBH_MAX_NUM_SUPPORTED_CLASS ; idx ++)
+      // for (idx = 0; idx < USBH_MAX_NUM_SUPPORTED_CLASS ; idx ++)
+      for (idx = 0; idx < phost->ClassNumber; idx ++)
       {
-        if(phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[0].bInterfaceClass)
-        {
-          phost->pActiveClass = phost->pClass[idx];
-        }
+    	// search all interfaces, not only interface 0
+    	for (j = 0; j < phost->device.CfgDesc.bNumInterfaces; j++) {
+
+    		if (phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[j].bInterfaceClass)
+    		{
+    			phost->pActiveClass = phost->pClass[idx];
+    			USBH_UsrLog("Registered %s class with code 0x%02x matches interface #%d",
+    			    phost->pClass[idx]->Name, phost->pClass[idx]->ClassCode, j);
+    			break;
+    		}
+    	}
+
+    	if (phost->pActiveClass != NULL)
+    		break;
       }
       
       if(phost->pActiveClass != NULL)
@@ -809,25 +863,36 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
         }
         else
         {
-          phost->gState  = HOST_ABORT_STATE;
-          USBH_UsrLog ("Device not supporting %s class.", phost->pActiveClass->Name);
+          phost->gState  = HOST_HAND_SHAKE;
+          USBH_UsrLog ("Device not supporting %s class, try handshake", phost->pActiveClass->Name);
         }
       }
       else
       {
-        phost->gState  = HOST_ABORT_STATE;
-        USBH_UsrLog ("No registered class for this device.");
+    	/** switch to abort state **/
+        // phost->gState  = HOST_ABORT_STATE;
+        // USBH_UsrLog ("No registered class for this device.");
+        phost->gState = HOST_HAND_SHAKE;
+        USBH_UsrLog("No registered class for this device, try handshake.");
       }
-    }
     
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_STATE_CHANGED_EVENT, 0);
 #endif 
-    break;    
+    break;
+
+  case HOST_HAND_SHAKE:
+
+    if (USBH_AOA_Handshake(phost) == USBH_FAIL) {
+      phost->gState  = HOST_ABORT_STATE;
+      USBH_UsrLog ("Handshake fail, abort.");
+    }
+
+    break;
     
   case HOST_CLASS_REQUEST:  
-    /* process class standard contol requests state machine */ 
-    
+
+    /* process class standard control requests state machine */
     if(phost->pActiveClass != NULL)
     {
       status = phost->pActiveClass->Requests(phost);
