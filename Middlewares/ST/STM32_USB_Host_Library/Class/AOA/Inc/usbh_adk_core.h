@@ -1,28 +1,28 @@
 /**
-  ******************************************************************************
-  * @file    usbh_adk_core.h
-  * @author  Yuuichi Akagawa
-  * @version V1.0.0
-  * @date    2012/01/22
-  * @brief   This file contains all the prototypes for the usbh_adk_core.c
-  ******************************************************************************
-  * @attention
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  *      http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  * <h2><center>&copy; COPYRIGHT (C)2012 Yuuichi Akagawa</center></h2>
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    usbh_adk_core.h
+ * @author  Yuuichi Akagawa
+ * @version V1.0.0
+ * @date    2012/01/22
+ * @brief   This file contains all the prototypes for the usbh_adk_core.c
+ ******************************************************************************
+ * @attention
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * <h2><center>&copy; COPYRIGHT (C)2012 Yuuichi Akagawa</center></h2>
+ *
+ ******************************************************************************
+ */
 
 /* Define to prevent recursive  ----------------------------------------------*/
 #ifndef USBH_ADK_CORE_H_
@@ -33,8 +33,8 @@
 #include "usbh_conf.h"
 
 /** @defgroup USBH_ADK_CORE_Exported_Defines
-  * @{
-  */
+ * @{
+ */
 //AOA 1.0
 #define USB_ACCESSORY_VENDOR_ID         	0x18D1
 #define USB_ACCESSORY_PRODUCT_ID        	0x2D00
@@ -75,13 +75,13 @@
 #define USB_ADK_CLASS                   	0xff
 #define AOA_CODE							0XFF
 /**
-  * @}
-  */
+ * @}
+ */
 /** @defgroup USBH_ADK_CORE_Exported_Types
-  * @{
-  */
+ * @{
+ */
 
-extern USBH_ClassTypeDef  USBH_ADK_cb;
+extern USBH_ClassTypeDef USBH_ADK_cb;
 #define USBH_AOA_CLASS        &USBH_ADK_cb
 
 /* States for ADK Initialize State Machine */
@@ -105,54 +105,56 @@ typedef enum
 /* States for ADK State Machine */
 typedef enum
 {
-  ADK_IDLE= 0,
+  ADK_IDLE = 0,
   ADK_SEND_DATA,
   ADK_BUSY,
   ADK_GET_DATA,
   ADK_INITIALIZING,
   ADK_ERROR,
-}
-ADK_State;
+} ADK_State;
 
 /* Structure for ADK process */
 typedef struct _ADK_Process
 {
-  uint16_t             pid;
-  uint8_t              hc_num_in;
-  uint8_t              hc_num_out;
-  uint8_t              BulkOutEp;
-  uint8_t              BulkInEp;
-  uint16_t             BulkInEpSize;
-  uint16_t             BulkOutEpSize;
-  uint8_t              inbuff[USBH_ADK_DATA_SIZE];
-  uint8_t              outbuff[USBH_ADK_DATA_SIZE];
-  uint16_t			   inSize;
-  uint16_t			   outSize;
-  ADK_InitState		   initstate;
-  ADK_State            state;
-  uint8_t			   acc_manufacturer[64];
-  uint8_t			   acc_model[64];
-  uint8_t			   acc_description[64];
-  uint8_t			   acc_version[64];
-  uint8_t			   acc_uri[64];
-  uint8_t			   acc_serial[64];
-  uint16_t			   protocol;
-}
-ADK_Machine_TypeDef;
+  uint16_t pid;
+  uint8_t hc_num_in;
+  uint8_t hc_num_out;
+  uint8_t BulkOutEp;
+  uint8_t BulkInEp;
+  uint16_t BulkInEpSize;
+  uint16_t BulkOutEpSize;
+  uint8_t inbuff[USBH_ADK_DATA_SIZE];
+  uint8_t outbuff[USBH_ADK_DATA_SIZE];
+  uint16_t inSize;
+  uint16_t outSize;
+  ADK_InitState initstate;
+  ADK_State state;
+  uint8_t acc_manufacturer[64];
+  uint8_t acc_model[64];
+  uint8_t acc_description[64];
+  uint8_t acc_version[64];
+  uint8_t acc_uri[64];
+  uint8_t acc_serial[64];
+  uint16_t protocol;
+
+  uint32_t polling_timer;
+} ADK_Machine_TypeDef;
 /**
-  * @}
-  */
+ * @}
+ */
 
 /** @defgroup USBH_ADK_CORE_Exported_FunctionsPrototype
-  * @{
-  */
-void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description, uint8_t* version, uint8_t* uri, uint8_t* serial);
-USBH_StatusTypeDef USBH_ADK_write(USBH_HandleTypeDef *phost, uint8_t *buff, uint16_t len);
+ * @{
+ */
+void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description,
+    uint8_t* version, uint8_t* uri, uint8_t* serial);
+USBH_StatusTypeDef USBH_ADK_write(USBH_HandleTypeDef *phost, uint8_t *buff,
+    uint16_t len);
 uint16_t USBH_ADK_read(USBH_HandleTypeDef *phost, uint8_t *buff, uint16_t len);
 ADK_State USBH_ADK_getStatus(void);
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #endif /* USBH_ADK_CORE_H_ */

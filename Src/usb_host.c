@@ -81,7 +81,7 @@ void MX_USB_HOST_Init(void)
 	  * @retval None
 	  */
 	USBH_ADK_Init("Actnova",
-				  "Modle T",
+				  "Model T",
 				  "HID barcode scanner adapter",
 				  "1.0.0",
 				  "http://www.actnova.com/aoa.apk",
