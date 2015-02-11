@@ -28,6 +28,7 @@
 /* Includes ------------------------------------------------------------------*/
 
 #include "usbh_core.h"
+#include "time.h"
 
 
 /** @addtogroup USBH_LIB
@@ -597,7 +598,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 
 			/** debouncing **/
 			phost->wait_for_attachment_substate = 0;
-			phost->PollingTimer = HAL_GetTick();
+			phost->PollingTimer = GetTimeCount();
 			USBH_UsrLog ("Delay 100ms before port reset");
 		}
 		else
@@ -712,16 +713,16 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 
 	  if (phost->wait_for_attachment_substate == 0) {	/** Debouncing **/
 
-		  if (HAL_GetTick() - phost->PollingTimer > 100) {
+		  if (GetTimeCount() - phost->PollingTimer > 100) {
 			  phost->wait_for_attachment_substate = 1;	/** switching substate **/
-			  phost->PollingTimer = HAL_GetTick();
+			  phost->PollingTimer = GetTimeCount();
 			  USBH_LL_ResetAssert(phost);
 			  USBH_UsrLog ("Assert USB port reset");
 		  }
 	  }
 	  else if (phost->wait_for_attachment_substate == 1) /** resetting **/
 	  {
-		  if (HAL_GetTick() - phost->PollingTimer > 12) {	/** 10 - 20ms conforming to standard **/
+		  if (GetTimeCount() - phost->PollingTimer > 12) {	/** 10 - 20ms conforming to standard **/
 			  USBH_LL_ResetDeassert(phost);
 			  USBH_UsrLog ("Deassert USB port reset");
 			  phost->wait_for_attachment_substate = 2;
@@ -1191,7 +1192,7 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 //#endif
 
 	e.evt = USBH_LL_EVT_CONNECT;
-	e.timestamp = HAL_GetTick();
+	e.timestamp = GetTimeCount();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }
@@ -1200,7 +1201,7 @@ USBH_StatusTypeDef USBH_LL_PortUp (USBH_HandleTypeDef *phost)
 {
 	USBH_LL_EventTypeDef e;
 	e.evt = USBH_LL_EVT_PORTUP;
-	e.timestamp = HAL_GetTick();
+	e.timestamp = GetTimeCount();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }
@@ -1240,7 +1241,7 @@ USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
 
 	USBH_LL_EventTypeDef e;
 	e.evt = USBH_LL_EVT_DISCONNECT;
-	e.timestamp = HAL_GetTick();
+	e.timestamp = GetTimeCount();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }
@@ -1249,7 +1250,7 @@ USBH_StatusTypeDef USBH_LL_PortDown (USBH_HandleTypeDef *phost)
 {
 	USBH_LL_EventTypeDef e;
 	e.evt = USBH_LL_EVT_PORTDOWN;
-	e.timestamp = HAL_GetTick();
+	e.timestamp = GetTimeCount();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }

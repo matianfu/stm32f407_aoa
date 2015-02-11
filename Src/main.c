@@ -39,6 +39,7 @@
 #include "usart.h"
 #include "usb_host.h"
 #include "gpio.h"
+#include "time.h"
 
 
 /* Private variables ---------------------------------------------------------*/
@@ -86,7 +87,6 @@ int main(void)
   MX_DMA_Init();
   MX_UART4_Init();
   MX_USART2_UART_Init();
-
   static char hello[] = NEW_LINE NEW_LINE NEW_LINE "================ System Starts ================" NEW_LINE NEW_LINE;
   // HAL_UART_Transmit_DMA(&huart2, hello, strlen(hello));
   printf("%s", hello);
@@ -94,6 +94,9 @@ int main(void)
 
   MX_USART3_UART_Init();
   MX_USB_HOST_Init();
+    time_init();
+  StartTimeCount();
+
 
   /* USER CODE BEGIN 2 */
 
