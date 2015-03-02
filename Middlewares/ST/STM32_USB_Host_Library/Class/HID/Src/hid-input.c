@@ -173,6 +173,9 @@ static const unsigned char hid_keyboard[256] = {
 	150,158,159,128,136,177,178,176,142,152,173,140,unk,unk,unk,unk
 };
 
+/*
+ * This string array is used for debug/print.
+ */
 static const char* event_type_str[] = {
   "EV_SYN",               // 0x00
   "EV_KEY",               // 0x01
@@ -200,6 +203,9 @@ static const char* event_type_str[] = {
   "EV_MAX",               // 0x1f
 };
 
+/*
+ * This string array is used for debug/print.
+ */
 static const char* keycode_str[256] = {
 
 "KEY_RESERVED",             // #define KEY_RESERVED         0
@@ -462,8 +468,9 @@ static const char* keycode_str[256] = {
 "UNDEFINED",                //                              255
 };
 
-
-
+/*
+ * This is for debugging only
+ */
 void input_event (  struct input_dev * dev, unsigned int type, unsigned int code, int value) {
 
   static int lctrl = 0;
@@ -941,12 +948,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
 
   field->hidinput = hidinput;
 
-  if (field->flags & HID_MAIN_ITEM_CONSTANT)
+  if (field->flags & HID_MAIN_ITEM_CONSTANT) {
     goto ignore;
+  }
 
   /* Ignore if report count is out of bounds. */
-  if (field->report_count < 1)
+  if (field->report_count < 1) {
     goto ignore;
+  }
+
 
   /* only LED usages are supported in output fields */
   if (field->report_type == HID_OUTPUT_REPORT
@@ -976,8 +986,6 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
     goto ignore;
 
   case HID_UP_KEYBOARD:
-    USBH_UsrLog("HID_UP_KEYBOARD");
-    USBH_UsrLog("usage code: %d", usage->code);
     set_bit(EV_REP, input->evbit);
 
     if ((usage->hid & HID_USAGE) < 256)
@@ -994,7 +1002,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
     else
       map_key(KEY_UNKNOWN);
 
-    USBH_UsrLog("usage code: %d", usage->code);
+    USBH_UsrLog("        HID_UP_KEYBOARD usage type: %d, code: %d", usage->type, usage->code);
     break;
 
   case HID_UP_BUTTON:
@@ -1898,15 +1906,17 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct 
 	struct input_dev *input;
 	// unsigned *quirks = &hid->quirks;
 
-	// USBH_UsrLog("      %s: usage code: %d", __func__, usage->code);
+	USBH_UsrLog("      %s: usage code: %d, type: %d", __func__, usage->code, usage->type);
 
-	if (!field->hidinput)
+	if (!field->hidinput) {
 		return;
+	}
 
 	input = field->hidinput->input;
 
-	if (!usage->type)
+	if (!usage->type) {
 		return;
+	}
 
 	if (usage->hat_min < usage->hat_max || usage->hat_dir) {
 		int hat_dir = usage->hat_dir;
@@ -1950,8 +1960,9 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct 
 		return;
 	}
 
-	if ((usage->type == EV_KEY) && (usage->code == 0)) /* Key 0 is "unassigned", not KEY_UNKNOWN */
+	if ((usage->type == EV_KEY) && (usage->code == 0)) /* Key 0 is "unassigned", not KEY_UNKNOWN */ {
 		return;
+	}
 
 	if ((usage->type == EV_ABS) && (field->flags & HID_MAIN_ITEM_RELATIVE) &&
 			(usage->code == ABS_VOLUME)) {
@@ -2344,11 +2355,12 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 			}
 
 			for (i = 0; i < report->maxfield; i++) {
-
-			  USBH_UsrLog("  field: %d", i);
-
+			  USBH_UsrLog("  field id : %d", i);
 				for (j = 0; j < report->field[i]->maxusage; j++) {
-				    USBH_UsrLog("    usage: %d", j);
+				    USBH_UsrLog("    hid usage id: %d", j);
+				    if (i == 1 && j < 4 ) {
+				      USBH_UsrLog(" stop here.");
+				    }
 					hidinput_configure_usage(hidinput, report->field[i], report->field[i]->usage + j);
 				}
 			}

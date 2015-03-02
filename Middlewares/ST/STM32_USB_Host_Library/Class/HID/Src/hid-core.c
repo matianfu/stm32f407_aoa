@@ -1532,6 +1532,7 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
     {
 
       USBH_UsrLog("    new value[%d] (%d) not found in old field->value", n, (int)value[n]);
+
       hid_process_event(hid, field, &field->usage[value[n] - min], 1,
           interrupt);
     }
