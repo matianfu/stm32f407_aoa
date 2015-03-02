@@ -48,14 +48,17 @@
 /** @defgroup USBH_CORE_Private_Defines
   * @{
   */ 
-#define USBH_ADDRESS_DEFAULT                     0
-#define USBH_ADDRESS_ASSIGNED                    1      
-#define USBH_MPS_DEFAULT                         0x40
+#define USBH_ADDRESS_DEFAULT                    0
+#define USBH_ADDRESS_ASSIGNED                   1
+#define USBH_MPS_DEFAULT                        0x40
 
 #define USBH_ILLEGAL_SE(s, e)					printf(NEW_LINE); 												\
 												printf("USBH ILLEGAL state/event combination encountered. "); 	\
 												USBH_LogSE(s, e); 												\
 												printf(NEW_LINE);
+
+#define USBH_DEBOUNCE_DELAY                     1
+#define USBH_ATTACH_DELAY                       1
 
 /**
   * @}
@@ -598,7 +601,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 			/** debouncing **/
 			phost->wait_for_attachment_substate = 0;
 			phost->PollingTimer = HAL_GetTick();
-			USBH_UsrLog ("Delay 100ms before port reset");
+			USBH_UsrLog ("Debounce delay %dms before port reset", USBH_DEBOUNCE_DELAY);
 		}
 		else
 
@@ -712,7 +715,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 
 	  if (phost->wait_for_attachment_substate == 0) {	/** Debouncing **/
 
-		  if (HAL_GetTick() - phost->PollingTimer > 100) {
+		  if (HAL_GetTick() - phost->PollingTimer > USBH_DEBOUNCE_DELAY) {
 			  phost->wait_for_attachment_substate = 1;	/** switching substate **/
 			  phost->PollingTimer = HAL_GetTick();
 			  USBH_LL_ResetAssert(phost);
@@ -736,8 +739,8 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     
     USBH_UsrLog("USB Device Attached");  
       
-    /* Wait for 100 ms after Reset */
-    USBH_Delay(100);
+    /* Wait for some time after Reset */
+    USBH_Delay(USBH_ATTACH_DELAY);
           
     phost->device.speed = USBH_LL_GetSpeed(phost);
     
@@ -864,7 +867,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
         else
         {
           phost->gState  = HOST_HAND_SHAKE;
-          USBH_UsrLog ("Device not supporting %s class, try handshake", phost->pActiveClass->Name);
+          USBH_UsrLog ("Device not supporting %s class, try handshake.", phost->pActiveClass->Name);
         }
       }
       else

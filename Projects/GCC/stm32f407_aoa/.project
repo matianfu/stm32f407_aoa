@@ -545,6 +545,36 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/AOA/Src/usbh_adk_core.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/hid-ids.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/hid-ids.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/hid.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/hid.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/hiddev.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/hiddev.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/input.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/input.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/list.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/list.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/non-atomic.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/non-atomic.h</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid.h</locationURI>
@@ -560,6 +590,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid_mouse.h</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid_nonbootkbd.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid_nonbootkbd.h</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid_parser.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid_parser.h</locationURI>
@@ -568,6 +603,16 @@
 			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid_usage.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/usbh_hid_usage.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/hid-core.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/hid-core.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/hid-input.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/hid-input.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/usbh_hid.c</name>
@@ -583,6 +628,11 @@
 			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/usbh_hid_mouse.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/usbh_hid_mouse.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/usbh_hid_nonbootkbd.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/usbh_hid_nonbootkbd.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Src/usbh_hid_parser.c</name>
