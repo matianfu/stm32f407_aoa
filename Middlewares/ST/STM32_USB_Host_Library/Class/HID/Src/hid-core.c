@@ -1466,8 +1466,7 @@ exit:
  * reporting to the layer).
  */
 
-static void hid_input_field(struct hid_device *hid, struct hid_field *field,
-    uint8_t *data, int interrupt)
+static void hid_input_field(struct hid_device *hid, struct hid_field *field, uint8_t *data, int interrupt)
 {
   unsigned n;
   unsigned count = field->report_count;
@@ -1496,8 +1495,6 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
             snto32(extract(hid, data, offset + n * size, size), size) :
             extract(hid, data, offset + n * size, size);
 
-    // USBH_UsrLog("    value[%d] = %d", n, (int )value[n]);
-
     /* Ignore report if ErrorRollOver */
     if (!(field->flags & HID_MAIN_ITEM_VARIABLE) && value[n] >= min
         && value[n] <= max
@@ -1507,12 +1504,10 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
 
   for (n = 0; n < count; n++)
   {
-
-    // USBH_UsrLog("    count: %d", n);
     if (HID_MAIN_ITEM_VARIABLE & field->flags)
     {
-      // USBH_UsrLog("    HID_MAIN_ITEM_VARIABLE");
-      hid_process_event(hid, field, &field->usage[n], value[n], interrupt);
+      // hid_process_event(hid, field, &field->usage[n], value[n], interrupt);
+      hidinput_hid_event(hid, field, &field->usage[n], value[n]);
       continue;
     }
 
@@ -1523,8 +1518,8 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
     {
 
       USBH_UsrLog("    old field->value[%d] (%d) not found in new value", n, (int)field->value[n]);
-      hid_process_event(hid, field, &field->usage[field->value[n] - min], 0,
-          interrupt);
+      // hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, interrupt);
+      hidinput_hid_event(hid, field, &field->usage[field->value[n] - min], 0);
     }
 
     if (value[n] >= min && value[n] <= max && field->usage[value[n] - min].hid
@@ -1532,14 +1527,13 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field,
     {
 
       USBH_UsrLog("    new value[%d] (%d) not found in old field->value", n, (int)value[n]);
-
-      hid_process_event(hid, field, &field->usage[value[n] - min], 1,
-          interrupt);
+      // hid_process_event(hid, field, &field->usage[value[n] - min], 1, interrupt);
+      hidinput_hid_event(hid, field, &field->usage[value[n] - min], 1);
     }
   }
 
   memcpy(field->value, value, count * sizeof(int32_t));
-  exit:
+exit:
   // kfree(value);
   free(value);
 }
@@ -1658,10 +1652,11 @@ static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
 	return report;
 }
 
-// int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
-//		int interrupt)
-int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size,
-      int interrupt)
+/*
+ * This function is
+ * int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size, int interrupt)
+ */
+int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size, int interrupt)
 {
 	struct hid_report_enum *report_enum = hid->report_enum + type;
 	struct hid_report *report;
@@ -1696,10 +1691,10 @@ int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int si
 		memset(cdata + csize, 0, rsize - csize);
 	}
 
-//  TODO may be problematic, bypass hiddev report event
+//  bypass hiddev report event
 //	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_report_event)
 //		hid->hiddev_report_event(hid, report);
-//  TODO may be problematic, bypass hidraw report event
+//  bypass hidraw report event
 //	if (hid->claimed & HID_CLAIMED_HIDRAW) {
 //		ret = hidraw_report_event(hid, data, size);
 //		if (ret)
@@ -1715,11 +1710,10 @@ int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int si
 //	}
 //
 
-
-	USBH_UsrLog("  report is ready, has %d fields.", (int)report->maxfield);
+//	USBH_UsrLog("  report is ready, has %d fields.", (int)report->maxfield);
     for (a = 0; a < report->maxfield; a++) {
-        USBH_UsrLog( "  field index: %d", a);
-        hid_input_field(hid, report->field[a], cdata, interrupt);
+//  USBH_UsrLog( "  field index: %d", a);
+      hid_input_field(hid, report->field[a], cdata, interrupt);
     }
 
     //  if (hid->claimed & HID_CLAIMED_INPUT)
@@ -1741,17 +1735,19 @@ out:
  * @interrupt: distinguish between interrupt and control transfers
  *
  * This is data entry for lower layers.
+ *
+ * int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int interrupt)
  */
-// int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int interrupt)
-int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size, int interrupt)
+int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size,
+    int interrupt)
 {
-	struct hid_report_enum *report_enum;
+//  struct hid_report_enum *report_enum;
 //	struct hid_driver *hdrv;
-	struct hid_report *report;
-	int ret = 0;
+//  struct hid_report *report;
+  int ret = 0;
 
-	if (!hid)
-		return -ENODEV;
+  if (!hid)
+    return -ENODEV;
 
 //	if (down_trylock(&hid->driver_input_lock))
 //		return -EBUSY;
@@ -1760,39 +1756,38 @@ int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size, 
 //		ret = -ENODEV;
 //		goto unlock;
 //	}
-	report_enum = hid->report_enum + type;
+//  report_enum = hid->report_enum + type;
 //	hdrv = hid->driver;
 
-	if (!size) {
-		dbg_hid("empty report\n");
-		ret = -1;
-		goto unlock;
-	}
+  if (!size)
+  {
+//	dbg_hid("empty report\n");
+    USBH_UsrLog("empty report");
+    ret = -1;
+    goto unlock;
+  }
 
-	/* Avoid unnecessary overhead if debugfs is disabled */
+//  /* Avoid unnecessary overhead if debugfs is disabled */
 //	if (!list_empty(&hid->debug_list))
 //		hid_dump_report(hid, type, data, size);
-
-//  These code are duplicate.
+//  These code are duplicate. They are called in hid_report_raw_event
 //	report = hid_get_report(report_enum, data);
 //
 //	if (!report) {
 //		ret = -1;
 //		goto unlock;
 //	}
-
-//  may be problematic, bypass driver's raw_event handler
+//  bypass driver's raw_event handler
 //	if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
 //		ret = hdrv->raw_event(hid, report, data, size);
 //		if (ret < 0)
 //			goto unlock;
 //	}
+  ret = hid_report_raw_event(hid, type, data, size, interrupt);
 
-	ret = hid_report_raw_event(hid, type, data, size, interrupt);
-
-unlock:
+  unlock:
 //	up(&hid->driver_input_lock);
-	return ret;
+  return ret;
 }
 // EXPORT_SYMBOL_GPL(hid_input_report);
 

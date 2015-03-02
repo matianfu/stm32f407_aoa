@@ -527,10 +527,8 @@ static const struct {
 #define map_key(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_KEY, (c))
 #define map_led(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_LED, (c))
 
-#define map_abs_clear(c)	hid_map_usage_clear(hidinput, usage, &bit, \
-		&max, EV_ABS, (c))
-#define map_key_clear(c)	hid_map_usage_clear(hidinput, usage, &bit, \
-		&max, EV_KEY, (c))
+#define map_abs_clear(c)	hid_map_usage_clear(hidinput, usage, &bit, &max, EV_ABS, (c))
+#define map_key_clear(c)	hid_map_usage_clear(hidinput, usage, &bit, &max, EV_KEY, (c))
 
 #if 0
 
@@ -1899,7 +1897,9 @@ mapped:
 
 }
 
-
+/*
+ *
+ */
 // void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value)
 void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, int32_t value)
 {
