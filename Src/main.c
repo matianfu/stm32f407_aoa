@@ -33,6 +33,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
 #include <stdio.h>
 #include "stm32f4xx_hal.h"
 #include "dma.h"
@@ -56,9 +57,11 @@ void MX_USB_HOST_Process(void);
 extern void initialise_monitor_handles(void);
 #endif
 
+static uint8_t* test_malloc;
 
 int main(void)
 {
+  int size = 0;
 
   /* USER CODE BEGIN 1 */
 #ifdef SEMIHOSTING
@@ -73,6 +76,9 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+
+  size = sizeof(long);
+  test_malloc = (uint8_t*)malloc(16);
 
   /* Configure the system clock */
   SystemClock_Config();

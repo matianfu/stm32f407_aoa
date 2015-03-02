@@ -49,14 +49,17 @@
 /** @defgroup USBH_CORE_Private_Defines
   * @{
   */ 
-#define USBH_ADDRESS_DEFAULT                     0
-#define USBH_ADDRESS_ASSIGNED                    1      
-#define USBH_MPS_DEFAULT                         0x40
+#define USBH_ADDRESS_DEFAULT                    0
+#define USBH_ADDRESS_ASSIGNED                   1
+#define USBH_MPS_DEFAULT                        0x40
 
 #define USBH_ILLEGAL_SE(s, e)					printf(NEW_LINE); 												\
 												printf("USBH ILLEGAL state/event combination encountered. "); 	\
 												USBH_LogSE(s, e); 												\
 												printf(NEW_LINE);
+
+#define USBH_DEBOUNCE_DELAY                     1
+#define USBH_ATTACH_DELAY                       1
 
 /**
   * @}
@@ -598,8 +601,8 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 
 			/** debouncing **/
 			phost->wait_for_attachment_substate = 0;
-			phost->PollingTimer = GetTimeCount();
-			USBH_UsrLog ("Delay 100ms before port reset");
+			phost->PollingTimer = HAL_GetTick();
+			USBH_UsrLog ("Debounce delay %dms before port reset", USBH_DEBOUNCE_DELAY);
 		}
 		else
 
@@ -713,16 +716,16 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 
 	  if (phost->wait_for_attachment_substate == 0) {	/** Debouncing **/
 
-		  if (GetTimeCount() - phost->PollingTimer > 100) {
+		  if (HAL_GetTick() - phost->PollingTimer > USBH_DEBOUNCE_DELAY) {
 			  phost->wait_for_attachment_substate = 1;	/** switching substate **/
-			  phost->PollingTimer = GetTimeCount();
+			  phost->PollingTimer = HAL_GetTick();
 			  USBH_LL_ResetAssert(phost);
 			  USBH_UsrLog ("Assert USB port reset");
 		  }
 	  }
 	  else if (phost->wait_for_attachment_substate == 1) /** resetting **/
 	  {
-		  if (GetTimeCount() - phost->PollingTimer > 12) {	/** 10 - 20ms conforming to standard **/
+		  if (HAL_GetTick() - phost->PollingTimer > 12) {	/** 10 - 20ms conforming to standard **/
 			  USBH_LL_ResetDeassert(phost);
 			  USBH_UsrLog ("Deassert USB port reset");
 			  phost->wait_for_attachment_substate = 2;
@@ -737,8 +740,8 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     
     USBH_UsrLog("USB Device Attached");  
       
-    /* Wait for 100 ms after Reset */
-    USBH_Delay(100);
+    /* Wait for some time after Reset */
+    USBH_Delay(USBH_ATTACH_DELAY);
           
     phost->device.speed = USBH_LL_GetSpeed(phost);
     
@@ -865,7 +868,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
         else
         {
           phost->gState  = HOST_HAND_SHAKE;
-          USBH_UsrLog ("Device not supporting %s class, try handshake", phost->pActiveClass->Name);
+          USBH_UsrLog ("Device not supporting %s class, try handshake.", phost->pActiveClass->Name);
         }
       }
       else
@@ -1241,7 +1244,7 @@ USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
 
 	USBH_LL_EventTypeDef e;
 	e.evt = USBH_LL_EVT_DISCONNECT;
-	e.timestamp = GetTimeCount();
+	e.timestamp = HAL_GetTick();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }
@@ -1250,7 +1253,7 @@ USBH_StatusTypeDef USBH_LL_PortDown (USBH_HandleTypeDef *phost)
 {
 	USBH_LL_EventTypeDef e;
 	e.evt = USBH_LL_EVT_PORTDOWN;
-	e.timestamp = GetTimeCount();
+	e.timestamp = HAL_GetTick();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }
