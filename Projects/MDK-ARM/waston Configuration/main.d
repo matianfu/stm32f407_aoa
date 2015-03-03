@@ -1,5 +1,7 @@
 waston Configuration\main.o: ..\..\Src\main.c
+waston Configuration\main.o: C:\Keil\ARM\RV31\Inc\stdint.h
 waston Configuration\main.o: C:\Keil\ARM\RV31\Inc\stdio.h
+waston Configuration\main.o: C:\Keil\ARM\RV31\Inc\stdlib.h
 waston Configuration\main.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h
 waston Configuration\main.o: ..\..\Inc\stm32f4xx_hal_conf.h
 waston Configuration\main.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h
@@ -7,7 +9,6 @@ waston Configuration\main.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ha
 waston Configuration\main.o: ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h
 waston Configuration\main.o: ..\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h
 waston Configuration\main.o: ..\..\Drivers\CMSIS\Include\core_cm4.h
-waston Configuration\main.o: C:\Keil\ARM\RV31\Inc\stdint.h
 waston Configuration\main.o: ..\..\Drivers\CMSIS\Include\core_cmInstr.h
 waston Configuration\main.o: ..\..\Drivers\CMSIS\Include\core_cmFunc.h
 waston Configuration\main.o: ..\..\Drivers\CMSIS\Include\core_cm4_simd.h

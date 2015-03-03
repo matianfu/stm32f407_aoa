@@ -4,179 +4,15 @@
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
 F:\waston\stm32f407_aoa\Projects\MDK-ARM\waston.uvproj
-Project File Date:  02/09/2015
+Project File Date:  03/02/2015
 
 <h2>Output:</h2>
 Build target 'waston Configuration'
 compiling gpio.c...
 compiling main.c...
-compiling usart.c...
-..\..\Src\usart.c(277): warning:  #223-D: function "uart_print_tx_complete_cb" declared implicitly
-compiling usbh_core.c...
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(193): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(216): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(571): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(571): warning:  #68-D: integer conversion resulted in a change of sign
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #68-D: integer conversion resulted in a change of sign
-linking...
-Program Size: Code=25116 RO-data=892 RW-data=300 ZI-data=71188  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 7 Warning(s).
-Build target 'waston Configuration'
-compiling gpio.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling main.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_it.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usart.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usb_host.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_conf.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling uart_printf.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling dma.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling time.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling system_stm32f4xx.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_cortex.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_dma.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_dma_ex.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_flash.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_flash_ex.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_flash_ramfunc.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_gpio.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_hcd.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_pwr.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_pwr_ex.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_rcc.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_rcc_ex.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_hal_uart.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling stm32f4xx_ll_usb.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_hid.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_hid_keybd.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_hid_mouse.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_hid_parser.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_msc.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_msc_bot.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_msc_scsi.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_core.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_ctlreq.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_ioreq.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_pipes.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-compiling usbh_adk_core.c...
-..\..\Inc\stm32f4xx_hal_conf.h(346): error:  #5: cannot open source input file "stm32f4xx_hal_tim.h": No such file or directory
-Target not created
-Build target 'waston Configuration'
-compiling gpio.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling main.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_it.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usart.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usb_host.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_conf.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling uart_printf.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling dma.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling time.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling system_stm32f4xx.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_cortex.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_dma.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_dma_ex.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_flash.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_flash_ex.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_flash_ramfunc.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_gpio.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_hcd.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_pwr.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_pwr_ex.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_rcc.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_rcc_ex.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_hal_uart.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling stm32f4xx_ll_usb.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_hid.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_hid_keybd.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_hid_mouse.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_hid_parser.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_msc.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_msc_bot.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_msc_scsi.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_core.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_ctlreq.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_ioreq.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_pipes.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-compiling usbh_adk_core.c...
-..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h(1336): error:  #5: cannot open source input file "stm32f4xx_hal_tim_ex.h": No such file or directory
-Target not created
-Build target 'waston Configuration'
-compiling gpio.c...
-compiling main.c...
+..\..\Src\main.c(81): warning:  #223-D: function "malloc" declared implicitly
+..\..\Src\main.c(64): warning:  #550-D: variable "size" was set but never used
+..\..\Src\main.c(60): warning:  #550-D: variable "test_malloc" was set but never used
 compiling stm32f4xx_it.c...
 compiling usart.c...
 ..\..\Src\usart.c(277): warning:  #223-D: function "uart_print_tx_complete_cb" declared implicitly
@@ -201,7 +37,106 @@ compiling stm32f4xx_hal_rcc.c...
 compiling stm32f4xx_hal_rcc_ex.c...
 compiling stm32f4xx_hal_uart.c...
 compiling stm32f4xx_ll_usb.c...
+compiling stm32f4xx_hal_tim_ex.c...
+compiling stm32f4xx_hal_tim.c...
 compiling usbh_hid.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(255): warning:  #47-D: incompatible redefinition of macro "KEY_BACKSPACE" (declared at line 99 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(256): warning:  #47-D: incompatible redefinition of macro "KEY_TAB" (declared at line 100 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(257): warning:  #47-D: incompatible redefinition of macro "KEY_Q" (declared at line 77 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(258): warning:  #47-D: incompatible redefinition of macro "KEY_W" (declared at line 83 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(259): warning:  #47-D: incompatible redefinition of macro "KEY_E" (declared at line 65 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(260): warning:  #47-D: incompatible redefinition of macro "KEY_R" (declared at line 78 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(261): warning:  #47-D: incompatible redefinition of macro "KEY_T" (declared at line 80 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(262): warning:  #47-D: incompatible redefinition of macro "KEY_Y" (declared at line 85 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(263): warning:  #47-D: incompatible redefinition of macro "KEY_U" (declared at line 81 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(264): warning:  #47-D: incompatible redefinition of macro "KEY_I" (declared at line 69 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(265): warning:  #47-D: incompatible redefinition of macro "KEY_O" (declared at line 75 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(266): warning:  #47-D: incompatible redefinition of macro "KEY_P" (declared at line 76 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(269): warning:  #47-D: incompatible redefinition of macro "KEY_ENTER" (declared at line 97 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(271): warning:  #47-D: incompatible redefinition of macro "KEY_A" (declared at line 61 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(272): warning:  #47-D: incompatible redefinition of macro "KEY_S" (declared at line 79 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(273): warning:  #47-D: incompatible redefinition of macro "KEY_D" (declared at line 64 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(274): warning:  #47-D: incompatible redefinition of macro "KEY_F" (declared at line 66 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(275): warning:  #47-D: incompatible redefinition of macro "KEY_G" (declared at line 67 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(276): warning:  #47-D: incompatible redefinition of macro "KEY_H" (declared at line 68 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(277): warning:  #47-D: incompatible redefinition of macro "KEY_J" (declared at line 70 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(278): warning:  #47-D: incompatible redefinition of macro "KEY_K" (declared at line 71 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(279): warning:  #47-D: incompatible redefinition of macro "KEY_L" (declared at line 72 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(282): warning:  #47-D: incompatible redefinition of macro "KEY_GRAVE" (declared at line 110 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(283): warning:  #47-D: incompatible redefinition of macro "KEY_LEFTSHIFT" (declared at line 269 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(285): warning:  #47-D: incompatible redefinition of macro "KEY_Z" (declared at line 86 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(286): warning:  #47-D: incompatible redefinition of macro "KEY_X" (declared at line 84 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(287): warning:  #47-D: incompatible redefinition of macro "KEY_C" (declared at line 63 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(288): warning:  #47-D: incompatible redefinition of macro "KEY_V" (declared at line 82 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(289): warning:  #47-D: incompatible redefinition of macro "KEY_B" (declared at line 62 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(290): warning:  #47-D: incompatible redefinition of macro "KEY_N" (declared at line 74 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(291): warning:  #47-D: incompatible redefinition of macro "KEY_M" (declared at line 73 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(295): warning:  #47-D: incompatible redefinition of macro "KEY_RIGHTSHIFT" (declared at line 273 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(297): warning:  #47-D: incompatible redefinition of macro "KEY_LEFTALT" (declared at line 270 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(300): warning:  #47-D: incompatible redefinition of macro "KEY_F1" (declared at line 115 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(301): warning:  #47-D: incompatible redefinition of macro "KEY_F2" (declared at line 116 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(302): warning:  #47-D: incompatible redefinition of macro "KEY_F3" (declared at line 117 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(303): warning:  #47-D: incompatible redefinition of macro "KEY_F4" (declared at line 118 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(304): warning:  #47-D: incompatible redefinition of macro "KEY_F5" (declared at line 119 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(305): warning:  #47-D: incompatible redefinition of macro "KEY_F6" (declared at line 120 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(306): warning:  #47-D: incompatible redefinition of macro "KEY_F7" (declared at line 121 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(307): warning:  #47-D: incompatible redefinition of macro "KEY_F8" (declared at line 122 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(308): warning:  #47-D: incompatible redefinition of macro "KEY_F9" (declared at line 123 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(309): warning:  #47-D: incompatible redefinition of macro "KEY_F10" (declared at line 124 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(328): warning:  #47-D: incompatible redefinition of macro "KEY_F11" (declared at line 125 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(329): warning:  #47-D: incompatible redefinition of macro "KEY_F12" (declared at line 126 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(341): warning:  #47-D: incompatible redefinition of macro "KEY_RIGHTALT" (declared at line 274 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(343): warning:  #47-D: incompatible redefinition of macro "KEY_HOME" (declared at line 131 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(345): warning:  #47-D: incompatible redefinition of macro "KEY_PAGEUP" (declared at line 132 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(350): warning:  #47-D: incompatible redefinition of macro "KEY_PAGEDOWN" (declared at line 135 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(351): warning:  #47-D: incompatible redefinition of macro "KEY_INSERT" (declared at line 130 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(352): warning:  #47-D: incompatible redefinition of macro "KEY_DELETE" (declared at line 133 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(354): warning:  #47-D: incompatible redefinition of macro "KEY_MUTE" (declared at line 184 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(357): warning:  #47-D: incompatible redefinition of macro "KEY_POWER" (declared at line 159 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(360): warning:  #47-D: incompatible redefinition of macro "KEY_PAUSE" (declared at line 129 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(372): warning:  #47-D: incompatible redefinition of macro "KEY_STOP" (declared at line 177 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(373): warning:  #47-D: incompatible redefinition of macro "KEY_AGAIN" (declared at line 178 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(375): warning:  #47-D: incompatible redefinition of macro "KEY_UNDO" (declared at line 179 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(377): warning:  #47-D: incompatible redefinition of macro "KEY_COPY" (declared at line 181 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(379): warning:  #47-D: incompatible redefinition of macro "KEY_PASTE" (declared at line 182 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(380): warning:  #47-D: incompatible redefinition of macro "KEY_FIND" (declared at line 183 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(381): warning:  #47-D: incompatible redefinition of macro "KEY_CUT" (declared at line 180 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(382): warning:  #47-D: incompatible redefinition of macro "KEY_HELP" (declared at line 174 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(383): warning:  #47-D: incompatible redefinition of macro "KEY_MENU" (declared at line 175 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(429): warning:  #47-D: incompatible redefinition of macro "KEY_F13" (declared at line 161 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(430): warning:  #47-D: incompatible redefinition of macro "KEY_F14" (declared at line 162 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(431): warning:  #47-D: incompatible redefinition of macro "KEY_F15" (declared at line 163 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(432): warning:  #47-D: incompatible redefinition of macro "KEY_F16" (declared at line 164 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(433): warning:  #47-D: incompatible redefinition of macro "KEY_F17" (declared at line 165 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(434): warning:  #47-D: incompatible redefinition of macro "KEY_F18" (declared at line 166 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(435): warning:  #47-D: incompatible redefinition of macro "KEY_F19" (declared at line 167 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(436): warning:  #47-D: incompatible redefinition of macro "KEY_F20" (declared at line 168 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(437): warning:  #47-D: incompatible redefinition of macro "KEY_F21" (declared at line 169 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(438): warning:  #47-D: incompatible redefinition of macro "KEY_F22" (declared at line 170 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(439): warning:  #47-D: incompatible redefinition of macro "KEY_F23" (declared at line 171 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(440): warning:  #47-D: incompatible redefinition of macro "KEY_F24" (declared at line 172 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(465): warning:  #47-D: incompatible redefinition of macro "KEY_CANCEL" (declared at line 212 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(583): warning:  #47-D: incompatible redefinition of macro "KEY_SELECT" (declared at line 176 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(585): warning:  #47-D: incompatible redefinition of macro "KEY_CLEAR" (declared at line 213 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(119): warning:  #47-D: incompatible redefinition of macro "HID_ITEM_TYPE_MAIN" (declared at line 67 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(120): warning:  #47-D: incompatible redefinition of macro "HID_ITEM_TYPE_GLOBAL" (declared at line 68 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(121): warning:  #47-D: incompatible redefinition of macro "HID_ITEM_TYPE_LOCAL" (declared at line 69 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(122): warning:  #47-D: incompatible redefinition of macro "HID_ITEM_TYPE_RESERVED" (declared at line 70 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(128): warning:  #47-D: incompatible redefinition of macro "HID_MAIN_ITEM_TAG_INPUT" (declared at line 73 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(129): warning:  #47-D: incompatible redefinition of macro "HID_MAIN_ITEM_TAG_OUTPUT" (declared at line 74 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(130): warning:  #47-D: incompatible redefinition of macro "HID_MAIN_ITEM_TAG_FEATURE" (declared at line 76 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(160): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_USAGE_PAGE" (declared at line 80 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(165): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_UNIT_EXPONENT" (declared at line 85 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(166): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_UNIT" (declared at line 86 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(167): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_REPORT_SIZE" (declared at line 87 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(168): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_REPORT_ID" (declared at line 88 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(169): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_REPORT_COUNT" (declared at line 89 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(170): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_PUSH" (declared at line 90 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(171): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_POP" (declared at line 91 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(177): warning:  #47-D: incompatible redefinition of macro "HID_LOCAL_ITEM_TAG_USAGE" (declared at line 94 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(180): warning:  #47-D: incompatible redefinition of macro "HID_LOCAL_ITEM_TAG_DESIGNATOR_INDEX" (declared at line 97 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(183): warning:  #47-D: incompatible redefinition of macro "HID_LOCAL_ITEM_TAG_STRING_INDEX" (declared at line 100 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(186): warning:  #47-D: incompatible redefinition of macro "HID_LOCAL_ITEM_TAG_DELIMITER" (declared at line 103 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
 compiling usbh_hid_keybd.c...
 compiling usbh_hid_mouse.c...
 compiling usbh_hid_parser.c...
@@ -209,12 +144,12 @@ compiling usbh_msc.c...
 compiling usbh_msc_bot.c...
 compiling usbh_msc_scsi.c...
 compiling usbh_core.c...
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(193): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(216): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(571): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(571): warning:  #68-D: integer conversion resulted in a change of sign
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #68-D: integer conversion resulted in a change of sign
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(197): warning:  #188-D: enumerated type mixed with another type
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(220): warning:  #188-D: enumerated type mixed with another type
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(575): warning:  #188-D: enumerated type mixed with another type
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(575): warning:  #68-D: integer conversion resulted in a change of sign
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(576): warning:  #188-D: enumerated type mixed with another type
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(576): warning:  #68-D: integer conversion resulted in a change of sign
 compiling usbh_ctlreq.c...
 compiling usbh_ioreq.c...
 compiling usbh_pipes.c...
@@ -222,126 +157,335 @@ compiling usbh_adk_core.c...
 ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c(139): warning:  #68-D: integer conversion resulted in a change of sign
 ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c(443): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
 linking...
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_Base_Init (referred from time.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_Base_Start_IT (referred from time.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_Base_Stop_IT (referred from time.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_ConfigClockSource (referred from time.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol USBH_HID_NonBootKbdInit (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_close_report (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_device_probe (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_input_report (referred from usbh_hid.o).
 Target not created
 Build target 'waston Configuration'
+compiling main.c...
+..\..\Src\main.c(65): warning:  #550-D: variable "size" was set but never used
+..\..\Src\main.c(61): warning:  #550-D: variable "test_malloc" was set but never used
+linking...
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol USBH_HID_NonBootKbdInit (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_close_report (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_device_probe (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_input_report (referred from usbh_hid.o).
+Target not created
+Build target 'waston Configuration'
+compiling usbh_hid_nonbootkbd.c...
+linking...
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_close_report (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_device_probe (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_input_report (referred from usbh_hid.o).
+Target not created
+Build target 'waston Configuration'
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(616): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(789): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1754): error:  #20: identifier "ENODEV" is undefined
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1748): warning:  #550-D: variable "report_enum" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1750): warning:  #177-D: variable "report" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #550-D: variable "type" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #177-D: variable "bus" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1868): warning:  #177-D: variable "buf" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1870): warning:  #550-D: variable "len" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1871): warning:  #177-D: variable "ret" was declared but never referenced
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1849): warning:  #177-D: variable "a" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1850): warning:  #177-D: variable "b" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(943): warning:  #177-D: variable "device" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1833): warning:  #177-D: label "mapped" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2408): warning:  #177-D: label "out_cleanup" was declared but never referenced
+Target not created
+Build target 'waston Configuration'
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(616): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(789): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1754): error:  #20: identifier "ENODEV" is undefined
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1748): warning:  #550-D: variable "report_enum" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1750): warning:  #177-D: variable "report" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #550-D: variable "type" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #177-D: variable "bus" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1868): warning:  #177-D: variable "buf" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1870): warning:  #550-D: variable "len" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1871): warning:  #177-D: variable "ret" was declared but never referenced
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1849): warning:  #177-D: variable "a" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1850): warning:  #177-D: variable "b" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(943): warning:  #177-D: variable "device" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1833): warning:  #177-D: label "mapped" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2408): warning:  #177-D: label "out_cleanup" was declared but never referenced
+Target not created
+Build target 'waston Configuration'
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(616): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(789): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1754): error:  #20: identifier "ENODEV" is undefined
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1748): warning:  #550-D: variable "report_enum" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1750): warning:  #177-D: variable "report" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #550-D: variable "type" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #177-D: variable "bus" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1868): warning:  #177-D: variable "buf" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1870): warning:  #550-D: variable "len" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1871): warning:  #177-D: variable "ret" was declared but never referenced
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1849): warning:  #177-D: variable "a" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1850): warning:  #177-D: variable "b" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(943): warning:  #177-D: variable "device" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1833): warning:  #177-D: label "mapped" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2408): warning:  #177-D: label "out_cleanup" was declared but never referenced
+Target not created
+Build target 'waston Configuration'
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(616): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(789): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1754): error:  #20: identifier "ENODEV" is undefined
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1748): warning:  #550-D: variable "report_enum" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1750): warning:  #177-D: variable "report" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #550-D: variable "type" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #177-D: variable "bus" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1868): warning:  #177-D: variable "buf" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1870): warning:  #550-D: variable "len" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1871): warning:  #177-D: variable "ret" was declared but never referenced
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1849): warning:  #177-D: variable "a" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1850): warning:  #177-D: variable "b" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(943): warning:  #177-D: variable "device" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1833): warning:  #177-D: label "mapped" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2408): warning:  #177-D: label "out_cleanup" was declared but never referenced
+Target not created
+Build target 'waston Configuration'
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(616): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(789): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1754): error:  #20: identifier "ENODEV" is undefined
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1748): warning:  #550-D: variable "report_enum" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1750): warning:  #177-D: variable "report" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #550-D: variable "type" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #177-D: variable "bus" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1868): warning:  #177-D: variable "buf" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1870): warning:  #550-D: variable "len" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1871): warning:  #177-D: variable "ret" was declared but never referenced
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1849): warning:  #177-D: variable "a" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1850): warning:  #177-D: variable "b" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(943): warning:  #177-D: variable "device" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1833): warning:  #177-D: label "mapped" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2408): warning:  #177-D: label "out_cleanup" was declared but never referenced
+Target not created
+Build target 'waston Configuration'
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(616): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(789): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1748): warning:  #550-D: variable "report_enum" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1750): warning:  #177-D: variable "report" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #550-D: variable "type" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #177-D: variable "bus" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1868): warning:  #177-D: variable "buf" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1870): warning:  #550-D: variable "len" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1871): warning:  #177-D: variable "ret" was declared but never referenced
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1849): warning:  #177-D: variable "a" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1850): warning:  #177-D: variable "b" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(943): warning:  #177-D: variable "device" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1833): warning:  #177-D: label "mapped" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2408): warning:  #177-D: label "out_cleanup" was declared but never referenced
+Target not created
+Rebuild target 'waston Configuration'
+assembling startup_stm32f407xx.s...
+compiling gpio.c...
+compiling main.c...
+..\..\Src\main.c(65): warning:  #550-D: variable "size" was set but never used
+..\..\Src\main.c(61): warning:  #550-D: variable "test_malloc" was set but never used
+compiling stm32f4xx_it.c...
+compiling usart.c...
+..\..\Src\usart.c(277): warning:  #223-D: function "uart_print_tx_complete_cb" declared implicitly
+compiling usb_host.c...
+compiling usbh_conf.c...
+compiling uart_printf.c...
+compiling dma.c...
+compiling time.c...
+compiling system_stm32f4xx.c...
+compiling stm32f4xx_hal.c...
+compiling stm32f4xx_hal_cortex.c...
+compiling stm32f4xx_hal_dma.c...
+compiling stm32f4xx_hal_dma_ex.c...
+compiling stm32f4xx_hal_flash.c...
+compiling stm32f4xx_hal_flash_ex.c...
+compiling stm32f4xx_hal_flash_ramfunc.c...
+compiling stm32f4xx_hal_gpio.c...
+compiling stm32f4xx_hal_hcd.c...
+compiling stm32f4xx_hal_pwr.c...
+compiling stm32f4xx_hal_pwr_ex.c...
+compiling stm32f4xx_hal_rcc.c...
+compiling stm32f4xx_hal_rcc_ex.c...
+compiling stm32f4xx_hal_uart.c...
+compiling stm32f4xx_ll_usb.c...
 compiling stm32f4xx_hal_tim_ex.c...
-linking...
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_Base_Init (referred from time.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_Base_Start_IT (referred from time.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_Base_Stop_IT (referred from time.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_ConfigClockSource (referred from time.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_DMACaptureCplt (referred from stm32f4xx_hal_tim_ex.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_DMADelayPulseCplt (referred from stm32f4xx_hal_tim_ex.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol HAL_TIM_DMAError (referred from stm32f4xx_hal_tim_ex.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol TIM_Base_SetConfig (referred from stm32f4xx_hal_tim_ex.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol TIM_CCxChannelCmd (referred from stm32f4xx_hal_tim_ex.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol TIM_OC2_SetConfig (referred from stm32f4xx_hal_tim_ex.o).
-waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol TIM_TI1_SetConfig (referred from stm32f4xx_hal_tim_ex.o).
+compiling stm32f4xx_hal_tim.c...
+compiling usbh_hid.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(255): warning:  #47-D: incompatible redefinition of macro "KEY_BACKSPACE" (declared at line 99 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(256): warning:  #47-D: incompatible redefinition of macro "KEY_TAB" (declared at line 100 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(257): warning:  #47-D: incompatible redefinition of macro "KEY_Q" (declared at line 77 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(258): warning:  #47-D: incompatible redefinition of macro "KEY_W" (declared at line 83 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(259): warning:  #47-D: incompatible redefinition of macro "KEY_E" (declared at line 65 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(260): warning:  #47-D: incompatible redefinition of macro "KEY_R" (declared at line 78 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(261): warning:  #47-D: incompatible redefinition of macro "KEY_T" (declared at line 80 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(262): warning:  #47-D: incompatible redefinition of macro "KEY_Y" (declared at line 85 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(263): warning:  #47-D: incompatible redefinition of macro "KEY_U" (declared at line 81 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(264): warning:  #47-D: incompatible redefinition of macro "KEY_I" (declared at line 69 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(265): warning:  #47-D: incompatible redefinition of macro "KEY_O" (declared at line 75 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(266): warning:  #47-D: incompatible redefinition of macro "KEY_P" (declared at line 76 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(269): warning:  #47-D: incompatible redefinition of macro "KEY_ENTER" (declared at line 97 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(271): warning:  #47-D: incompatible redefinition of macro "KEY_A" (declared at line 61 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(272): warning:  #47-D: incompatible redefinition of macro "KEY_S" (declared at line 79 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(273): warning:  #47-D: incompatible redefinition of macro "KEY_D" (declared at line 64 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(274): warning:  #47-D: incompatible redefinition of macro "KEY_F" (declared at line 66 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(275): warning:  #47-D: incompatible redefinition of macro "KEY_G" (declared at line 67 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(276): warning:  #47-D: incompatible redefinition of macro "KEY_H" (declared at line 68 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(277): warning:  #47-D: incompatible redefinition of macro "KEY_J" (declared at line 70 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(278): warning:  #47-D: incompatible redefinition of macro "KEY_K" (declared at line 71 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(279): warning:  #47-D: incompatible redefinition of macro "KEY_L" (declared at line 72 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(282): warning:  #47-D: incompatible redefinition of macro "KEY_GRAVE" (declared at line 110 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(283): warning:  #47-D: incompatible redefinition of macro "KEY_LEFTSHIFT" (declared at line 269 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(285): warning:  #47-D: incompatible redefinition of macro "KEY_Z" (declared at line 86 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(286): warning:  #47-D: incompatible redefinition of macro "KEY_X" (declared at line 84 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(287): warning:  #47-D: incompatible redefinition of macro "KEY_C" (declared at line 63 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(288): warning:  #47-D: incompatible redefinition of macro "KEY_V" (declared at line 82 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(289): warning:  #47-D: incompatible redefinition of macro "KEY_B" (declared at line 62 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(290): warning:  #47-D: incompatible redefinition of macro "KEY_N" (declared at line 74 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(291): warning:  #47-D: incompatible redefinition of macro "KEY_M" (declared at line 73 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(295): warning:  #47-D: incompatible redefinition of macro "KEY_RIGHTSHIFT" (declared at line 273 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(297): warning:  #47-D: incompatible redefinition of macro "KEY_LEFTALT" (declared at line 270 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(300): warning:  #47-D: incompatible redefinition of macro "KEY_F1" (declared at line 115 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(301): warning:  #47-D: incompatible redefinition of macro "KEY_F2" (declared at line 116 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(302): warning:  #47-D: incompatible redefinition of macro "KEY_F3" (declared at line 117 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(303): warning:  #47-D: incompatible redefinition of macro "KEY_F4" (declared at line 118 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(304): warning:  #47-D: incompatible redefinition of macro "KEY_F5" (declared at line 119 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(305): warning:  #47-D: incompatible redefinition of macro "KEY_F6" (declared at line 120 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(306): warning:  #47-D: incompatible redefinition of macro "KEY_F7" (declared at line 121 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(307): warning:  #47-D: incompatible redefinition of macro "KEY_F8" (declared at line 122 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(308): warning:  #47-D: incompatible redefinition of macro "KEY_F9" (declared at line 123 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(309): warning:  #47-D: incompatible redefinition of macro "KEY_F10" (declared at line 124 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(328): warning:  #47-D: incompatible redefinition of macro "KEY_F11" (declared at line 125 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(329): warning:  #47-D: incompatible redefinition of macro "KEY_F12" (declared at line 126 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(341): warning:  #47-D: incompatible redefinition of macro "KEY_RIGHTALT" (declared at line 274 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(343): warning:  #47-D: incompatible redefinition of macro "KEY_HOME" (declared at line 131 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(345): warning:  #47-D: incompatible redefinition of macro "KEY_PAGEUP" (declared at line 132 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(350): warning:  #47-D: incompatible redefinition of macro "KEY_PAGEDOWN" (declared at line 135 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(351): warning:  #47-D: incompatible redefinition of macro "KEY_INSERT" (declared at line 130 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(352): warning:  #47-D: incompatible redefinition of macro "KEY_DELETE" (declared at line 133 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(354): warning:  #47-D: incompatible redefinition of macro "KEY_MUTE" (declared at line 184 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(357): warning:  #47-D: incompatible redefinition of macro "KEY_POWER" (declared at line 159 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(360): warning:  #47-D: incompatible redefinition of macro "KEY_PAUSE" (declared at line 129 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(372): warning:  #47-D: incompatible redefinition of macro "KEY_STOP" (declared at line 177 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(373): warning:  #47-D: incompatible redefinition of macro "KEY_AGAIN" (declared at line 178 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(375): warning:  #47-D: incompatible redefinition of macro "KEY_UNDO" (declared at line 179 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(377): warning:  #47-D: incompatible redefinition of macro "KEY_COPY" (declared at line 181 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(379): warning:  #47-D: incompatible redefinition of macro "KEY_PASTE" (declared at line 182 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(380): warning:  #47-D: incompatible redefinition of macro "KEY_FIND" (declared at line 183 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(381): warning:  #47-D: incompatible redefinition of macro "KEY_CUT" (declared at line 180 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(382): warning:  #47-D: incompatible redefinition of macro "KEY_HELP" (declared at line 174 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(383): warning:  #47-D: incompatible redefinition of macro "KEY_MENU" (declared at line 175 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(429): warning:  #47-D: incompatible redefinition of macro "KEY_F13" (declared at line 161 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(430): warning:  #47-D: incompatible redefinition of macro "KEY_F14" (declared at line 162 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(431): warning:  #47-D: incompatible redefinition of macro "KEY_F15" (declared at line 163 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(432): warning:  #47-D: incompatible redefinition of macro "KEY_F16" (declared at line 164 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(433): warning:  #47-D: incompatible redefinition of macro "KEY_F17" (declared at line 165 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(434): warning:  #47-D: incompatible redefinition of macro "KEY_F18" (declared at line 166 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(435): warning:  #47-D: incompatible redefinition of macro "KEY_F19" (declared at line 167 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(436): warning:  #47-D: incompatible redefinition of macro "KEY_F20" (declared at line 168 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(437): warning:  #47-D: incompatible redefinition of macro "KEY_F21" (declared at line 169 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(438): warning:  #47-D: incompatible redefinition of macro "KEY_F22" (declared at line 170 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(439): warning:  #47-D: incompatible redefinition of macro "KEY_F23" (declared at line 171 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(440): warning:  #47-D: incompatible redefinition of macro "KEY_F24" (declared at line 172 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(465): warning:  #47-D: incompatible redefinition of macro "KEY_CANCEL" (declared at line 212 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(583): warning:  #47-D: incompatible redefinition of macro "KEY_SELECT" (declared at line 176 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h(585): warning:  #47-D: incompatible redefinition of macro "KEY_CLEAR" (declared at line 213 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(119): warning:  #47-D: incompatible redefinition of macro "HID_ITEM_TYPE_MAIN" (declared at line 67 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(120): warning:  #47-D: incompatible redefinition of macro "HID_ITEM_TYPE_GLOBAL" (declared at line 68 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(121): warning:  #47-D: incompatible redefinition of macro "HID_ITEM_TYPE_LOCAL" (declared at line 69 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(122): warning:  #47-D: incompatible redefinition of macro "HID_ITEM_TYPE_RESERVED" (declared at line 70 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(128): warning:  #47-D: incompatible redefinition of macro "HID_MAIN_ITEM_TAG_INPUT" (declared at line 73 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(129): warning:  #47-D: incompatible redefinition of macro "HID_MAIN_ITEM_TAG_OUTPUT" (declared at line 74 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(130): warning:  #47-D: incompatible redefinition of macro "HID_MAIN_ITEM_TAG_FEATURE" (declared at line 76 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(160): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_USAGE_PAGE" (declared at line 80 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(165): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_UNIT_EXPONENT" (declared at line 85 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(166): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_UNIT" (declared at line 86 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(167): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_REPORT_SIZE" (declared at line 87 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(168): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_REPORT_ID" (declared at line 88 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(169): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_REPORT_COUNT" (declared at line 89 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(170): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_PUSH" (declared at line 90 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(171): warning:  #47-D: incompatible redefinition of macro "HID_GLOBAL_ITEM_TAG_POP" (declared at line 91 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(177): warning:  #47-D: incompatible redefinition of macro "HID_LOCAL_ITEM_TAG_USAGE" (declared at line 94 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(180): warning:  #47-D: incompatible redefinition of macro "HID_LOCAL_ITEM_TAG_DESIGNATOR_INDEX" (declared at line 97 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(183): warning:  #47-D: incompatible redefinition of macro "HID_LOCAL_ITEM_TAG_STRING_INDEX" (declared at line 100 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h(186): warning:  #47-D: incompatible redefinition of macro "HID_LOCAL_ITEM_TAG_DELIMITER" (declared at line 103 of "..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h")
+compiling usbh_hid_keybd.c...
+compiling usbh_hid_mouse.c...
+compiling usbh_hid_parser.c...
+compiling usbh_msc.c...
+compiling usbh_msc_bot.c...
+compiling usbh_msc_scsi.c...
+compiling usbh_core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(197): warning:  #188-D: enumerated type mixed with another type
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(220): warning:  #188-D: enumerated type mixed with another type
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(575): warning:  #188-D: enumerated type mixed with another type
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(575): warning:  #68-D: integer conversion resulted in a change of sign
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(576): warning:  #188-D: enumerated type mixed with another type
+..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(576): warning:  #68-D: integer conversion resulted in a change of sign
+compiling usbh_ctlreq.c...
+compiling usbh_ioreq.c...
+compiling usbh_pipes.c...
+compiling usbh_adk_core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c(139): warning:  #68-D: integer conversion resulted in a change of sign
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c(443): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
+compiling usbh_hid_nonbootkbd.c...
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(616): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(789): warning:  #111-D: statement is unreachable
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1748): warning:  #550-D: variable "report_enum" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1750): warning:  #177-D: variable "report" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #550-D: variable "type" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1867): warning:  #177-D: variable "bus" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1868): warning:  #177-D: variable "buf" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1870): warning:  #550-D: variable "len" was set but never used
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(1871): warning:  #177-D: variable "ret" was declared but never referenced
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1849): warning:  #177-D: variable "a" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1850): warning:  #177-D: variable "b" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(943): warning:  #177-D: variable "device" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(1833): warning:  #177-D: label "mapped" was declared but never referenced
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2408): warning:  #177-D: label "out_cleanup" was declared but never referenced
 Target not created
-Build target 'waston Configuration'
-compiling stm32f4xx_hal_tim.c...
-linking...
-Program Size: Code=25116 RO-data=892 RW-data=300 ZI-data=71188  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-compiling time.c...
-linking...
-Program Size: Code=25116 RO-data=892 RW-data=300 ZI-data=71188  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-compiling main.c...
-linking...
-Program Size: Code=25116 RO-data=892 RW-data=300 ZI-data=71188  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-compiling main.c...
-linking...
-Program Size: Code=25816 RO-data=892 RW-data=300 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-compiling stm32f4xx_it.c...
-compiling stm32f4xx_hal_tim.c...
-linking...
-Program Size: Code=26216 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-linking...
-Program Size: Code=26216 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-compiling main.c...
-..\..\Src\main.c(91): warning:  #223-D: function "StartTimeCount" declared implicitly
-compiling stm32f4xx_it.c...
-linking...
-Program Size: Code=26264 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 1 Warning(s).
-Build target 'waston Configuration'
-compiling main.c...
-compiling time.c...
-linking...
-Program Size: Code=26264 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-compiling main.c...
-linking...
-Program Size: Code=26264 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-compiling main.c...
-linking...
-Program Size: Code=26264 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-linking...
-Program Size: Code=26264 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
-Build target 'waston Configuration'
-compiling time.c...
-linking...
-Program Size: Code=26264 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
-Build target 'waston Configuration'
-compiling usbh_core.c...
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(193): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(216): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(571): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(571): warning:  #68-D: integer conversion resulted in a change of sign
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #68-D: integer conversion resulted in a change of sign
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(600): warning:  #223-D: function "GetTimeCount" declared implicitly
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(715): warning:  #223-D: function "GetTimeCount" declared implicitly
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(724): warning:  #223-D: function "GetTimeCount" declared implicitly
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(1194): warning:  #223-D: function "GetTimeCount" declared implicitly
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(1203): warning:  #223-D: function "GetTimeCount" declared implicitly
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(1243): warning:  #223-D: function "GetTimeCount" declared implicitly
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(1252): warning:  #223-D: function "GetTimeCount" declared implicitly
-linking...
-Program Size: Code=26276 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 13 Warning(s).
-Build target 'waston Configuration'
-compiling usbh_core.c...
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(194): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(217): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #68-D: integer conversion resulted in a change of sign
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(573): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(573): warning:  #68-D: integer conversion resulted in a change of sign
-linking...
-Program Size: Code=26276 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 6 Warning(s).
 Rebuild target 'waston Configuration'
 assembling startup_stm32f407xx.s...
 compiling gpio.c...
 compiling main.c...
 compiling stm32f4xx_it.c...
 compiling usart.c...
-..\..\Src\usart.c(277): warning:  #223-D: function "uart_print_tx_complete_cb" declared implicitly
 compiling usb_host.c...
 compiling usbh_conf.c...
 compiling uart_printf.c...
@@ -373,90 +517,46 @@ compiling usbh_msc.c...
 compiling usbh_msc_bot.c...
 compiling usbh_msc_scsi.c...
 compiling usbh_core.c...
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(194): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(217): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #68-D: integer conversion resulted in a change of sign
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(573): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(573): warning:  #68-D: integer conversion resulted in a change of sign
 compiling usbh_ctlreq.c...
 compiling usbh_ioreq.c...
 compiling usbh_pipes.c...
 compiling usbh_adk_core.c...
-..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c(139): warning:  #68-D: integer conversion resulted in a change of sign
-..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c(443): warning:  #167-D: argument of type "uint8_t *" is incompatible with parameter of type "const char *"
-linking...
-Program Size: Code=26276 RO-data=892 RW-data=304 ZI-data=71248  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 9 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
-Build target 'waston Configuration'
-compiling time.c...
-linking...
-Program Size: Code=26364 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
-Build target 'waston Configuration'
-linking...
-Program Size: Code=26364 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
-Build target 'waston Configuration'
-linking...
-Program Size: Code=26364 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-linking...
-Program Size: Code=26364 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
-Build target 'waston Configuration'
-compiling main.c...
-linking...
-Program Size: Code=26364 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
-Build target 'waston Configuration'
-compiling time.c...
-linking...
-Program Size: Code=26368 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
-Build target 'waston Configuration'
-compiling time.c...
-..\..\Src\time.c(22): error:  #136: struct "<unnamed>" has no field "RepetitionCounte"
-..\..\Src\time.c(22): error:  #65: expected a ";"
+compiling usbh_hid_nonbootkbd.c...
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
 Target not created
 Build target 'waston Configuration'
-compiling time.c...
-linking...
-Program Size: Code=26360 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
+compiling main.c...
+compiling usb_host.c...
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+Target not created
 Build target 'waston Configuration'
-compiling time.c...
+compiling usb_host.c...
+linking...
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_close_report (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_device_probe (referred from usbh_hid.o).
+waston Configuration\waston Configuration.axf: Error: L6218E: Undefined symbol hid_input_report (referred from usbh_hid.o).
+Target not created
+Build target 'waston Configuration'
+compiling usb_host.c...
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+Target not created
+Build target 'waston Configuration'
 compiling usbh_core.c...
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(194): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(217): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(572): warning:  #68-D: integer conversion resulted in a change of sign
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(573): warning:  #188-D: enumerated type mixed with another type
-..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c(573): warning:  #68-D: integer conversion resulted in a change of sign
-linking...
-Program Size: Code=26364 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 6 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
-Build target 'waston Configuration'
-compiling time.c...
-linking...
-Program Size: Code=26364 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-linking...
-Program Size: Code=26364 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Build target 'waston Configuration'
-compiling time.c...
-linking...
-Program Size: Code=26364 RO-data=892 RW-data=308 ZI-data=71252  
-"waston Configuration\waston Configuration.axf" - 0 Error(s), 0 Warning(s).
-Load "waston Configuration\\waston Configuration.AXF" 
+compiling hid-core.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c(335): error:  #29: expected an expression
+compiling hid-input.c...
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c(2346): error:  #29: expected an expression
+Target not created

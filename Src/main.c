@@ -35,6 +35,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "stm32f4xx_hal.h"
 #include "dma.h"
 #include "usart.h"
@@ -100,7 +101,7 @@ int main(void)
 
   MX_USART3_UART_Init();
   MX_USB_HOST_Init();
-    time_init();
+  time_init();
   StartTimeCount();
 
 

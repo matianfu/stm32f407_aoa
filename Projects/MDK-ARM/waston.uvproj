@@ -340,7 +340,7 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>2</wLevel>
+            <wLevel>1</wLevel>
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls>--C99</MiscControls>
@@ -605,6 +605,21 @@
               <FileName>usbh_adk_core.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usbh_hid_nonbootkbd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\usbh_hid_nonbootkbd.c</FilePath>
+            </File>
+            <File>
+              <FileName>hid-core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c</FilePath>
+            </File>
+            <File>
+              <FileName>hid-input.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c</FilePath>
             </File>
           </Files>
         </Group>

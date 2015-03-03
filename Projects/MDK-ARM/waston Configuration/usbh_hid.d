@@ -45,3 +45,8 @@ waston Configuration\usbh_hid.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Cla
 waston Configuration\usbh_hid.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h
 waston Configuration\usbh_hid.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_parser.h
 waston Configuration\usbh_hid.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_usage.h
+waston Configuration\usbh_hid.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\hid.h
+waston Configuration\usbh_hid.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\list.h
+waston Configuration\usbh_hid.o: C:\Keil\ARM\RV31\Inc\stddef.h
+waston Configuration\usbh_hid.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\non-atomic.h
+waston Configuration\usbh_hid.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\input.h

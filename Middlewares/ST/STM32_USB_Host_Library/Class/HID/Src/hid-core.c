@@ -13,7 +13,7 @@
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  */
-#include <errno.h>
+#include "errno.h"
 #include "usbh_conf.h"
 
 #define dbg_hid(...)    USBH_UsrLog(__VA_ARGS__)
