@@ -40,7 +40,7 @@
 #include "usart.h"
 #include "usb_host.h"
 #include "gpio.h"
-
+#include "kinput.h"
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -96,6 +96,7 @@ int main(void)
   static char hello[] = NEW_LINE NEW_LINE NEW_LINE "================ System Starts ================" NEW_LINE NEW_LINE;
   // HAL_UART_Transmit_DMA(&huart2, hello, strlen(hello));
   printf("%s", hello);
+  printf("size of input_dev: %d\r\n", sizeof(struct input_dev));
   HAL_Delay(100);
 
   MX_USART3_UART_Init();

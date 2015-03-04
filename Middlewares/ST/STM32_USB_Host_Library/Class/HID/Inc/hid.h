@@ -26,39 +26,34 @@
 #define __HID_H
 
 #include <stdint.h>
-//#include <linux/types.h>
-//#include <linux/slab.h>
-//#include <linux/list.h>
-#include "list.h"
-//#include <linux/mod_devicetable.h> /* hid_device_id */
-//#include <linux/timer.h>
-//#include <linux/workqueue.h>
-//#include <linux/input.h>
-//#include <linux/semaphore.h>
-//#include <linux/power_supply.h>
-//#include <uapi/linux/hid.h>
 
 #include "non-atomic.h"
-#include "input.h"
+#include "list.h"
 
 
-
-struct hid_device;
-
-struct input_dev {
-
-  unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
-  unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
-  unsigned long relbit[BITS_TO_LONGS(REL_CNT)];
-  unsigned long absbit[BITS_TO_LONGS(ABS_CNT)];
-  unsigned long mscbit[BITS_TO_LONGS(MSC_CNT)];
-  unsigned long ledbit[BITS_TO_LONGS(LED_CNT)];
-  unsigned long sndbit[BITS_TO_LONGS(SND_CNT)];
-  // unsigned long ffbit[BITS_TO_LONGS(FF_CNT)];
-  unsigned long swbit[BITS_TO_LONGS(SW_CNT)];
-
-  struct hid_device *hiddev;
+/*
+ * This type definition is extracted out of hid_connect() function
+ *
+ * According to code, the collection describe the device type must have:
+ * 1) type is APPLICATION (not logical or physical)
+ * 2) usage page is generic desktop (0x01, 0x00010000)
+ * 3) usage id means device type, see HUT V1.12 doc, page 26, table 6: Generic Desktop Page
+ */
+enum hid_gdp_usage {
+  HID_GDP_UNDEFINED = 0,
+  HID_GDP_POINTER,
+  HID_GDP_MOUSE,
+  HID_GDP_RESERVED03,
+  HID_GDP_JOYSTICK,
+  HID_GDP_GAMEPAD,
+  HID_GDP_KEYBOARD,
+  HID_GDP_KEYPAD,
+  HID_GDP_MULTI_AXIS_CONTROLLER,
+  HID_GDP_MAX
 };
+
+
+
 
 /*
  * We parse each description item into this structure. Short items data
@@ -90,11 +85,11 @@ struct hid_item
   union
   {
     uint8_t u8;
-    uint8_t s8;
+    int8_t s8;
     uint16_t u16;
-    uint16_t s16;
+    int16_t s16;
     uint32_t u32;
-    uint32_t s32;
+    int32_t s32;
     uint8_t *longdata;
   } data;
 };
@@ -304,8 +299,8 @@ struct hid_item
 #define HID_CONNECT_HIDDEV		        0x08
 #define HID_CONNECT_HIDDEV_FORCE	    0x10
 #define HID_CONNECT_FF			        0x20
-#define HID_CONNECT_DEFAULT	(HID_CONNECT_HIDINPUT|HID_CONNECT_HIDRAW| \
-		HID_CONNECT_HIDDEV|HID_CONNECT_FF)
+//#define HID_CONNECT_DEFAULT	(HID_CONNECT_HIDINPUT|HID_CONNECT_HIDRAW|HID_CONNECT_HIDDEV|HID_CONNECT_FF)
+#define HID_CONNECT_DEFAULT             HID_CONNECT_HIDINPUT
 
 /*
  * HID device quirks.
@@ -539,90 +534,31 @@ enum hid_type
   HID_TYPE_OTHER = 0, HID_TYPE_USBMOUSE, HID_TYPE_USBNONE
 };
 
-// struct hid_driver;
-// struct hid_ll_driver;
-
 struct hid_device
-{ /* device report descriptor */
-//	__u8 *dev_rdesc;
+{
+  /* device report descriptor */
   uint8_t* dev_rdesc;
   unsigned dev_rsize;
-//	__u8 *rdesc;
-//  uint8_t* rdesc;
-//  unsigned rsize;
+
   struct hid_collection *collection; /* List of HID collections */
   unsigned collection_size; /* Number of allocated hid_collections */
   unsigned maxcollection; /* Number of parsed collections */
   unsigned maxapplication; /* Number of applications */
+
 //	__u16 bus;							    /* BUS ID */
 //	__u16 group;							/* Report group */
 //	__u32 vendor;							/* Vendor ID */
 //	__u32 product;							/* Product ID */
 //	__u32 version;							/* HID version */
+
   enum hid_type type; /* device type (mouse, kbd, ...) */
   unsigned country; /* HID country */
   struct hid_report_enum report_enum[HID_REPORT_TYPES];
-//	struct work_struct led_work;					/* delayed LED worker */
-//
-//	struct semaphore driver_lock;					/* protects the current driver, except during input */
-//	struct semaphore driver_input_lock;				/* protects the current driver */
-//	struct device dev;						/* device */
-//  struct hid_driver *driver;
-//  struct hid_ll_driver *ll_driver;
-
-#ifdef CONFIG_HID_BATTERY_STRENGTH
-  /*
-   * Power supply information for HID devices which report
-   * battery strength. power_supply is registered iff
-   * battery.name is non-NULL.
-   */
-  struct power_supply battery;
-  __s32 battery_min;
-  __s32 battery_max;
-  __s32 battery_report_type;
-  __s32 battery_report_id;
-#endif
 
   unsigned int status; /* see STAT flags above */
   unsigned claimed; /* Claimed by hidinput, hiddev? */
-//  unsigned quirks; /* Various quirks the device can pull on us */
-//	bool io_started;						/* Protected by driver_lock. If IO has started */
 
-struct list_head inputs;					/* The list of inputs */
-//  void *hiddev; /* The hiddev structure */
-//  void *hidraw;
-//  int minor; /* Hiddev minor number */
-
-//  int  open; /* is the device open by anyone? */
-//  char name[128]; /* Device name */
-//  char phys[64]; /* Device physical location */
-//  char uniq[64]; /* Device unique identifier (serial #) */
-
-//  void *driver_data;
-
-  /* temporary hid_ff handling (until moved to the drivers) */
-//  int (*ff_init)(struct hid_device *);
-
-  /* hiddev event handler */
-//	int (*hiddev_connect)(struct hid_device *, unsigned int);
-//	void (*hiddev_disconnect)(struct hid_device *);
-//	void (*hiddev_hid_event) (struct hid_device *, struct hid_field *field,
-//				  struct hid_usage *, __s32);
-//	void (*hiddev_report_event) (struct hid_device *, struct hid_report *);
-//
-//	/* handler for raw input (Get_Report) data, used by hidraw */
-//	int (*hid_get_raw_report) (struct hid_device *, unsigned char, __u8 *, size_t, unsigned char);
-//
-//	/* handler for raw output data, used by hidraw */
-//	int (*hid_output_raw_report) (struct hid_device *, __u8 *, size_t, unsigned char);
-  /* debugging support via debugfs */
-//  unsigned short debug;
-//  struct dentry *debug_dir;
-//  struct dentry *debug_rdesc;
-//  struct dentry *debug_events;
-//	struct list_head debug_list;
-//	spinlock_t  debug_list_lock;
-//	wait_queue_head_t debug_wait;
+  struct list_head inputs;					/* The list of inputs */
 };
 
 //static inline void *hid_get_drvdata(struct hid_device *hdev)
@@ -868,15 +804,24 @@ extern void hid_unregister_driver(struct hid_driver *);
 
 extern void hidinput_hid_event(struct hid_device *, struct hid_field *, struct hid_usage *, __s32);
 extern void hidinput_report_event(struct hid_device *hid, struct hid_report *report);
+
+#endif
+
 extern int hidinput_connect(struct hid_device *hid, unsigned int force);
 extern void hidinput_disconnect(struct hid_device *);
 
+#if 0
 int hid_set_field(struct hid_field *, unsigned, __s32);
 int hid_input_report(struct hid_device *, int type, u8 *, int, int);
 int hidinput_find_field(struct hid_device *hid, unsigned int type, unsigned int code, struct hid_field **field);
 struct hid_field *hidinput_get_led_field(struct hid_device *hid);
 unsigned int hidinput_count_leds(struct hid_device *hid);
-__s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
+#endif
+
+// __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
+int32_t hidinput_calc_abs_res(const struct hid_field *field, uint16_t code);
+
+#if 0
 void hid_output_report(struct hid_report *report, __u8 *data);
 u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags);
 struct hid_device *hid_allocate_device(void);
@@ -944,61 +889,7 @@ static inline void hid_device_io_stop(struct hid_device *hid)
 
 
 
-/**
- * hid_map_usage - map usage input bits
- *
- * @hidinput: hidinput which we are interested in
- * @usage: usage to fill in
- * @bit: pointer to input->{}bit (out parameter)
- * @max: maximal valid usage->code to consider later (out parameter)
- * @type: input event type (EV_KEY, EV_REL, ...)
- * @c: code which corresponds to this usage and type
- */
-static inline void hid_map_usage(struct hid_input *hidinput,
-    struct hid_usage *usage, unsigned long **bit, int *max,
-    uint8_t type, uint16_t c) // __u8 type, __u16 c)
-{
-  struct input_dev *input = hidinput->input;
 
-  usage->type = type;
-  usage->code = c;
-
-  switch (type)
-  {
-    case EV_ABS:
-    *bit = input->absbit;
-    *max = ABS_MAX;
-    break;
-    case EV_REL:
-    *bit = input->relbit;
-    *max = REL_MAX;
-    break;
-    case EV_KEY:
-    *bit = input->keybit;
-    *max = KEY_MAX;
-    break;
-    case EV_LED:
-    *bit = input->ledbit;
-    *max = LED_MAX;
-    break;
-  }
-}
-
-#endif
-
-/**
- * hid_map_usage_clear - map usage input bits and clear the input bit
- *
- * The same as hid_map_usage, except the @c bit is also cleared in supported
- * bits (@bit).
- */
-static inline void hid_map_usage_clear(struct hid_input *hidinput,
-    struct hid_usage *usage, unsigned long **bit, int *max,
-    uint8_t type, uint16_t c) // _u8 type, __u16 c)
-{
-  hid_map_usage(hidinput, usage, bit, max, type, c);
-  clear_bit(c, *bit);
-}
 
 #if 0
 
@@ -1190,4 +1081,6 @@ do {									\
 
 #define hid_err(hid, fmt, arg...)
 
-// #endif
+#endif /* __HID_H */
+
+

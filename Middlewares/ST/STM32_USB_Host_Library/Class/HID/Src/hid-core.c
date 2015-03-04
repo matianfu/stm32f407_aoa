@@ -107,6 +107,17 @@ int hid_debug = 0;
 
 int size_debug;
 
+
+
+/*
+ *
+ */
+struct hid_device device;
+
+static const char *hid_gpd_strings[] =
+{ "Undefined", "Pointer", "Mouse", "Reserved", "Joystick", "Gamepad", "Keyboard",
+    "Keypad", "Multi-Axis Controller" };
+
 /*
  * Register a new report for a device.
  */
@@ -139,7 +150,6 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
 	report->device = device;
 	report_enum->report_id_hash[id] = report;
 
-	// TODO may be problematic
 	list_add_tail(&report->list, &report_enum->report_list);
 
 	return report;
@@ -319,7 +329,8 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
 		parser->global.logical_minimum) ||
 		(parser->global.logical_minimum >= 0 &&
 		(uint32_t)parser->global.logical_maximum <         /** modified **/
-		(uint32_t)parser->global.logical_minimum)) {       /** modifield **/
+		(uint32_t)parser->global.logical_minimum)) {       /** modified **/
+
 		dbg_hid("logical range invalid 0x%x 0x%x\n",
 			parser->global.logical_minimum,
 			parser->global.logical_maximum);
@@ -1379,29 +1390,29 @@ extern void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, 
 //  USBH_UsrLog("hidinput_hid_event, value: %d", value);
 //}
 
-static void hid_process_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, int32_t value, int interrupt)
-{
-//  struct hid_driver *hdrv = hid->driver;
-//  int ret;
-
-//    if (!list_empty(&hid->debug_list))
-//        hid_dump_input(hid, usage, value);
-
-//    if (hdrv && hdrv->event && hid_match_usage(hid, usage)) {
-//        ret = hdrv->event(hid, field, usage, value);
-//        if (ret != 0) {
-//            if (ret < 0)
-//                hid_err(hid, "%s's event failed with %d\n",
-//                        hdrv->name, ret);
-//            return;
-//        }
-//    }
-
-//    if (hid->claimed & HID_CLAIMED_INPUT)
-        hidinput_hid_event(hid, field, usage, value);
-//    if (hid->claimed & HID_CLAIMED_HIDDEV && interrupt && hid->hiddev_hid_event)
-//        hid->hiddev_hid_event(hid, field, usage, value);
-}
+//static void hid_process_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, int32_t value, int interrupt)
+//{
+////  struct hid_driver *hdrv = hid->driver;
+////  int ret;
+//
+////    if (!list_empty(&hid->debug_list))
+////        hid_dump_input(hid, usage, value);
+//
+////    if (hdrv && hdrv->event && hid_match_usage(hid, usage)) {
+////        ret = hdrv->event(hid, field, usage, value);
+////        if (ret != 0) {
+////            if (ret < 0)
+////                hid_err(hid, "%s's event failed with %d\n",
+////                        hdrv->name, ret);
+////            return;
+////        }
+////    }
+//
+////    if (hid->claimed & HID_CLAIMED_INPUT)
+//        hidinput_hid_event(hid, field, usage, value);
+////    if (hid->claimed & HID_CLAIMED_HIDDEV && interrupt && hid->hiddev_hid_event)
+////        hid->hiddev_hid_event(hid, field, usage, value);
+//}
 
 #if 0 // see below
 
@@ -1459,14 +1470,12 @@ exit:
 
 #endif
 
-
 /*
  * Analyse a received field, and fetch the data from it. The field
  * content is stored for next report processing (we do differential
  * reporting to the layer).
  */
-
-static void hid_input_field(struct hid_device *hid, struct hid_field *field, uint8_t *data, int interrupt)
+static void hid_input_field(struct hid_device *hid, struct hid_field *field, uint8_t *data)
 {
   unsigned n;
   unsigned count = field->report_count;
@@ -1476,9 +1485,9 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field, uin
   int32_t max = field->logical_maximum;
   int32_t *value;
 
-  USBH_UsrLog(
-      "    hid_input_field, count: %d, size: %d, offset: %d, lmin: %d, lmax: %d",
-      count, size, offset, (int )min, (int )max);
+//  USBH_UsrLog(
+//      "    hid_input_field, count: %d, size: %d, offset: %d, lmin: %d, lmax: %d",
+//      count, size, offset, (int )min, (int )max);
 //	value = kmalloc(sizeof(__s32) * count, GFP_ATOMIC);
 //	if (!value)
 //		return;
@@ -1517,7 +1526,7 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field, uin
         && search(value, field->value[n], count))
     {
 
-      USBH_UsrLog("    old field->value[%d] (%d) not found in new value", n, (int)field->value[n]);
+      // USBH_UsrLog("    old field->value[%d] (%d) not found in new value", n, (int)field->value[n]);
       // hid_process_event(hid, field, &field->usage[field->value[n] - min], 0, interrupt);
       hidinput_hid_event(hid, field, &field->usage[field->value[n] - min], 0);
     }
@@ -1526,7 +1535,7 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field, uin
         && search(field->value, value[n], count))
     {
 
-      USBH_UsrLog("    new value[%d] (%d) not found in old field->value", n, (int)value[n]);
+      // USBH_UsrLog("    new value[%d] (%d) not found in old field->value", n, (int)value[n]);
       // hid_process_event(hid, field, &field->usage[value[n] - min], 1, interrupt);
       hidinput_hid_event(hid, field, &field->usage[value[n] - min], 1);
     }
@@ -1656,40 +1665,49 @@ static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
  * This function is
  * int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size, int interrupt)
  */
-int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size, int interrupt)
+int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size)
 {
-	struct hid_report_enum *report_enum = hid->report_enum + type;
-	struct hid_report *report;
+  struct hid_report_enum *report_enum = hid->report_enum + type;
+  struct hid_report *report;
 //	struct hid_driver *hdrv;
-	unsigned int a;
-	int rsize, csize = size;
-	uint8_t *cdata = data;
-	int ret = 0;
+  unsigned int a;
+  int rsize, csize = size;
+  uint8_t *cdata = data;
+  int ret = 0;
 
-	USBH_UsrLog("%s", __func__);
+//  USBH_UsrLog("%s", __func__);
 
-	report = hid_get_report(report_enum, data);
-	if (!report) {
-	  USBH_UsrLog("failed to get report.")
-		goto out;
-	}
+  /** these validations are copied from original hid_input_report() **/
+  if ((!hid) || (!data) || (!size)) {
+    USBH_UsrLog("%s invalid args", __func__);
+    return -1;
+  }
 
-	if (report_enum->numbered) {
+  /** fetch report **/
+  report = hid_get_report(report_enum, data);
+  if (!report)
+  {
+    USBH_UsrLog("failed to get report.")
+    goto out;
+  }
 
-		cdata++;
-		csize--;
-	}
+  /** bypass report id **/
+  if (report_enum->numbered)
+  {
+    cdata++;
+    csize--;
+  }
 
-	rsize = ((report->size - 1) >> 3) + 1;
+  rsize = ((report->size - 1) >> 3) + 1;
 
-	if (rsize > HID_MAX_BUFFER_SIZE)
-		rsize = HID_MAX_BUFFER_SIZE;
+  if (rsize > HID_MAX_BUFFER_SIZE)
+    rsize = HID_MAX_BUFFER_SIZE;
 
-	if (csize < rsize) {
-		dbg_hid("report %d is too short, (%d < %d)\n", report->id,
-				csize, rsize);
-		memset(cdata + csize, 0, rsize - csize);
-	}
+  if (csize < rsize)
+  {
+    dbg_hid("report %d is too short, (%d < %d)\n", report->id, csize, rsize);
+    memset(cdata + csize, 0, rsize - csize);
+  }
 
 //  bypass hiddev report event
 //	if ((hid->claimed & HID_CLAIMED_HIDDEV) && hid->hiddev_report_event)
@@ -1711,16 +1729,16 @@ int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int si
 //
 
 //	USBH_UsrLog("  report is ready, has %d fields.", (int)report->maxfield);
-    for (a = 0; a < report->maxfield; a++) {
+  for (a = 0; a < report->maxfield; a++)
+  {
 //  USBH_UsrLog( "  field index: %d", a);
-      hid_input_field(hid, report->field[a], cdata, interrupt);
-    }
+    hid_input_field(hid, report->field[a], cdata);
+  }
 
-    //  if (hid->claimed & HID_CLAIMED_INPUT)
-    //      hidinput_report_event(hid, report);
+//  if (hid->claimed & HID_CLAIMED_INPUT)
+  hidinput_report_event(hid, report);
 
-out:
-	return ret;
+  out: return ret;
 }
 // EXPORT_SYMBOL_GPL(hid_report_raw_event);
 
@@ -1738,57 +1756,57 @@ out:
  *
  * int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int interrupt)
  */
-int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size,
-    int interrupt)
-{
-//  struct hid_report_enum *report_enum;
-//	struct hid_driver *hdrv;
-//  struct hid_report *report;
-  int ret = 0;
-
-  if (!hid)
-    return -ENODEV;
-
-//	if (down_trylock(&hid->driver_input_lock))
-//		return -EBUSY;
-
-//	if (!hid->driver) {
-//		ret = -ENODEV;
-//		goto unlock;
-//	}
-//  report_enum = hid->report_enum + type;
-//	hdrv = hid->driver;
-
-  if (!size)
-  {
-//	dbg_hid("empty report\n");
-    USBH_UsrLog("empty report");
-    ret = -1;
-    goto unlock;
-  }
-
-//  /* Avoid unnecessary overhead if debugfs is disabled */
-//	if (!list_empty(&hid->debug_list))
-//		hid_dump_report(hid, type, data, size);
-//  These code are duplicate. They are called in hid_report_raw_event
-//	report = hid_get_report(report_enum, data);
+//int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size,
+//    int interrupt)
+//{
+////  struct hid_report_enum *report_enum;
+////	struct hid_driver *hdrv;
+////  struct hid_report *report;
+//  int ret = 0;
 //
-//	if (!report) {
-//		ret = -1;
-//		goto unlock;
-//	}
-//  bypass driver's raw_event handler
-//	if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
-//		ret = hdrv->raw_event(hid, report, data, size);
-//		if (ret < 0)
-//			goto unlock;
-//	}
-  ret = hid_report_raw_event(hid, type, data, size, interrupt);
-
-  unlock:
-//	up(&hid->driver_input_lock);
-  return ret;
-}
+//  if (!hid)
+//    return -ENODEV;
+//
+////	if (down_trylock(&hid->driver_input_lock))
+////		return -EBUSY;
+//
+////	if (!hid->driver) {
+////		ret = -ENODEV;
+////		goto unlock;
+////	}
+////  report_enum = hid->report_enum + type;
+////	hdrv = hid->driver;
+//
+//  if (!size)
+//  {
+////	dbg_hid("empty report\n");
+//    USBH_UsrLog("empty report");
+//    ret = -1;
+//    goto unlock;
+//  }
+//
+////  /* Avoid unnecessary overhead if debugfs is disabled */
+////	if (!list_empty(&hid->debug_list))
+////		hid_dump_report(hid, type, data, size);
+////  These code are duplicate. They are called in hid_report_raw_event
+////	report = hid_get_report(report_enum, data);
+////
+////	if (!report) {
+////		ret = -1;
+////		goto unlock;
+////	}
+////  bypass driver's raw_event handler
+////	if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
+////		ret = hdrv->raw_event(hid, report, data, size);
+////		if (ret < 0)
+////			goto unlock;
+////	}
+//  ret = hid_report_raw_event(hid, type, data, size, interrupt);
+//
+//  unlock:
+////	up(&hid->driver_input_lock);
+//  return ret;
+//}
 // EXPORT_SYMBOL_GPL(hid_input_report);
 
 #if 0
@@ -1853,17 +1871,21 @@ static struct bin_attribute dev_bin_attr_report_desc = {
 
 extern int hidinput_connect(struct hid_device *hid, unsigned int force);
 
+/*
+ * The original code connect to many subsystems, we are interested only in input subsystem
+ */
 int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 {
 	static const char *types[] = { "Device", "Pointer", "Mouse", "Device",
 		"Joystick", "Gamepad", "Keyboard", "Keypad",
 		"Multi-Axis Controller"
 	};
-	const char *type, *bus;
-	char buf[64];
+//	const char *type, *bus;
+	const char *type;
+//	char buf[64];
 	unsigned int i;
-	int len;
-	int ret;
+//	int len;
+//	int ret;
 
 //	if (hdev->quirks & HID_QUIRK_HIDDEV_FORCE)
 //		connect_mask |= (HID_CONNECT_HIDDEV_FORCE | HID_CONNECT_HIDDEV);
@@ -1896,7 +1918,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 //			(connect_mask & HID_CONNECT_FF) && hdev->ff_init)
 //		hdev->ff_init(hdev);
 
-	len = 0;
+//	len = 0;
 //	if (hdev->claimed & HID_CLAIMED_INPUT)
 //		len += sprintf(buf + len, "input");
 //	if (hdev->claimed & HID_CLAIMED_HIDDEV)
@@ -1937,22 +1959,26 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 //		 buf, bus, hdev->version >> 8, hdev->version & 0xff,
 //		 type, hdev->name, hdev->phys);
 
+	USBH_UsrLog("HID %s connected", type);
+
 	return 0;
 }
 // EXPORT_SYMBOL_GPL(hid_connect);
 
-#if 0
+
 void hid_disconnect(struct hid_device *hdev)
 {
-	device_remove_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
-	if (hdev->claimed & HID_CLAIMED_INPUT)
-		hidinput_disconnect(hdev);
-	if (hdev->claimed & HID_CLAIMED_HIDDEV)
-		hdev->hiddev_disconnect(hdev);
-	if (hdev->claimed & HID_CLAIMED_HIDRAW)
-		hidraw_disconnect(hdev);
+//  device_remove_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
+  if (hdev->claimed & HID_CLAIMED_INPUT)
+    hidinput_disconnect(hdev);
+//  if (hdev->claimed & HID_CLAIMED_HIDDEV)
+//    hdev->hiddev_disconnect(hdev);
+//  if (hdev->claimed & HID_CLAIMED_HIDRAW)
+//    hidraw_disconnect(hdev);
 }
-EXPORT_SYMBOL_GPL(hid_disconnect);
+// EXPORT_SYMBOL_GPL(hid_disconnect);
+
+#if 0
 
 /*
  * A list of devices for which there is a specialized driver on HID bus.

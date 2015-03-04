@@ -85,7 +85,7 @@
 /** @defgroup USBH_HID_CORE_Private_Variables
  * @{
  */
-struct hid_device device;
+extern struct hid_device device;
 /**
  * @}
  */
@@ -149,6 +149,7 @@ static USBH_StatusTypeDef USBH_HID_InterfaceInit(USBH_HandleTypeDef *phost)
 
   if (interface == 0xFF) {
     /* find non-boot device second */
+    // interface = USBH_FindInterface(phost, phost->pActiveClass->ClassCode, 0xFF, 0xFF);
     interface = USBH_FindInterface(phost, phost->pActiveClass->ClassCode, 0, 0);
   }
 
@@ -297,10 +298,11 @@ static void USBH_HID_PrintHIDDesc(HID_DescTypeDef* desc) {
   USBH_UsrLog("        wDescriptorLength: %d %s", desc->wItemLength, "(for report descriptor)");
 }
 
-extern int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size, int interrupt);
+// extern int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size, int interrupt);
 extern void hid_close_report(struct hid_device *device);
-extern int hid_open_report(struct hid_device *device);
+// extern int hid_open_report(struct hid_device *device);
 extern int hid_device_probe(struct hid_device *hdev);
+extern int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size);
 
 /**
  * @brief  USBH_HID_ClassRequest
@@ -316,8 +318,6 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
   USBH_StatusTypeDef classReqStatus = USBH_BUSY;
   HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
   int i;
-
-
 
   /* Switch HID state machine */
   switch (HID_Handle->ctl_state)
@@ -344,7 +344,6 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
       /* print raw data of report descriptor */
       USBH_UsrLog("HID: Print raw data of HID report descriptor.");
 
-
       // USBH_HID_ParseHIDReportDesc()
       for (i = 0; i < HID_Handle->HID_Desc.wItemLength; i++) {
         USBH_UsrLog(" - 0x%02x", phost->device.Data[i]);
@@ -356,8 +355,6 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
       INIT_LIST_HEAD(&device.inputs);
 
       hid_close_report(&device);
-//    hid_open_report(&device);
-
       hid_device_probe(&device);
 
       HID_Handle->ctl_state = HID_REQ_SET_IDLE;
@@ -420,6 +417,8 @@ static int need_report(uint8_t* report, int size) {
   }
 
   if (previous_zero != 1) {
+
+    // USBH_UsrLog("Zero report");
     previous_zero = 1;
     return 1;
   }
@@ -490,8 +489,9 @@ static USBH_StatusTypeDef USBH_HID_Process(USBH_HandleTypeDef *phost)
         xfer_count = USBH_LL_GetLastXferSize(phost, HID_Handle->InPipe);
 
         if (need_report(HID_Handle->pData, xfer_count)) {
-          USBH_UsrLog("in xfered bytes: %d", (int)xfer_count);
-          hid_input_report(&device, HID_INPUT_REPORT, HID_Handle->pData, xfer_count, 1);
+          // USBH_UsrLog("in xfered bytes: %d", (int)xfer_count);
+          // hid_input_report(&device, HID_INPUT_REPORT, HID_Handle->pData, xfer_count, 1);
+          hid_report_raw_event(&device, 0 /* HID_INPUT_REPORT */ , HID_Handle->pData, xfer_count);
         }
 
         // fifo_write(&HID_Handle->fifo, HID_Handle->pData, HID_Handle->length);

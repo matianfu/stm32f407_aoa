@@ -33,6 +33,7 @@
 #include "usbh_core.h"
 #include "usbh_hid_mouse.h"
 #include "usbh_hid_keybd.h"
+
  
 /** @addtogroup USBH_LIB
   * @{
@@ -63,7 +64,9 @@
 #define HID_QUEUE_SIZE              10    
     
 #define  HID_ITEM_LONG                              0xFE
-                                                                       
+
+#if 0
+
 #define  HID_ITEM_TYPE_MAIN                         0x00
 #define  HID_ITEM_TYPE_GLOBAL                       0x01
 #define  HID_ITEM_TYPE_LOCAL                        0x02
@@ -101,7 +104,8 @@
 #define  HID_LOCAL_ITEM_TAG_STRING_MIN              0x08
 #define  HID_LOCAL_ITEM_TAG_STRING_MAX              0x09
 #define  HID_LOCAL_ITEM_TAG_DELIMITER               0x0A
-    
+
+#endif
 
 /* States for HID State Machine */
 typedef enum
