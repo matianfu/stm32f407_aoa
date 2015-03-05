@@ -833,6 +833,8 @@ static void HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum)
     
     if (hhcd->Init.dma_enable)
     {
+
+	  printf("xfter is add in USB_OTG_HCINT_XFRC event\r\n");
       hhcd->hc[chnum].xfer_count = hhcd->hc[chnum].xfer_len - \
                                (USBx_HC(chnum)->HCTSIZ & USB_OTG_HCTSIZ_XFRSIZ);
     }
@@ -1092,6 +1094,8 @@ static void HCD_RXQLVL_IRQHandler  (HCD_HandleTypeDef *hhcd)
       USB_ReadPacket(hhcd->Instance, hhcd->hc[channelnum].xfer_buff, pktcnt);
      
       /*manage multiple Xfer */
+	  printf("xfter is add in GRXSTS_PKTSTS_IN event\r\n");
+
       hhcd->hc[channelnum].xfer_buff += pktcnt;           
       hhcd->hc[channelnum].xfer_count  += pktcnt;
         

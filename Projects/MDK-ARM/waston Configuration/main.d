@@ -35,3 +35,12 @@ waston Configuration\main.o: ..\..\Inc\usart.h
 waston Configuration\main.o: ..\..\Inc\usb_host.h
 waston Configuration\main.o: ..\..\Inc\gpio.h
 waston Configuration\main.o: ..\..\Inc\time.h
+waston Configuration\main.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Inc\usbh_adk_core.h
+waston Configuration\main.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc\usbh_core.h
+waston Configuration\main.o: ..\..\Inc\usbh_conf.h
+waston Configuration\main.o: C:\Keil\ARM\RV31\Inc\string.h
+waston Configuration\main.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc\usbh_def.h
+waston Configuration\main.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc\usbh_ioreq.h
+waston Configuration\main.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc\usbh_core.h
+waston Configuration\main.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc\usbh_pipes.h
+waston Configuration\main.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc\usbh_ctlreq.h

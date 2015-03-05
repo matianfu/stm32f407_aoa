@@ -14,7 +14,6 @@
 *.plg
 *.tra
 *.bak
-*.uvproj
 *.uvopt
 *.iex
 *.axf

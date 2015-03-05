@@ -340,7 +340,7 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>2</wLevel>
+            <wLevel>1</wLevel>
             <uThumb>0</uThumb>
             <VariousControls>
               <MiscControls>--C99</MiscControls>
@@ -547,26 +547,6 @@
           <GroupName>Middlewares/USB_Host_Library</GroupName>
           <Files>
             <File>
-              <FileName>usbh_hid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\usbh_hid.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_keybd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\usbh_hid_keybd.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_mouse.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\usbh_hid_mouse.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_parser.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\usbh_hid_parser.c</FilePath>
-            </File>
-            <File>
               <FileName>usbh_msc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\MSC\Src\usbh_msc.c</FilePath>
@@ -605,21 +585,6 @@
               <FileName>usbh_adk_core.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Src\usbh_adk_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_nonbootkbd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\usbh_hid_nonbootkbd.c</FilePath>
-            </File>
-            <File>
-              <FileName>hid-core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-core.c</FilePath>
-            </File>
-            <File>
-              <FileName>hid-input.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Src\hid-input.c</FilePath>
             </File>
           </Files>
         </Group>

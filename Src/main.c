@@ -42,12 +42,15 @@
 #include "usb_host.h"
 #include "gpio.h"
 #include "time.h"
+#include "usbh_adk_core.h"
 
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN 0 */
 extern void uart_hl_print(void);
+
+extern USBH_HandleTypeDef hUsbHostHS;
 /* USER CODE END 0 */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -116,6 +119,24 @@ int main(void)
 	uart_hl_print();
     MX_USB_HOST_Process();
 
+	uint8_t msg[32];
+	uint16_t i ,len;
+	if( USBH_ADK_getStatus() == ADK_IDLE) 
+    {
+
+	    len = USBH_ADK_read(&hUsbHostHS, msg, sizeof(msg));
+		if(len>0)
+		{
+//			USBH_ADK_ClearCount(&hUsbHostHS);
+			for(i = 0; i< len; i++)
+			{
+	
+				printf("%X ",msg[i]);
+	
+			}
+			printf("\r\n");
+		}
+    }
   }
   /* USER CODE END 3 */
 
