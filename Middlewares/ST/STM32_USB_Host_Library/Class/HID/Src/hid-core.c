@@ -5,6 +5,7 @@
  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
  *  Copyright (c) 2006-2012 Jiri Kosina
+ *  Copyright (c) 2015 matianfu
  */
 
 /*
@@ -13,17 +14,15 @@
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  */
-#include <errno.h>/*
- *
- */
-// struct hid_device device;
+#include <errno.h>
 
+#include "hid.h"
+#include "usbh_def.h"
 #include "usbh_conf.h"
 
 #define dbg_hid(...)    USBH_UsrLog(__VA_ARGS__)
 
 
-#include "hid.h"
 
 
 
@@ -599,7 +598,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
 
 static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
 {
-	// __u32 data;
     uint32_t data;
 	int ret;
 
@@ -666,37 +664,49 @@ static void hid_free_report(struct hid_report *report)
  */
 void hid_close_report(struct hid_device *device)
 {
-        unsigned i, j;
+  unsigned i, j;
 
-        for (i = 0; i < HID_REPORT_TYPES; i++) {
-                struct hid_report_enum *report_enum = device->report_enum + i;
+  for (i = 0; i < HID_REPORT_TYPES; i++)
+  {
+    struct hid_report_enum *report_enum = device->report_enum + i;
 
-                for (j = 0; j < HID_MAX_IDS; j++) {
-                        struct hid_report *report = report_enum->report_id_hash[j];
-                        if (report)
-                                hid_free_report(report);
-                }
-                memset(report_enum, 0, sizeof(*report_enum));
-                INIT_LIST_HEAD(&report_enum->report_list);
-        }
+    for (j = 0; j < HID_MAX_IDS; j++)
+    {
+      struct hid_report *report = report_enum->report_id_hash[j];
+      if (report)
+        hid_free_report(report);
+    }
+    memset(report_enum, 0, sizeof(*report_enum));
+    INIT_LIST_HEAD(&report_enum->report_list);
+  }
 
+  /**
+   * see open report
+   *
+   * linux hid use rdesc and dev_rdesc fields. we use only dev_rdesc.
+   */
+// kfree(device->rdesc);
+//  if (device->rdesc)
+//    free(device->rdesc);
+//  device->rdesc = NULL;
+//  device->rsize = 0;
 
-        // kfree(device->rdesc);
-        // device->rdesc = NULL;
-        // device->rsize = 0;
+  if (device->dev_rdesc) {
+    free(device->dev_rdesc);
+    device->dev_rdesc = NULL;
+  }
+  device->dev_rsize = 0;
 
-        /*
-         * kfree null is valid
-         */
-        // kfree(device->collection);
-        if (device->collection)
-          free(device->collection);
-        device->collection = NULL;
-        device->collection_size = 0;
-        device->maxcollection = 0;
-        device->maxapplication = 0;
+  // kfree(device->collection);
+  if (device->collection)
+    free(device->collection);
 
-        device->status &= ~HID_STAT_PARSED;
+  device->collection = NULL;
+  device->collection_size = 0;
+  device->maxcollection = 0;
+  device->maxapplication = 0;
+
+  device->status &= ~HID_STAT_PARSED;
 }
 
 #if 0
@@ -1001,6 +1011,10 @@ EXPORT_SYMBOL_GPL(hid_validate_values);
  *
  * This function (or the equivalent hid_parse() macro) should only be
  * called from probe() in drivers, before starting the device.
+ *
+ * This function allocate a parser then destroy it.
+ *
+ *
  */
 int hid_open_report(struct hid_device *device)
 {
@@ -1249,28 +1263,28 @@ static void implement(const struct hid_device *hid, __u8 *report,
 	put_unaligned_le64(x, report);
 }
 
+#endif
+
 /*
  * Search an array for a value.
  */
-
-static int search(__s32 *array, __s32 value, unsigned n)
-{
-	while (n--) {
-		if (*array++ == value)
-			return 0;
-	}
-	return -1;
-}
-
-#endif
-
+//static int search(__s32 *array, __s32 value, unsigned n)
+//{
+//  while (n--)
+//  {
+//    if (*array++ == value)
+//      return 0;
+//  }
+//  return -1;
+//}
 static int search(int32_t *array, int32_t value, unsigned n)
 {
-    while (n--) {
-        if (*array++ == value)
-            return 0;
-    }
-    return -1;
+  while (n--)
+  {
+    if (*array++ == value)
+      return 0;
+  }
+  return -1;
 }
 
 #if 0
@@ -2330,54 +2344,54 @@ static int hid_bus_match(struct device *dev, struct device_driver *drv)
 	return hid_match_device(hdev, hdrv) != NULL;
 }
 
-#endif
-
-// static int hid_device_probe(struct device *dev)
-int hid_device_probe(struct hid_device *hdev)
+static int hid_device_probe(struct device *dev)
 {
-//	struct hid_driver *hdrv = container_of(dev->driver,
-//			struct hid_driver, driver);
-//	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
-//	const struct hid_device_id *id;
-	int ret = 0;
-//
-//	if (down_interruptible(&hdev->driver_lock))
-//		return -EINTR;
-//	if (down_interruptible(&hdev->driver_input_lock)) {
-//		ret = -EINTR;
-//		goto unlock_driver_lock;
-//	}
-//	hdev->io_started = false;
-//
-//	if (!hdev->driver) {
-//		id = hid_match_device(hdev, hdrv);
-//		if (id == NULL) {
-//			ret = -ENODEV;
-//			goto unlock;
-//		}
-//
-//		hdev->driver = hdrv;
-//		if (hdrv->probe) {
-//			ret = hdrv->probe(hdev, id);
-//		} else { /* default probe */
-			ret = hid_open_report(hdev);
-			if (!ret)
-				ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-//		}
-//		if (ret) {
-//			hid_close_report(hdev);
-//			hdev->driver = NULL;
-//		}
-//	}
-//unlock:
-//	if (!hdev->io_started)
-//		up(&hdev->driver_input_lock);
-//unlock_driver_lock:
-//	up(&hdev->driver_lock);
-	return ret;
-}
+  struct hid_driver *hdrv = container_of(dev->driver, struct hid_driver,
+      driver);
+  struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+  const struct hid_device_id *id;
+  int ret = 0;
 
-#if 0
+  if (down_interruptible(&hdev->driver_lock))
+    return -EINTR;
+  if (down_interruptible(&hdev->driver_input_lock))
+  {
+    ret = -EINTR;
+    goto unlock_driver_lock;
+  }
+  hdev->io_started = false;
+
+  if (!hdev->driver)
+  {
+    id = hid_match_device(hdev, hdrv);
+    if (id == NULL)
+    {
+      ret = -ENODEV;
+      goto unlock;
+    }
+
+    hdev->driver = hdrv;
+    if (hdrv->probe)
+    {
+      ret = hdrv->probe(hdev, id);
+    }
+    else
+    { /* default probe */
+      ret = hid_open_report(hdev);
+      if (!ret)
+        ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+    }
+    if (ret)
+    {
+      hid_close_report(hdev);
+      hdev->driver = NULL;
+    }
+  }
+  unlock: if (!hdev->io_started)
+    up(&hdev->driver_input_lock);
+  unlock_driver_lock: up(&hdev->driver_lock);
+  return ret;
+}
 
 static int hid_device_remove(struct device *dev)
 {
@@ -2829,6 +2843,7 @@ int hid_add_device(struct hid_device *hdev)
 	return ret;
 }
 EXPORT_SYMBOL_GPL(hid_add_device);
+#endif
 
 /**
  * hid_allocate_device - allocate new hid device descriptor
@@ -2841,40 +2856,50 @@ EXPORT_SYMBOL_GPL(hid_add_device);
  */
 struct hid_device *hid_allocate_device(void)
 {
-	struct hid_device *hdev;
-	int ret = -ENOMEM;
+  struct hid_device *hdev;
+//  int ret = -ENOMEM;
 
-	hdev = kzalloc(sizeof(*hdev), GFP_KERNEL);
-	if (hdev == NULL)
-		return ERR_PTR(ret);
+//  hdev = kzalloc(sizeof(*hdev), GFP_KERNEL);
+//  if (hdev == NULL)
+//    return ERR_PTR(ret);
+  hdev = malloc(sizeof(*hdev));
+  if (hdev == NULL)
+    return NULL;
 
-	device_initialize(&hdev->dev);
-	hdev->dev.release = hid_device_release;
-	hdev->dev.bus = &hid_bus_type;
+  memset(hdev, 0, sizeof(*hdev));
 
-	hid_close_report(hdev);
+//  device_initialize(&hdev->dev);
+//  hdev->dev.release = hid_device_release;
+//  hdev->dev.bus = &hid_bus_type;
 
-	init_waitqueue_head(&hdev->debug_wait);
-	INIT_LIST_HEAD(&hdev->debug_list);
-	spin_lock_init(&hdev->debug_list_lock);
-	sema_init(&hdev->driver_lock, 1);
-	sema_init(&hdev->driver_input_lock, 1);
+  hid_close_report(hdev);
 
-	return hdev;
+//  init_waitqueue_head(&hdev->debug_wait);
+//  INIT_LIST_HEAD(&hdev->debug_list);
+//  spin_lock_init(&hdev->debug_list_lock);
+//  sema_init(&hdev->driver_lock, 1);
+//  sema_init(&hdev->driver_input_lock, 1);
+
+  return hdev;
 }
-EXPORT_SYMBOL_GPL(hid_allocate_device);
+// EXPORT_SYMBOL_GPL(hid_allocate_device);
 
 static void hid_remove_device(struct hid_device *hdev)
 {
-	if (hdev->status & HID_STAT_ADDED) {
-		device_del(&hdev->dev);
-		hid_debug_unregister(hdev);
-		hdev->status &= ~HID_STAT_ADDED;
-	}
-	kfree(hdev->dev_rdesc);
-	hdev->dev_rdesc = NULL;
-	hdev->dev_rsize = 0;
+//  if (hdev->status & HID_STAT_ADDED)
+//  {
+//    device_del(&hdev->dev);
+//    hid_debug_unregister(hdev);
+//    hdev->status &= ~HID_STAT_ADDED;
+//  }
+//  kfree(hdev->dev_rdesc);
+  if (hdev->dev_rdesc) {
+    free(hdev->dev_rdesc);
+    hdev->dev_rdesc = NULL;
+  }
+  hdev->dev_rsize = 0;
 }
+
 
 /**
  * hid_destroy_device - free previously allocated device
@@ -2887,9 +2912,16 @@ static void hid_remove_device(struct hid_device *hdev)
 void hid_destroy_device(struct hid_device *hdev)
 {
 	hid_remove_device(hdev);
-	put_device(&hdev->dev);
+
+	/*
+	 * put_device will free dev container.
+	 */
+	// put_device(&hdev->dev);
+	free(hdev);
 }
-EXPORT_SYMBOL_GPL(hid_destroy_device);
+// EXPORT_SYMBOL_GPL(hid_destroy_device);
+
+#if 0
 
 int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
 		const char *mod_name)

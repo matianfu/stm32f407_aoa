@@ -527,6 +527,93 @@ enum hid_type
   HID_TYPE_OTHER = 0, HID_TYPE_USBMOUSE, HID_TYPE_USBNONE
 };
 
+#if 0
+struct hid_device {                         /* device report descriptor */
+    __u8 *dev_rdesc;
+    unsigned dev_rsize;
+    __u8 *rdesc;
+    unsigned rsize;
+    struct hid_collection *collection;      /* List of HID collections */
+    unsigned collection_size;               /* Number of allocated hid_collections */
+    unsigned maxcollection;                 /* Number of parsed collections */
+    unsigned maxapplication;                /* Number of applications */
+
+    __u16 bus;                              /* BUS ID */
+    __u16 group;                            /* Report group */
+    __u32 vendor;                           /* Vendor ID */
+    __u32 product;                          /* Product ID */
+    __u32 version;                          /* HID version */
+    enum hid_type type;                     /* device type (mouse, kbd, ...) */
+    unsigned country;                       /* HID country */
+    struct hid_report_enum report_enum[HID_REPORT_TYPES];
+    struct work_struct led_work;            /* delayed LED worker */
+
+    struct semaphore driver_lock;           /* protects the current driver, except during input */
+    struct semaphore driver_input_lock;     /* protects the current driver */
+    struct device dev;                      /* device */
+    struct hid_driver *driver;
+    struct hid_ll_driver *ll_driver;
+
+#ifdef CONFIG_HID_BATTERY_STRENGTH
+    /*
+     * Power supply information for HID devices which report
+     * battery strength. power_supply is registered iff
+     * battery.name is non-NULL.
+     */
+    struct power_supply battery;
+    __s32 battery_min;
+    __s32 battery_max;
+    __s32 battery_report_type;
+    __s32 battery_report_id;
+#endif
+
+    unsigned int status;                    /* see STAT flags above */
+    unsigned claimed;                       /* Claimed by hidinput, hiddev? */
+    unsigned quirks;                        /* Various quirks the device can pull on us */
+    bool io_started;                        /* Protected by driver_lock. If IO has started */
+
+    struct list_head inputs;                /* The list of inputs */
+    void *hiddev;                           /* The hiddev structure */
+    void *hidraw;
+    int minor;                              /* Hiddev minor number */
+
+    int open;                               /* is the device open by anyone? */
+    char name[128];                         /* Device name */
+    char phys[64];                          /* Device physical location */
+    char uniq[64];                          /* Device unique identifier (serial #) */
+
+    void *driver_data;
+
+    /* temporary hid_ff handling (until moved to the drivers) */
+    int (*ff_init)(struct hid_device *);
+
+    /* hiddev event handler */
+    int (*hiddev_connect)(struct hid_device *, unsigned int);
+    void (*hiddev_disconnect)(struct hid_device *);
+    void (*hiddev_hid_event) (struct hid_device *, struct hid_field *field,
+                  struct hid_usage *, __s32);
+    void (*hiddev_report_event) (struct hid_device *, struct hid_report *);
+
+    /* handler for raw input (Get_Report) data, used by hidraw */
+    int (*hid_get_raw_report) (struct hid_device *, unsigned char, __u8 *, size_t, unsigned char);
+
+    /* handler for raw output data, used by hidraw */
+    int (*hid_output_raw_report) (struct hid_device *, __u8 *, size_t, unsigned char);
+
+    /* debugging support via debugfs */
+    unsigned short debug;
+    struct dentry *debug_dir;
+    struct dentry *debug_rdesc;
+    struct dentry *debug_events;
+    struct list_head debug_list;
+    spinlock_t  debug_list_lock;
+    wait_queue_head_t debug_wait;
+};
+#endif
+
+/**
+ * simplified version of linux struct hid_device
+ */
 struct hid_device
 {
   /* device report descriptor */
@@ -537,13 +624,6 @@ struct hid_device
   unsigned collection_size; /* Number of allocated hid_collections */
   unsigned maxcollection; /* Number of parsed collections */
   unsigned maxapplication; /* Number of applications */
-
-//	__u16 bus;							    /* BUS ID */
-//	__u16 group;							/* Report group */
-//	__u32 vendor;							/* Vendor ID */
-//	__u32 product;							/* Product ID */
-//	__u32 version;							/* HID version */
-
   enum hid_type type; /* device type (mouse, kbd, ...) */
   unsigned country; /* HID country */
   struct hid_report_enum report_enum[HID_REPORT_TYPES];
@@ -773,7 +853,12 @@ extern int hid_debug;
 
 extern bool hid_ignore(struct hid_device *);
 extern int hid_add_device(struct hid_device *);
+
+#endif
+
 extern void hid_destroy_device(struct hid_device *);
+
+#if 0
 
 extern int __must_check __hid_register_driver(struct hid_driver *,
     struct module *, const char *mod_name);
@@ -797,10 +882,10 @@ extern void hid_unregister_driver(struct hid_driver *);
 		      hid_unregister_driver)
 
 extern void hidinput_hid_event(struct hid_device *, struct hid_field *, struct hid_usage *, __s32);
-extern void hidinput_report_event(struct hid_device *hid, struct hid_report *report);
 
 #endif
 
+extern void hidinput_report_event(struct hid_device *hid, struct hid_report *report);
 extern int hidinput_connect(struct hid_device *hid, unsigned int force);
 extern void hidinput_disconnect(struct hid_device *);
 
@@ -818,21 +903,28 @@ int32_t hidinput_calc_abs_res(const struct hid_field *field, uint16_t code);
 #if 0
 void hid_output_report(struct hid_report *report, __u8 *data);
 u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags);
+#endif
+
 struct hid_device *hid_allocate_device(void);
+
+#if 0
 struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id);
 int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size);
 struct hid_report *hid_validate_values(struct hid_device *hid,
     unsigned int type, unsigned int id,
     unsigned int field_index,
     unsigned int report_counts);
+#endif
+
 int hid_open_report(struct hid_device *device);
+
+#if 0
 int hid_check_keys_pressed(struct hid_device *hid);
 #endif
 
 int hid_connect(struct hid_device *hid, unsigned int connect_mask);
-
-
 void hid_disconnect(struct hid_device *hid);
+
 #if 0
 const struct hid_device_id *hid_match_id(struct hid_device *hdev,
     const struct hid_device_id *id);
@@ -880,14 +972,6 @@ static inline void hid_device_io_stop(struct hid_device *hid)
   down(&hid->driver_input_lock);
 }
 
-#endif
-
-
-
-
-
-#if 0
-
 /**
  * hid_parse - parse HW reports
  *
@@ -901,7 +985,6 @@ static inline int __must_check hid_parse(struct hid_device *hdev)
 {
   return hid_open_report(hdev);
 }
-#endif
 
 #define __must_check
 
@@ -919,16 +1002,15 @@ static inline int __must_check hid_hw_start(struct hid_device *hdev,
     unsigned int connect_mask)
 {
   int ret;
-//  int ret = hdev->ll_driver->start(hdev);
-//  if (ret || !connect_mask)
-//  return ret;
+  int ret = hdev->ll_driver->start(hdev);
+  if (ret || !connect_mask)
+    return ret;
   ret = hid_connect(hdev, connect_mask);
-//  if (ret)
-//  hdev->ll_driver->stop(hdev);
+  if (ret)
+    hdev->ll_driver->stop(hdev);
   return ret;
 }
 
-#if 0
 /**
  * hid_hw_stop - stop underlaying HW
  *

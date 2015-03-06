@@ -40,58 +40,20 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "hid.h"
 #include "usbh_hid.h"
-#include "usbh_hid_parser.h"
+// #include "usbh_hid_parser.h"
 
-/** @addtogroup USBH_LIB
- * @{
- */
+// extern int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size, int interrupt);
+extern void hid_close_report(struct hid_device *device);
+// extern int hid_open_report(struct hid_device *device);
+// extern int hid_device_probe(struct hid_device *hdev);
+extern int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size);
 
-/** @addtogroup USBH_CLASS
- * @{
- */
+extern int hid_device_probe(USBH_HandleTypeDef *phost);
 
-/** @addtogroup USBH_HID_CLASS
- * @{
- */
-
-/** @defgroup USBH_HID_CORE 
- * @brief    This file includes HID Layer Handlers for USB Host HID class.
- * @{
- */
-
-/** @defgroup USBH_HID_CORE_Private_TypesDefinitions
- * @{
- */
-/**
- * @}
- */
-
-/** @defgroup USBH_HID_CORE_Private_Defines
- * @{
- */
-/**
- * @}
- */
-
-/** @defgroup USBH_HID_CORE_Private_Macros
- * @{
- */
-/**
- * @}
- */
-
-/** @defgroup USBH_HID_CORE_Private_Variables
- * @{
- */
-extern struct hid_device device;
-/**
- * @}
- */
-
-/** @defgroup USBH_HID_CORE_Private_FunctionPrototypes
- * @{
- */
+static USBH_StatusTypeDef USBH_HID_DeviceProbe(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef USBH_HID_DeviceRelease(USBH_HandleTypeDef *phost);
 
 static USBH_StatusTypeDef USBH_HID_InterfaceInit(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost);
@@ -109,13 +71,6 @@ USBH_ClassTypeDef HID_Class =
     USB_HID_CLASS, USBH_HID_InterfaceInit, USBH_HID_InterfaceDeInit,
     USBH_HID_ClassRequest, USBH_HID_Process, USBH_HID_SOFProcess,
     NULL };
-/**
- * @}
- */
-
-/** @defgroup USBH_HID_CORE_Private_Functions
- * @{
- */
 
 /**
  * @brief  USBH_HID_InterfaceInit
@@ -315,11 +270,7 @@ static void USBH_HID_PrintHIDDesc(HID_DescTypeDef* desc) {
   USBH_UsrLog("        wDescriptorLength: %d %s", desc->wItemLength, "(for report descriptor)");
 }
 
-// extern int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size, int interrupt);
-extern void hid_close_report(struct hid_device *device);
-// extern int hid_open_report(struct hid_device *device);
-extern int hid_device_probe(struct hid_device *hdev);
-extern int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size);
+
 
 /**
  * @brief  USBH_HID_ClassRequest
@@ -357,62 +308,15 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
     if (USBH_HID_GetHIDReportDescriptor(phost, HID_Handle->HID_Desc.wItemLength)
         == USBH_OK)
     {
-      /* The descriptor is available in phost->device.Data */
-      /* print raw data of report descriptor */
-      USBH_UsrLog("HID: Print raw data of HID report descriptor.");
-
-      // USBH_HID_ParseHIDReportDesc()
-      for (i = 0; i < HID_Handle->HID_Desc.wItemLength; i++) {
-        USBH_UsrLog(" - 0x%02x", phost->device.Data[i]);
-      }
-
-      /** check report descriptor size, non-zero and max length 1024 **/
-      if (HID_Handle->HID_Desc.wItemLength == 0)
+      if (USBH_HID_DeviceProbe(phost) == USBH_OK)
       {
-        USBH_ErrLog("Invalid report descriptor length.");
+        HID_Handle->ctl_state = HID_REQ_SET_IDLE;
+      }
+      else
+      {
+        HID_Handle->ctl_state = HID_REQ_INIT;
         return USBH_FAIL;
       }
-
-      if (HID_Handle->HID_Desc.wItemLength > 1024)
-      {
-        USBH_ErrLog("report descriptor length too long (>1024)");
-        return USBH_NOT_SUPPORTED;
-      }
-
-      struct hid_device *hiddev = (struct hid_device *)malloc(sizeof(struct hid_device));
-      if (!hiddev)
-      {
-        USBH_ErrLog("mem fail");
-        return USBH_FAIL;
-      }
-
-      memset(hiddev, 0, sizeof(struct hid_device));
-
-      hiddev->dev_rdesc = (uint8_t *)malloc(HID_Handle->HID_Desc.wItemLength);
-      if (!hiddev->dev_rdesc) {
-        free(hiddev);
-        USBH_ErrLog("mem fail");
-        return USBH_FAIL;
-      }
-
-      memcpy(hiddev->dev_rdesc, phost->device.Data, HID_Handle->HID_Desc.wItemLength);
-      hiddev->dev_rsize = HID_Handle->HID_Desc.wItemLength;
-
-      // memset(hiddev, 0, sizeof(struct hid_device));
-      // memset(&device, 0, sizeof(device));
-      // device.dev_rdesc = phost->device.Data;
-      // device.dev_rsize = HID_Handle->HID_Desc.wItemLength;
-      // INIT_LIST_HEAD(&device.inputs);
-      // hid_close_report(&device);
-      // hid_device_probe(&device);
-
-      INIT_LIST_HEAD(&hiddev->inputs);
-      hid_close_report(hiddev);
-      hid_device_probe(hiddev);
-
-      HID_Handle->hiddev = hiddev;
-
-      HID_Handle->ctl_state = HID_REQ_SET_IDLE;
     }
 
     break;
@@ -916,7 +820,7 @@ uint16_t fifo_write(FIFO_TypeDef * f, const void * buf, uint16_t nbytes)
 
 /**
  * @brief  The function is a callback about HID Data events
- *  @param  phost: Selected device
+ * @param  phost: Selected device
  * @retval None
  */
 
@@ -946,24 +850,92 @@ static HID_KEYBD_Info_TypeDef prev = {0};
     prev = *kbinfo;
   }
 }
-/**
- * @}
- */
+/************************ Custom Functions ************************************/
 
 /**
- * @}
+ * @brief   HID Device Probe
+ *          Assuming the report descriptor is available in phost->device.Data
+ * @param   phost
+ * @retval  status
  */
+static USBH_StatusTypeDef USBH_HID_DeviceProbe(USBH_HandleTypeDef *phost)
+{
 
-/**
- * @}
- */
+  int i, ret = 0;
+  struct hid_device* hiddev;
+  HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
 
-/**
- * @}
- */
+  /* The descriptor is available in phost->device.Data */
+  uint8_t *rdesc = phost->device.Data;
+  uint16_t rsize = HID_Handle->HID_Desc.wItemLength;
 
-/**
- * @}
- */
+  /* print raw data of report descriptor */
+  USBH_UsrLog("HID: Print raw data of HID report descriptor.");
+
+  // TODO print thru option
+  for (i = 0; i < HID_Handle->HID_Desc.wItemLength; i++)
+  {
+    USBH_UsrLog(" - 0x%02x", phost->device.Data[i]);
+  }
+
+  /** check report descriptor size, non-zero and max length 1024 **/
+  if (rsize == 0)
+  {
+    USBH_ErrLog("Invalid report descriptor length.");
+    return USBH_FAIL;
+  }
+
+  if (rsize > 1024)
+  {
+    USBH_ErrLog("Report descriptor length too long (>1024)");
+    return USBH_NOT_SUPPORTED;
+  }
+
+  /**
+   * close_report (aka, init report) is called inside this function
+   */
+  hiddev = hid_allocate_device();
+
+  if (!hiddev)
+  {
+    USBH_ErrLog("hid_allocate_device fail");
+    goto fail0;
+  }
+
+  hiddev->dev_rdesc = (uint8_t *) malloc(rsize);
+  if (!hiddev->dev_rdesc)
+  {
+    USBH_ErrLog("mem fail");
+    goto fail1;
+  }
+
+  memcpy(hiddev->dev_rdesc, rdesc, rsize);
+  hiddev->dev_rsize = rsize;
+
+  ret = hid_open_report(hiddev);
+  if (ret)
+    goto fail2;
+
+  ret = hid_connect(hiddev, HID_CONNECT_DEFAULT);
+  if (ret)
+    goto fail3;
+
+  HID_Handle->hiddev = hiddev;
+  return USBH_OK;
+
+  fail3: hid_close_report(hiddev);
+
+  fail2: free(hiddev->dev_rdesc);
+
+  fail1: hid_destroy_device(hiddev);
+
+  fail0: return USBH_FAIL;
+}
+
+static USBH_StatusTypeDef USBH_HID_DeviceRelease(USBH_HandleTypeDef *phost) {
+
+}
+
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
