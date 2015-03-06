@@ -42,7 +42,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbh_hid.h"
 #include "usbh_hid_parser.h"
-#include "hid.h"
 
 /** @addtogroup USBH_LIB
  * @{
@@ -109,7 +108,7 @@ USBH_ClassTypeDef HID_Class =
 { "HID",
     USB_HID_CLASS, USBH_HID_InterfaceInit, USBH_HID_InterfaceDeInit,
     USBH_HID_ClassRequest, USBH_HID_Process, USBH_HID_SOFProcess,
-    NULL , };
+    NULL };
 /**
  * @}
  */
@@ -134,7 +133,7 @@ static USBH_StatusTypeDef USBH_HID_InterfaceInit(USBH_HandleTypeDef *phost)
   USBH_StatusTypeDef status = USBH_FAIL;
   HID_HandleTypeDef *HID_Handle;
 
-  /**
+  /*
    * see hid specification 1.11 (HID1_11.pdf) Ch 4.2
    *
    * for boot device, subclass code must be 1
@@ -162,29 +161,36 @@ static USBH_StatusTypeDef USBH_HID_InterfaceInit(USBH_HandleTypeDef *phost)
   else
   {
     USBH_SelectInterface(phost, interface);
+
+    // Create HID_Handle for Class_Handle
     phost->pActiveClass->pData = (HID_HandleTypeDef *) USBH_malloc(sizeof(HID_HandleTypeDef));
     HID_Handle = phost->pActiveClass->pData;
     HID_Handle->state = HID_ERROR;
 
-    /*Decode Bootclass Protocl: Mouse or Keyboard*/
+    /** init embedded hid_device **/
+    /** this struct is initialized when class_request **/
+    HID_Handle->hiddev = NULL;
+
+    /*Decode Boot class Protocol: Mouse or Keyboard*/
     itf_desc = &phost->device.CfgDesc.Itf_Desc[phost->device.current_interface];
 
     if (itf_desc->bInterfaceSubClass == HID_BOOT_CODE) {
       if (phost->device.CfgDesc.Itf_Desc[phost->device.current_interface].bInterfaceProtocol
           == HID_KEYBRD_BOOT_CODE)
       {
-        USBH_UsrLog("KeyBoard device found!");
+        // Bootable HID Keyboard
+        USBH_UsrLog("Bootable HID KeyBoard found!");
         HID_Handle->Init = USBH_HID_KeybdInit;
       }
       else if (phost->device.CfgDesc.Itf_Desc[phost->device.current_interface].bInterfaceProtocol
           == HID_MOUSE_BOOT_CODE)
       {
-        USBH_UsrLog("Mouse device found!");
+        USBH_UsrLog("Bootable HID Mouse found!");
         HID_Handle->Init = USBH_HID_MouseInit;
       }
       else
       {
-        USBH_UsrLog("Protocol not supported.");
+        USBH_UsrLog("Bootable Device found but protocol not supported.");
         return USBH_FAIL;
       }
     }
@@ -280,7 +286,18 @@ USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost)
 
   if (phost->pActiveClass->pData)
   {
-    USBH_free(phost->pActiveClass->pData);
+    HID_HandleTypeDef *HID_Handle = (HID_HandleTypeDef*)phost->pActiveClass->pData;
+
+    if (HID_Handle) {
+      if (HID_Handle->hiddev) {
+        free(HID_Handle->hiddev);
+        HID_Handle->hiddev = NULL;
+      }
+
+      // USBH_free(phost->pActiveClass->pData);
+      free(HID_Handle);
+      phost->pActiveClass->pData = NULL;
+    }
   }
 
   return USBH_OK;
@@ -349,13 +366,51 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
         USBH_UsrLog(" - 0x%02x", phost->device.Data[i]);
       }
 
-      memset(&device, 0, sizeof(device));
-      device.dev_rdesc = phost->device.Data;
-      device.dev_rsize = HID_Handle->HID_Desc.wItemLength;
-      INIT_LIST_HEAD(&device.inputs);
+      /** check report descriptor size, non-zero and max length 1024 **/
+      if (HID_Handle->HID_Desc.wItemLength == 0)
+      {
+        USBH_ErrLog("Invalid report descriptor length.");
+        return USBH_FAIL;
+      }
 
-      hid_close_report(&device);
-      hid_device_probe(&device);
+      if (HID_Handle->HID_Desc.wItemLength > 1024)
+      {
+        USBH_ErrLog("report descriptor length too long (>1024)");
+        return USBH_NOT_SUPPORTED;
+      }
+
+      struct hid_device *hiddev = (struct hid_device *)malloc(sizeof(struct hid_device));
+      if (!hiddev)
+      {
+        USBH_ErrLog("mem fail");
+        return USBH_FAIL;
+      }
+
+      memset(hiddev, 0, sizeof(struct hid_device));
+
+      hiddev->dev_rdesc = (uint8_t *)malloc(HID_Handle->HID_Desc.wItemLength);
+      if (!hiddev->dev_rdesc) {
+        free(hiddev);
+        USBH_ErrLog("mem fail");
+        return USBH_FAIL;
+      }
+
+      memcpy(hiddev->dev_rdesc, phost->device.Data, HID_Handle->HID_Desc.wItemLength);
+      hiddev->dev_rsize = HID_Handle->HID_Desc.wItemLength;
+
+      // memset(hiddev, 0, sizeof(struct hid_device));
+      // memset(&device, 0, sizeof(device));
+      // device.dev_rdesc = phost->device.Data;
+      // device.dev_rsize = HID_Handle->HID_Desc.wItemLength;
+      // INIT_LIST_HEAD(&device.inputs);
+      // hid_close_report(&device);
+      // hid_device_probe(&device);
+
+      INIT_LIST_HEAD(&hiddev->inputs);
+      hid_close_report(hiddev);
+      hid_device_probe(hiddev);
+
+      HID_Handle->hiddev = hiddev;
 
       HID_Handle->ctl_state = HID_REQ_SET_IDLE;
     }
@@ -435,8 +490,7 @@ static USBH_StatusTypeDef USBH_HID_Process(USBH_HandleTypeDef *phost)
   switch (HID_Handle->state)
   {
   case HID_INIT:
-    USBH_UsrLog("HID_INIT.")
-    ;
+    USBH_UsrLog("HID_INIT.");
     HID_Handle->Init(phost);
     HID_Handle->state = HID_IDLE;
     break;
@@ -491,7 +545,8 @@ static USBH_StatusTypeDef USBH_HID_Process(USBH_HandleTypeDef *phost)
         if (need_report(HID_Handle->pData, xfer_count)) {
           // USBH_UsrLog("in xfered bytes: %d", (int)xfer_count);
           // hid_input_report(&device, HID_INPUT_REPORT, HID_Handle->pData, xfer_count, 1);
-          hid_report_raw_event(&device, 0 /* HID_INPUT_REPORT */ , HID_Handle->pData, xfer_count);
+          // hid_report_raw_event(&device, 0 /* HID_INPUT_REPORT */ , HID_Handle->pData, xfer_count);
+          hid_report_raw_event(HID_Handle->hiddev, HID_INPUT_REPORT, HID_Handle->pData, xfer_count);
         }
 
         // fifo_write(&HID_Handle->fifo, HID_Handle->pData, HID_Handle->length);
@@ -637,9 +692,7 @@ USBH_StatusTypeDef USBH_HID_SetReport(USBH_HandleTypeDef *phost,
     uint8_t reportLen)
 {
 
-  phost->Control.setup.b.bmRequestType = USB_H2D | USB_REQ_RECIPIENT_INTERFACE
-      |\
- USB_REQ_TYPE_CLASS;
+  phost->Control.setup.b.bmRequestType = USB_H2D|USB_REQ_RECIPIENT_INTERFACE|USB_REQ_TYPE_CLASS;
 
   phost->Control.setup.b.bRequest = USB_HID_SET_REPORT;
   phost->Control.setup.b.wValue.w = (reportType << 8) | reportId;

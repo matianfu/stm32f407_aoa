@@ -900,12 +900,18 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     /* process class standard control requests state machine */
     if(phost->pActiveClass != NULL)
     {
+      /* as long as pActiveClass is set, this state is  */
       status = phost->pActiveClass->Requests(phost);
       
       if(status == USBH_OK)
       {
-        phost->gState  = HOST_CLASS;        
-      }  
+        phost->gState = HOST_CLASS;
+      }
+      else if (status == USBH_FAIL || status == USBH_NOT_SUPPORTED) {
+
+        phost->gState = HOST_ABORT_STATE;
+        USBH_ErrLog("Class Request fail.")
+      }
     }
     else
     {

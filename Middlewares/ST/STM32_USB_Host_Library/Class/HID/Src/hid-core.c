@@ -13,34 +13,18 @@
  * Software Foundation; either version 2 of the License, or (at your option)
  * any later version.
  */
-#include <errno.h>
+#include <errno.h>/*
+ *
+ */
+// struct hid_device device;
+
 #include "usbh_conf.h"
 
 #define dbg_hid(...)    USBH_UsrLog(__VA_ARGS__)
 
-//#include <linux/module.h>
-//#include <linux/slab.h>
-//#include <linux/init.h>
-//#include <linux/kernel.h>
-//#include <linux/list.h>
-//#include <linux/mm.h>
-//#include <linux/spinlock.h>
-//#include <asm/unaligned.h>
-//#include <asm/byteorder.h>
-//#include <linux/input.h>
-//#include <linux/wait.h>
-//#include <linux/vmalloc.h>
-//#include <linux/sched.h>
-//#include <linux/semaphore.h>
-//
-//#include <linux/hid.h>
+
 #include "hid.h"
-//#include <linux/hiddev.h>
-//#include "hiddev.h"
-//#include <linux/hid-debug.h>
-//#include <linux/hidraw.h>
-//
-//#include "hid-ids.h"
+
 
 
 /** from linux kernel tree linux/kernel.h **/
@@ -96,23 +80,6 @@ int32_t hid_snto32(uint32_t value, unsigned n);
 #define DRIVER_DESC         "HID core driver"
 #define DRIVER_LICENSE      "GPL"
 
-int hid_debug = 0;
-//module_param_named(debug, hid_debug, int, 0600);
-//MODULE_PARM_DESC(debug, "toggle HID debugging messages");
-//EXPORT_SYMBOL_GPL(hid_debug);
-//
-//static int hid_ignore_special_drivers = 0;
-//module_param_named(ignore_special_drivers, hid_ignore_special_drivers, int, 0600);
-//MODULE_PARM_DESC(debug, "Ignore any special drivers and handle all devices by generic driver");
-
-int size_debug;
-
-
-
-/*
- *
- */
-struct hid_device device;
 
 static const char *hid_gpd_strings[] =
 { "Undefined", "Pointer", "Mouse", "Reserved", "Joystick", "Gamepad", "Keyboard",
@@ -121,7 +88,6 @@ static const char *hid_gpd_strings[] =
 /*
  * Register a new report for a device.
  */
-
 struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id)
 {
 	struct hid_report_enum *report_enum = device->report_enum + type;
@@ -1084,7 +1050,6 @@ int hid_open_report(struct hid_device *device)
 
 //	parser = vzalloc(sizeof(struct hid_parser));
 
-	size_debug = sizeof(struct hid_parser);
     parser = malloc(sizeof(struct hid_parser));
 	if (!parser) {
 		ret = -ENOMEM;

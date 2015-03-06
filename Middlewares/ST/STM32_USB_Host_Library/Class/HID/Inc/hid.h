@@ -111,25 +111,23 @@ struct hid_item
  * HID report descriptor item type (prefix bit 2,3)
  */
 
-#define HID_ITEM_TYPE_MAIN		0
+#define HID_ITEM_TYPE_MAIN		    0
 #define HID_ITEM_TYPE_GLOBAL		1
-#define HID_ITEM_TYPE_LOCAL		2
+#define HID_ITEM_TYPE_LOCAL		    2
 #define HID_ITEM_TYPE_RESERVED		3
 
 /*
  * HID report descriptor main item tags
  */
-
-#define HID_MAIN_ITEM_TAG_INPUT			8
-#define HID_MAIN_ITEM_TAG_OUTPUT		9
-#define HID_MAIN_ITEM_TAG_FEATURE		11
+#define HID_MAIN_ITEM_TAG_INPUT			    8
+#define HID_MAIN_ITEM_TAG_OUTPUT		    9
+#define HID_MAIN_ITEM_TAG_FEATURE		    11
 #define HID_MAIN_ITEM_TAG_BEGIN_COLLECTION	10
 #define HID_MAIN_ITEM_TAG_END_COLLECTION	12
 
 /*
  * HID report descriptor main item contents
  */
-
 #define HID_MAIN_ITEM_CONSTANT		0x001
 #define HID_MAIN_ITEM_VARIABLE		0x002
 #define HID_MAIN_ITEM_RELATIVE		0x004
@@ -143,7 +141,6 @@ struct hid_item
 /*
  * HID report descriptor collection item types
  */
-
 #define HID_COLLECTION_PHYSICAL		0
 #define HID_COLLECTION_APPLICATION	1
 #define HID_COLLECTION_LOGICAL		2
@@ -151,7 +148,6 @@ struct hid_item
 /*
  * HID report descriptor global item tags
  */
-
 #define HID_GLOBAL_ITEM_TAG_USAGE_PAGE		    0
 #define HID_GLOBAL_ITEM_TAG_LOGICAL_MINIMUM	    1
 #define HID_GLOBAL_ITEM_TAG_LOGICAL_MAXIMUM	    2
@@ -168,7 +164,6 @@ struct hid_item
 /*
  * HID report descriptor local item tags
  */
-
 #define HID_LOCAL_ITEM_TAG_USAGE		        0
 #define HID_LOCAL_ITEM_TAG_USAGE_MINIMUM	    1
 #define HID_LOCAL_ITEM_TAG_USAGE_MAXIMUM	    2
@@ -183,9 +178,7 @@ struct hid_item
 /*
  * HID usage tables
  */
-
 #define HID_USAGE_PAGE		0xffff0000
-
 #define HID_UP_UNDEFINED	0x00000000
 #define HID_UP_GENDESK		0x00010000
 #define HID_UP_SIMULATION	0x00020000
@@ -219,24 +212,24 @@ struct hid_item
 #define HID_GD_RX		0x00010033
 #define HID_GD_RY		0x00010034
 #define HID_GD_RZ		0x00010035
-#define HID_GD_SLIDER		0x00010036
-#define HID_GD_DIAL		0x00010037
-#define HID_GD_WHEEL		0x00010038
-#define HID_GD_HATSWITCH	0x00010039
-#define HID_GD_BUFFER		0x0001003a
-#define HID_GD_BYTECOUNT	0x0001003b
-#define HID_GD_MOTION		0x0001003c
-#define HID_GD_START		0x0001003d
-#define HID_GD_SELECT		0x0001003e
-#define HID_GD_VX		0x00010040
-#define HID_GD_VY		0x00010041
-#define HID_GD_VZ		0x00010042
-#define HID_GD_VBRX		0x00010043
-#define HID_GD_VBRY		0x00010044
-#define HID_GD_VBRZ		0x00010045
-#define HID_GD_VNO		0x00010046
-#define HID_GD_FEATURE		0x00010047
-#define HID_GD_UP		0x00010090
+#define HID_GD_SLIDER		        0x00010036
+#define HID_GD_DIAL		            0x00010037
+#define HID_GD_WHEEL		        0x00010038
+#define HID_GD_HATSWITCH	        0x00010039
+#define HID_GD_BUFFER		        0x0001003a
+#define HID_GD_BYTECOUNT	        0x0001003b
+#define HID_GD_MOTION		        0x0001003c
+#define HID_GD_START		        0x0001003d
+#define HID_GD_SELECT		        0x0001003e
+#define HID_GD_VX		            0x00010040
+#define HID_GD_VY		            0x00010041
+#define HID_GD_VZ		            0x00010042
+#define HID_GD_VBRX		            0x00010043
+#define HID_GD_VBRY		            0x00010044
+#define HID_GD_VBRZ		            0x00010045
+#define HID_GD_VNO		            0x00010046
+#define HID_GD_FEATURE		        0x00010047
+#define HID_GD_UP		            0x00010090
 #define HID_GD_DOWN		            0x00010091
 #define HID_GD_RIGHT		        0x00010092
 #define HID_GD_LEFT		            0x00010093
@@ -557,6 +550,7 @@ struct hid_device
 
   unsigned int status; /* see STAT flags above */
   unsigned claimed; /* Claimed by hidinput, hiddev? */
+  unsigned quirks;
 
   struct list_head inputs;					/* The list of inputs */
 };
@@ -837,8 +831,9 @@ int hid_check_keys_pressed(struct hid_device *hid);
 
 int hid_connect(struct hid_device *hid, unsigned int connect_mask);
 
-#if 0
+
 void hid_disconnect(struct hid_device *hid);
+#if 0
 const struct hid_device_id *hid_match_id(struct hid_device *hdev,
     const struct hid_device_id *id);
 s32 hid_snto32(__u32 value, unsigned n);

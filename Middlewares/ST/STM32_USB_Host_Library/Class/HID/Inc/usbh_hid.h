@@ -33,6 +33,7 @@
 #include "usbh_core.h"
 #include "usbh_hid_mouse.h"
 #include "usbh_hid_keybd.h"
+#include "hid.h"
 
  
 /** @addtogroup USBH_LIB
@@ -65,6 +66,9 @@
     
 #define  HID_ITEM_LONG                              0xFE
 
+/*
+ * These definitions are already defined in hid.h
+ */
 #if 0
 
 #define  HID_ITEM_TYPE_MAIN                         0x00
@@ -193,11 +197,11 @@ typedef struct _HIDDescriptor
 {
   uint8_t   bLength;
   uint8_t   bDescriptorType;
-  uint16_t  bcdHID;               /* indicates what endpoint this descriptor is describing */
-  uint8_t   bCountryCode;        /* specifies the transfer type. */
-  uint8_t   bNumDescriptors;     /* specifies the transfer type. */
-  uint8_t   bReportDescriptorType;    /* Maximum Packet Size this endpoint is capable of sending or receiving */  
-  uint16_t  wItemLength;          /* is used to specify the polling interval of certain transfers. */
+  uint16_t  bcdHID;                 /* indicates what endpoint this descriptor is describing */
+  uint8_t   bCountryCode;           /* specifies the transfer type. */
+  uint8_t   bNumDescriptors;        /* specifies the transfer type. */
+  uint8_t   bReportDescriptorType;  /* Maximum Packet Size this endpoint is capable of sending or receiving */
+  uint16_t  wItemLength;            /* is used to specify the polling interval of certain transfers. */
 }
 HID_DescTypeDef;
 
@@ -215,23 +219,25 @@ typedef struct
 /* Structure for HID process */
 typedef struct _HID_Process
 {
-  uint8_t              OutPipe; 
-  uint8_t              InPipe; 
-  HID_StateTypeDef     state; 
-  uint8_t              OutEp;
-  uint8_t              InEp;
-  HID_CtlStateTypeDef  ctl_state;
-  FIFO_TypeDef         fifo; 
-  uint8_t              *pData;   
-  uint16_t             length;
-  uint8_t              ep_addr;
-  uint16_t             poll; 
-  uint16_t             timer;
-  uint8_t              DataReady;
-  HID_DescTypeDef      HID_Desc;  
-  USBH_StatusTypeDef  ( * Init)(USBH_HandleTypeDef *phost);
-}
-HID_HandleTypeDef;
+  uint8_t OutPipe;
+  uint8_t InPipe;
+  HID_StateTypeDef state;
+  uint8_t OutEp;
+  uint8_t InEp;
+  HID_CtlStateTypeDef ctl_state;
+  FIFO_TypeDef fifo;
+  uint8_t *pData;
+  uint16_t length;
+  uint8_t ep_addr;
+  uint16_t poll;
+  uint16_t timer;
+  uint8_t DataReady;
+  HID_DescTypeDef HID_Desc;
+  USBH_StatusTypeDef (*Init)(USBH_HandleTypeDef *phost);
+
+  /* embed a linux hid_device inside st hid handle */
+  struct hid_device *hiddev;
+} HID_HandleTypeDef;
 
 /**
   * @}

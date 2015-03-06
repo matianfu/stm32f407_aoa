@@ -1009,6 +1009,9 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
     struct hid_field *field, struct hid_usage *usage)
 {
   struct input_dev *input = hidinput->input;
+  // struct hid_device *device = input_get_drvdata(input);
+  struct hid_device *device = input->hiddev;
+
   int max = 0, code;
   unsigned long *bit = NULL;
 
@@ -1317,6 +1320,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
       if (!test_bit(BTN_TOUCH, input->keybit))
       {
         // device->quirks |= HID_QUIRK_NOTOUCH;
+        // hidinput->
         set_bit(EV_KEY, input->evbit);
         set_bit(BTN_TOUCH, input->keybit);
       }
@@ -1353,7 +1357,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
     case 0x33: /* Touch */
     case 0x42: /* TipSwitch */
     case 0x43: /* TipSwitch2 */
-      // device->quirks &= ~HID_QUIRK_NOTOUCH;
+      device->quirks &= ~HID_QUIRK_NOTOUCH;
       map_key_clear(BTN_TOUCH);
       break;
 
@@ -1927,12 +1931,12 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
     int a = field->logical_minimum;
     int b = field->logical_maximum;
 
-//    if ((device->quirks & HID_QUIRK_BADPAD)
-//        && (usage->code == ABS_X || usage->code == ABS_Y))
-//    {
-//      a = field->logical_minimum = 0;
-//      b = field->logical_maximum = 255;
-//    }
+    if ((device->quirks & HID_QUIRK_BADPAD)
+        && (usage->code == ABS_X || usage->code == ABS_Y))
+    {
+      a = field->logical_minimum = 0;
+      b = field->logical_maximum = 255;
+    }
 
     if (field->application == HID_GD_GAMEPAD
         || field->application == HID_GD_JOYSTICK)
@@ -1991,7 +1995,7 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field,
     struct hid_usage *usage, int32_t value)
 {
   struct input_dev *input;
-  // unsigned *quirks = &hid->quirks;
+  unsigned *quirks = &hid->quirks;
 
   // USBH_UsrLog("      %s: usage code: %d, type: %d", __func__, usage->code, usage->type);
 
@@ -2021,27 +2025,32 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field,
     return;
   }
 
-//	if (usage->hid == (HID_UP_DIGITIZER | 0x003c)) { /* Invert */
-//	    // TODO
-//		// *quirks = value ? (*quirks | HID_QUIRK_INVERT) : (*quirks & ~HID_QUIRK_INVERT);
-//		return;
-//	}
+  if (usage->hid == (HID_UP_DIGITIZER | 0x003c))
+  { /* Invert */
+    *quirks = value ? (*quirks | HID_QUIRK_INVERT) : (*quirks & ~HID_QUIRK_INVERT);
+    return;
+  }
 
-//	if (usage->hid == (HID_UP_DIGITIZER | 0x0032)) { /* InRange */
-//		if (value) {
-//			input_event(input, usage->type, (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL_RUBBER : usage->code, 1);
-//			return;
-//		}
-//		input_event(input, usage->type, usage->code, 0);
-//		input_event(input, usage->type, BTN_TOOL_RUBBER, 0);
-//		return;
-//	}
+  if (usage->hid == (HID_UP_DIGITIZER | 0x0032))
+  { /* InRange */
+    if (value)
+    {
+      input_event(input, usage->type,
+          (*quirks & HID_QUIRK_INVERT) ? BTN_TOOL_RUBBER : usage->code, 1);
+      return;
+    }
+    input_event(input, usage->type, usage->code, 0);
+    input_event(input, usage->type, BTN_TOOL_RUBBER, 0);
+    return;
+  }
 
-//	if (usage->hid == (HID_UP_DIGITIZER | 0x0030) && (*quirks & HID_QUIRK_NOTOUCH)) { /* Pressure */
-//		int a = field->logical_minimum;
-//		int b = field->logical_maximum;
-//		input_event(input, EV_KEY, BTN_TOUCH, value > a + ((b - a) >> 3));
-//	}
+  if (usage->hid == (HID_UP_DIGITIZER | 0x0030)
+      && (*quirks & HID_QUIRK_NOTOUCH))
+  { /* Pressure */
+    int a = field->logical_minimum;
+    int b = field->logical_maximum;
+    input_event(input, EV_KEY, BTN_TOUCH, value > a + ((b - a) >> 3));
+  }
 
   if (usage->hid == (HID_UP_PID | 0x83UL))
   { /* Simultaneous Effects Max */
@@ -2107,14 +2116,14 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field,
  */
 void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
 {
-	struct hid_input *hidinput;
+  struct hid_input *hidinput;
 
-//	if (hid->quirks & HID_QUIRK_NO_INPUT_SYNC)
-//		return;
+  if (hid->quirks & HID_QUIRK_NO_INPUT_SYNC)
+    return;
 
-	list_for_each_entry(hidinput, &hid->inputs, list)
-	  // input_sync(hidinput->input);
-	  input_event(hidinput->input, EV_SYN, SYN_REPORT, 0);
+  list_for_each_entry(hidinput, &hid->inputs, list)
+    // input_sync(hidinput->input);
+    input_event(hidinput->input, EV_SYN, SYN_REPORT, 0);
 }
 
 
@@ -2320,6 +2329,8 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
     memset(hidinput, 0, sizeof(struct hid_input));
 
 //	input_set_drvdata(input_dev, hid);
+    input_dev->hiddev = hid;
+
 //	if (hid->ll_driver->hidinput_input_event)
 //		input_dev->event = hid->ll_driver->hidinput_input_event;
 //	else if (hid->ll_driver->request || hid->hid_output_raw_report)
@@ -2342,8 +2353,6 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
 
 	return hidinput;
 }
-
-
 
 static bool hidinput_has_been_populated(struct hid_input *hidinput)
 {
@@ -2380,34 +2389,36 @@ static bool hidinput_has_been_populated(struct hid_input *hidinput)
 	return !!r;
 }
 
-#if 0
 
 static void hidinput_cleanup_hidinput(struct hid_device *hid,
-		struct hid_input *hidinput)
+    struct hid_input *hidinput)
 {
-	struct hid_report *report;
-	int i, k;
+  struct hid_report *report;
+  int i, k;
 
-	list_del(&hidinput->list);
-	input_free_device(hidinput->input);
+  list_del(&hidinput->list);
+  // TODO may be problematic
+  // input_free_device(hidinput->input);
+  free(hidinput->input);
 
-	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++) {
-		if (k == HID_OUTPUT_REPORT &&
-			hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
-			continue;
+  for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++)
+  {
+    if (k == HID_OUTPUT_REPORT && hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
+      continue;
 
-		list_for_each_entry(report, &hid->report_enum[k].report_list,
-				    list) {
+    list_for_each_entry(report, &hid->report_enum[k].report_list,
+        list)
+    {
 
-			for (i = 0; i < report->maxfield; i++)
-				if (report->field[i]->hidinput == hidinput)
-					report->field[i]->hidinput = NULL;
-		}
-	}
+      for (i = 0; i < report->maxfield; i++)
+        if (report->field[i]->hidinput == hidinput)
+          report->field[i]->hidinput = NULL;
+    }
+  }
 
-	kfree(hidinput);
+  // kfree(hidinput);
+  free(hidinput);
 }
-#endif
 
 /*
  * Register the input device; print a message.
@@ -2442,9 +2453,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 
   for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++)
   {
-//		if (k == HID_OUTPUT_REPORT &&
-//			hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
-//			continue;
+    if (k == HID_OUTPUT_REPORT && (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS))
+      continue;
 
     list_for_each_entry(report, &hid->report_enum[k].report_list, list)
     {
