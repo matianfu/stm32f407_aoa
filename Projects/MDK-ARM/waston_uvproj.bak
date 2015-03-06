@@ -547,21 +547,6 @@
           <GroupName>Middlewares/USB_Host_Library</GroupName>
           <Files>
             <File>
-              <FileName>usbh_msc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\MSC\Src\usbh_msc.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_bot.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\MSC\Src\usbh_msc_bot.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_scsi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Class\MSC\Src\usbh_msc_scsi.c</FilePath>
-            </File>
-            <File>
               <FileName>usbh_core.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Src\usbh_core.c</FilePath>

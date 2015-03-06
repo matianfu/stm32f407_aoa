@@ -63,6 +63,8 @@ extern void initialise_monitor_handles(void);
 
 static uint8_t* test_malloc;
 
+uint8_t msg[64];
+
 int main(void)
 {
   int size = 0;
@@ -119,7 +121,7 @@ int main(void)
 	uart_hl_print();
     MX_USB_HOST_Process();
 
-	uint8_t msg[32];
+	
 	uint16_t i ,len;
 	if( USBH_ADK_getStatus() == ADK_IDLE) 
     {
