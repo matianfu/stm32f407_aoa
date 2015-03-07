@@ -245,10 +245,11 @@ USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost)
     HID_HandleTypeDef *HID_Handle = (HID_HandleTypeDef*)phost->pActiveClass->pData;
 
     if (HID_Handle) {
-      if (HID_Handle->hiddev) {
-        free(HID_Handle->hiddev);
-        HID_Handle->hiddev = NULL;
-      }
+//  bug: this device is already freed in Disconnect
+//      if (HID_Handle->hiddev) {
+//        free(HID_Handle->hiddev);
+//        HID_Handle->hiddev = NULL;
+//      }
 
       // USBH_free(phost->pActiveClass->pData);
       free(HID_Handle);
@@ -307,23 +308,31 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
     /* Get Report Desc */
     if (USBH_HID_GetHIDReportDescriptor(phost, HID_Handle->HID_Desc.wItemLength) == USBH_OK)
     {
-      return USBH_FAIL;
+      // return USBH_FAIL; debug
+//      HID_Handle->ctl_state = HID_REQ_SET_IDLE;
+//      break;
 
       if (USBH_USBHID_Probe(phost) == USBH_OK)
       {
+        USBH_UsrLog("USBH_USBHID_Probe OK");
         HID_Handle->ctl_state = HID_REQ_SET_IDLE;
       }
-      else
-      {
-        HID_Handle->ctl_state = HID_REQ_INIT;
+      else {
+        USBH_UsrLog("USBH_USBHID_Probe Fail");
         return USBH_FAIL;
       }
+//      else
+//      {
+//        HID_Handle->ctl_state = HID_REQ_INIT;
+//        return USBH_FAIL;
+//      }
     }
 
     break;
 
   case HID_REQ_SET_IDLE:
 
+    // return USBH_FAIL;
     classReqStatus = USBH_HID_SetIdle(phost, 0, 0);
 
     /* set Idle */
@@ -448,10 +457,11 @@ static USBH_StatusTypeDef USBH_HID_Process(USBH_HandleTypeDef *phost)
         xfer_count = USBH_LL_GetLastXferSize(phost, HID_Handle->InPipe);
 
         if (need_report(HID_Handle->pData, xfer_count)) {
-          // USBH_UsrLog("in xfered bytes: %d", (int)xfer_count);
+          USBH_UsrLog("in xfered bytes: %d", (int)xfer_count);
           // hid_input_report(&device, HID_INPUT_REPORT, HID_Handle->pData, xfer_count, 1);
           // hid_report_raw_event(&device, 0 /* HID_INPUT_REPORT */ , HID_Handle->pData, xfer_count);
-          hid_report_raw_event(HID_Handle->hiddev, HID_INPUT_REPORT, HID_Handle->pData, xfer_count);
+          // TODO temporarily disable report processing
+          // hid_report_raw_event(HID_Handle->hiddev, HID_INPUT_REPORT, HID_Handle->pData, xfer_count);
         }
 
         // fifo_write(&HID_Handle->fifo, HID_Handle->pData, HID_Handle->length);
@@ -893,10 +903,12 @@ static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
   if (ret)
     goto fail;
 
-  // ret = hid_connect(hiddev, HID_CONNECT_DEFAULT);
+  /* ret = hid_connect(hiddev, HID_CONNECT_DEFAULT); */
   ret = hidinput_connect(hiddev, 0);    // force?
   if (ret)
     goto fail;
+
+  hiddev->claimed |= HID_CLAIMED_INPUT;
 
   HID_Handle->hiddev = hiddev;
   return USBH_OK;
@@ -911,7 +923,10 @@ static USBH_StatusTypeDef USBH_USBHID_Disconnect(USBH_HandleTypeDef *phost) {
   HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
   struct hid_device *hiddev = HID_Handle->hiddev;
 
-  hid_destroy_device(hiddev);
+  if (hiddev) {
+    hid_destroy_device(hiddev);
+    hiddev = NULL;
+  }
 
   return USBH_OK;
 }

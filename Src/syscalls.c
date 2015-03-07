@@ -34,6 +34,7 @@
 #include <sys/time.h>
 #include <sys/times.h>
 
+
 #ifndef SEMIHOSTING
 
 extern int uart_write(int32_t file, uint8_t *ptr, int32_t len);
@@ -91,6 +92,8 @@ caddr_t _sbrk(int32_t incr)
 	{
 //		write(1, "Heap and stack collision\n", 25);
 //		abort();
+	    printf("--------------------------- no memory ------------------ !!! \n");
+
 		errno = ENOMEM;
 		return (caddr_t) -1;
 	}

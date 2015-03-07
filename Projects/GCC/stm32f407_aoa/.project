@@ -55,6 +55,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Inc/debug.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Inc/debug.h</locationURI>
+		</link>
+		<link>
 			<name>Inc/dma.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Inc/dma.h</locationURI>

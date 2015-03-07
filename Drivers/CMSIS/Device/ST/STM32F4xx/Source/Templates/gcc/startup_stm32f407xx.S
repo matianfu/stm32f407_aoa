@@ -123,7 +123,7 @@ LoopFillZerobss:
  * @param  None     
  * @retval None       
 */
-    .section  .text.Default_Handler,"ax",%progbits
+.section  .text.Default_Handler,"ax",%progbits
 Default_Handler:
 Infinite_Loop:
   b  Infinite_Loop

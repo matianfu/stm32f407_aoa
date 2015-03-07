@@ -26,6 +26,8 @@
   */ 
 /* Includes ------------------------------------------------------------------*/
 
+#include "debug.h"
+#include "usbh_conf.h"
 #include "usbh_ctlreq.h"
 
 /** @addtogroup USBH_LIB
@@ -534,8 +536,6 @@ USBH_StatusTypeDef USBH_CtlReq(USBH_HandleTypeDef *phost,
 {
   USBH_StatusTypeDef status;
   status = USBH_BUSY;
-  
-  // USBH_UsrLog("rs: %d", phost->RequestState);
 
   switch (phost->RequestState)
   {
@@ -545,6 +545,11 @@ USBH_StatusTypeDef USBH_CtlReq(USBH_HandleTypeDef *phost,
     phost->Control.length = length;
     phost->Control.state = CTRL_SETUP;  
     phost->RequestState = CMD_WAIT;
+
+#ifdef DBGLOG_USBH_REQSTATE
+    USBH_UsrLog("ReqState: CMD_SEND -> CMD_WAIT");
+#endif
+
     status = USBH_BUSY;
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
@@ -557,6 +562,11 @@ USBH_StatusTypeDef USBH_CtlReq(USBH_HandleTypeDef *phost,
     {
       /* Commands successfully sent and Response Received  */       
       phost->RequestState = CMD_SEND;
+
+#ifdef DBGLOG_USBH_REQSTATE
+      USBH_UsrLog("ReqState: CMD_WAIT -> CMD_SEND");
+#endif
+
       phost->Control.state =CTRL_IDLE;  
       status = USBH_OK;      
     }
@@ -564,6 +574,10 @@ USBH_StatusTypeDef USBH_CtlReq(USBH_HandleTypeDef *phost,
     {
       /* Failure Mode */
       phost->RequestState = CMD_SEND;
+#ifdef DBGLOG_USBH_REQSTATE
+      USBH_UsrLog("ReqState: CMD_WAIT -> CMD_SEND");
+#endif
+
       status = USBH_FAIL;
     }   
     break;
@@ -844,6 +858,9 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
       /* Do the transmission again, starting from SETUP Packet */
       phost->Control.state = CTRL_SETUP; 
       phost->RequestState = CMD_SEND;
+#ifdef DBGLOG_USBH_REQSTATE
+      USBH_UsrLog("ReqState = CMD_SEND");
+#endif
     }
     else
     {
