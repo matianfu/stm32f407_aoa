@@ -68,31 +68,27 @@ static void USBH_UserProcess2  (USBH_HandleTypeDef *phost, uint8_t id);
 /* init function */				        
 void MX_USB_HOST_Init(void)
 {
-	/* init adk */
-	/**
-	  * @brief  USBH_ADK_Init
-	  *         Initialization for ADK class.
-	  * @param  manufacture: manufacturer name string(max 63 chars)
-	  * @param  model: model name string (max 63 chars)
-	  * @param  description: description string (max 63 chars)
-	  * @param  version: version string (max 63 chars)
-	  * @param  uri: URI string (max 63 chars)
-	  * @param  serial: serial number string (max 63 chars)
-	  * @retval None
-	  */
-//	USBH_ADK_Init("Actnova",
-//				  "Model T",
-//				  "HID barcode scanner adapter",
-//				  "1.0.0",
-//				  "http://www.actnova.com/aoa.apk",
-//				  "1234567890");
+  /* init adk */
+  /**
+   * @brief  USBH_ADK_Init
+   *         Initialization for ADK class.
+   * @param  manufacture: manufacturer name string(max 63 chars)
+   * @param  model: model name string (max 63 chars)
+   * @param  description: description string (max 63 chars)
+   * @param  version: version string (max 63 chars)
+   * @param  uri: URI string (max 63 chars)
+   * @param  serial: serial number string (max 63 chars)
+   * @retval None
+   */
+  USBH_ADK_Init("Actnova", "Model T", "HID barcode scanner adapter", "1.0.0",
+      "http://www.actnova.com/aoa.apk", "1234567890");
 
   /* Init Host Library,Add Supported Class and Start the library*/
   USBH_Init(&hUsbHostHS, USBH_UserProcess1, HOST_HS);
 
   // USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS);
   USBH_RegisterClass(&hUsbHostHS, USBH_HID_CLASS);
-  // USBH_RegisterClass(&hUsbHostHS, USBH_AOA_CLASS);
+  USBH_RegisterClass(&hUsbHostHS, USBH_AOA_CLASS);
 
   USBH_Start(&hUsbHostHS);
 

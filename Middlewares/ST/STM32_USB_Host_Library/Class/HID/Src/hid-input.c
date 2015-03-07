@@ -1067,9 +1067,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
     else
       map_key(KEY_UNKNOWN);
 
-    USBH_UsrLog("        HID_UP_KEYBOARD usage type: %d, code: %d", usage->type,
-        usage->code)
-    ;
+//    USBH_UsrLog("        HID_UP_KEYBOARD usage type: %d, code: %d", usage->type,
+//        usage->code);
     break;
 
   case HID_UP_BUTTON:
@@ -1265,8 +1264,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
     break;
 
   case HID_UP_LED:
-    USBH_UsrLog("HID_UP_LED")
-    ;
+    // USBH_UsrLog("HID_UP_LED");
+
     switch (usage->hid & 0xffff)
     { /* HID-Value:                   */
     case 0x01:
@@ -2403,7 +2402,7 @@ static void hidinput_cleanup_hidinput(struct hid_device *hid,
 
   for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++)
   {
-    if (k == HID_OUTPUT_REPORT && hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS)
+    if (k == HID_OUTPUT_REPORT && (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS))
       continue;
 
     list_for_each_entry(report, &hid->report_enum[k].report_list,
@@ -2498,12 +2497,13 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
     }
   }
 
-//	if (hidinput && (hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
-//	    !hidinput_has_been_populated(hidinput)) {
-//		/* no need to register an input device not populated */
-//		hidinput_cleanup_hidinput(hid, hidinput);
-//		hidinput = NULL;
-//	}
+  if (hidinput && (hid->quirks & HID_QUIRK_NO_EMPTY_INPUT)
+      && !hidinput_has_been_populated(hidinput))
+  {
+    /* no need to register an input device not populated */
+    hidinput_cleanup_hidinput(hid, hidinput);
+    hidinput = NULL;
+  }
 
   if (list_empty(&hid->inputs))
   {

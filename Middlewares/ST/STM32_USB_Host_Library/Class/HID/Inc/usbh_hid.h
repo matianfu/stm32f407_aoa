@@ -238,8 +238,6 @@ typedef struct _HID_Process
   HID_DescTypeDef HID_Desc;
   USBH_StatusTypeDef (*Init)(USBH_HandleTypeDef *phost);
 
-  /*
-
   /* embed a linux hid_device inside st hid handle */
   struct hid_device *hiddev;
 } HID_HandleTypeDef;

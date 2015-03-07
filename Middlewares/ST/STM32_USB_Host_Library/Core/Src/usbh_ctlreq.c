@@ -528,13 +528,15 @@ USBH_DescHeader_t  *USBH_GetNextDesc (uint8_t   *pbuf, uint16_t  *ptr)
   * @param  length: length of the response
   * @retval USBH Status
   */
-USBH_StatusTypeDef USBH_CtlReq     (USBH_HandleTypeDef *phost, 
+USBH_StatusTypeDef USBH_CtlReq(USBH_HandleTypeDef *phost,
                              uint8_t             *buff,
                              uint16_t            length)
 {
   USBH_StatusTypeDef status;
   status = USBH_BUSY;
   
+  // USBH_UsrLog("rs: %d", phost->RequestState);
+
   switch (phost->RequestState)
   {
   case CMD_SEND:

@@ -44,10 +44,7 @@
 #include "usbh_hid.h"
 // #include "usbh_hid_parser.h"
 
-// extern int hid_input_report(struct hid_device *hid, int type, uint8_t *data, int size, int interrupt);
-extern void hid_close_report(struct hid_device *device);
-// extern int hid_open_report(struct hid_device *device);
-// extern int hid_device_probe(struct hid_device *hdev);
+
 extern int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size);
 
 // extern int hid_device_probe(USBH_HandleTypeDef *phost);
@@ -225,6 +222,10 @@ USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost)
 {
   HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
 
+  USBH_UsrLog("%s", __func__);
+
+  USBH_USBHID_Disconnect(phost);
+
   if (HID_Handle->InPipe != 0x00)
   {
     USBH_ClosePipe(phost, HID_Handle->InPipe);
@@ -306,6 +307,8 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
     /* Get Report Desc */
     if (USBH_HID_GetHIDReportDescriptor(phost, HID_Handle->HID_Desc.wItemLength) == USBH_OK)
     {
+      return USBH_FAIL;
+
       if (USBH_USBHID_Probe(phost) == USBH_OK)
       {
         HID_Handle->ctl_state = HID_REQ_SET_IDLE;
@@ -827,8 +830,7 @@ __weak void USBH_HID_EventCallback(USBH_HandleTypeDef *phost)
 {
   HID_KEYBD_Info_TypeDef* kbinfo;
 
-static HID_KEYBD_Info_TypeDef prev = {0};
-
+  static HID_KEYBD_Info_TypeDef prev = {0};
 
   if (NULL != (kbinfo = USBH_HID_GetKeybdInfo(phost)))
   {
@@ -848,6 +850,7 @@ static HID_KEYBD_Info_TypeDef prev = {0};
     prev = *kbinfo;
   }
 }
+
 /************************ Custom Functions ************************************/
 
 /**
@@ -860,7 +863,7 @@ static HID_KEYBD_Info_TypeDef prev = {0};
  */
 static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
 {
-  int i, ret = 0;
+  int ret = 0;
   struct hid_device* hiddev;
   HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
 
@@ -869,13 +872,13 @@ static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
   uint16_t rsize = HID_Handle->HID_Desc.wItemLength;
 
   /* print raw data of report descriptor */
-  USBH_UsrLog("HID: Print raw data of HID report descriptor.");
-
-  // TODO print thru option
-  for (i = 0; i < HID_Handle->HID_Desc.wItemLength; i++)
-  {
-    USBH_UsrLog(" - 0x%02x", phost->device.Data[i]);
-  }
+//  USBH_UsrLog("HID: Print raw data of HID report descriptor.");
+//
+//  // TODO print thru option
+//  for (i = 0; i < HID_Handle->HID_Desc.wItemLength; i++)
+//  {
+//    USBH_UsrLog(" - 0x%02x", phost->device.Data[i]);
+//  }
 
   hiddev = hid_allocate_device();
 

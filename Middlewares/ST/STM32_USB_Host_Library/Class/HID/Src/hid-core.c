@@ -5,7 +5,7 @@
  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
  *  Copyright (c) 2006-2012 Jiri Kosina
- *  Copyright (c) 2015 matianfu
+ *  Copyright (c) 2015 matianfu@gmail.com
  */
 
 /*
@@ -21,9 +21,6 @@
 #include "usbh_conf.h"
 
 #define dbg_hid(...)    USBH_UsrLog(__VA_ARGS__)
-
-
-
 
 
 /** from linux kernel tree linux/kernel.h **/
@@ -87,37 +84,38 @@ static const char *hid_gpd_strings[] =
 /*
  * Register a new report for a device.
  */
-struct hid_report *hid_register_report(struct hid_device *device, unsigned type, unsigned id)
+struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
+    unsigned id)
 {
-	struct hid_report_enum *report_enum = device->report_enum + type;
-	struct hid_report *report;
+  struct hid_report_enum *report_enum = device->report_enum + type;
+  struct hid_report *report;
 
-	USBH_UsrLog("hid_register_report, type: %d, id: %d", type, id);
+  // USBH_UsrLog("hid_register_report, type: %d, id: %d", type, id);
 
-	if (id >= HID_MAX_IDS)
-		return NULL;
-	if (report_enum->report_id_hash[id])
-		return report_enum->report_id_hash[id];
+  if (id >= HID_MAX_IDS)
+    return NULL ;
+  if (report_enum->report_id_hash[id])
+    return report_enum->report_id_hash[id];
 
-	// report = kzalloc(sizeof(struct hid_report), GFP_KERNEL);
-	report = malloc(sizeof(struct hid_report));
-	if (!report)
-		return NULL;
+  // report = kzalloc(sizeof(struct hid_report), GFP_KERNEL);
+  report = malloc(sizeof(struct hid_report));
+  if (!report)
+    return NULL ;
 
-	memset(report, 0, sizeof(struct hid_report));
+  memset(report, 0, sizeof(struct hid_report));
 
-	if (id != 0)
-		report_enum->numbered = 1;
+  if (id != 0)
+    report_enum->numbered = 1;
 
-	report->id = id;
-	report->type = type;
-	report->size = 0;
-	report->device = device;
-	report_enum->report_id_hash[id] = report;
+  report->id = id;
+  report->type = type;
+  report->size = 0;
+  report->device = device;
+  report_enum->report_id_hash[id] = report;
 
-	list_add_tail(&report->list, &report_enum->report_list);
+  list_add_tail(&report->list, &report_enum->report_list);
 
-	return report;
+  return report;
 }
 // EXPORT_SYMBOL_GPL(hid_register_report);
 
@@ -163,70 +161,70 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned 
 /*
  * Open a collection. The type/usage is pushed on the stack.
  */
-
 static int open_collection(struct hid_parser *parser, unsigned type)
 {
-	struct hid_collection *collection;
-	unsigned usage;
+  struct hid_collection *collection;
+  unsigned usage;
 
-	USBH_UsrLog("open collection");
+  // USBH_UsrLog("open collection");
 
-	usage = parser->local.usage[0];
+  usage = parser->local.usage[0];
 
-	if (parser->collection_stack_ptr == HID_COLLECTION_STACK_SIZE) {
-		hid_err(parser->device, "collection stack overflow\n");
-		return -EINVAL;
-	}
+  if (parser->collection_stack_ptr == HID_COLLECTION_STACK_SIZE)
+  {
+    hid_err(parser->device, "collection stack overflow\n");
+    return -EINVAL;
+  }
 
-	if (parser->device->maxcollection == parser->device->collection_size) {
-		// collection = kmalloc(sizeof(struct hid_collection) *
-		//		parser->device->collection_size * 2, GFP_KERNEL);
-        collection = malloc(sizeof(struct hid_collection) * parser->device->collection_size * 2);
+  if (parser->device->maxcollection == parser->device->collection_size)
+  {
+    // collection = kmalloc(sizeof(struct hid_collection) *
+    //		parser->device->collection_size * 2, GFP_KERNEL);
+    collection = malloc(
+        sizeof(struct hid_collection) * parser->device->collection_size * 2);
 
-		if (collection == NULL) {
-			hid_err(parser->device, "failed to reallocate collection array\n");
-			return -ENOMEM;
-		}
-		memcpy(collection, parser->device->collection,
-			sizeof(struct hid_collection) *
-			parser->device->collection_size);
-		memset(collection + parser->device->collection_size, 0,
-			sizeof(struct hid_collection) *
-			parser->device->collection_size);
-		free(parser->device->collection);
-		parser->device->collection = collection;
-		parser->device->collection_size *= 2;
-	}
+    if (collection == NULL)
+    {
+      hid_err(parser->device, "failed to reallocate collection array\n");
+      return -ENOMEM;
+    }
+    memcpy(collection, parser->device->collection,
+        sizeof(struct hid_collection) * parser->device->collection_size);
+    memset(collection + parser->device->collection_size, 0,
+        sizeof(struct hid_collection) * parser->device->collection_size);
+    free(parser->device->collection);
+    parser->device->collection = collection;
+    parser->device->collection_size *= 2;
+  }
 
-	parser->collection_stack[parser->collection_stack_ptr++] =
-		parser->device->maxcollection;
+  parser->collection_stack[parser->collection_stack_ptr++] =
+      parser->device->maxcollection;
 
-	collection = parser->device->collection +
-		parser->device->maxcollection++;
-	collection->type = type;
-	collection->usage = usage;
-	collection->level = parser->collection_stack_ptr - 1;
+  collection = parser->device->collection + parser->device->maxcollection++;
+  collection->type = type;
+  collection->usage = usage;
+  collection->level = parser->collection_stack_ptr - 1;
 
-	if (type == HID_COLLECTION_APPLICATION)
-		parser->device->maxapplication++;
+  if (type == HID_COLLECTION_APPLICATION)
+    parser->device->maxapplication++;
 
-	return 0;
+  return 0;
 }
 
 /*
  * Close a collection.
  */
-
 static int close_collection(struct hid_parser *parser)
 {
-    USBH_UsrLog("close collection");
+  // USBH_UsrLog("close collection");
 
-	if (!parser->collection_stack_ptr) {
-		hid_err(parser->device, "collection stack underflow\n");
-		return -EINVAL;
-	}
-	parser->collection_stack_ptr--;
-	return 0;
+  if (!parser->collection_stack_ptr)
+  {
+    hid_err(parser->device, "collection stack underflow\n");
+    return -EINVAL;
+  }
+  parser->collection_stack_ptr--;
+  return 0;
 }
 
 /*
@@ -253,19 +251,20 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
 
 static int hid_add_usage(struct hid_parser *parser, unsigned usage)
 {
-	if (parser->local.usage_index >= HID_MAX_USAGES) {
-		hid_err(parser->device, "usage index exceeded\n");
-		return -1;
-	}
-	parser->local.usage[parser->local.usage_index] = usage;
-	parser->local.collection_index[parser->local.usage_index] =
-		parser->collection_stack_ptr ?
-		parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
-	parser->local.usage_index++;
+  if (parser->local.usage_index >= HID_MAX_USAGES)
+  {
+    hid_err(parser->device, "usage index exceeded\n");
+    return -1;
+  }
+  parser->local.usage[parser->local.usage_index] = usage;
+  parser->local.collection_index[parser->local.usage_index] =
+      parser->collection_stack_ptr ?
+          parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
+  parser->local.usage_index++;
 
-	USBH_UsrLog("  parser->local.usage_index++ %d", parser->local.usage_index);
+//  USBH_UsrLog("  parser->local.usage_index++ %d", parser->local.usage_index);
 
-	return 0;
+  return 0;
 }
 
 /*
@@ -280,7 +279,7 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
 	unsigned offset;
 	unsigned i;
 
-	USBH_UsrLog("hid_add_field");
+	// USBH_UsrLog("hid_add_field");
 
 	report = hid_register_report(parser->device, report_type, parser->global.report_id);
 	if (!report) {
@@ -297,8 +296,8 @@ static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsign
 		(uint32_t)parser->global.logical_minimum)) {       /** modified **/
 
 		dbg_hid("logical range invalid 0x%x 0x%x\n",
-			parser->global.logical_minimum,
-			parser->global.logical_maximum);
+			(unsigned int)parser->global.logical_minimum,
+			(unsigned int)parser->global.logical_maximum);
 		return -1;
 	}
 
@@ -402,7 +401,7 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
 	// __s32 raw_value;
     int raw_value;
 
-    USBH_UsrLog("hid_parser_global");
+    // USBH_UsrLog("hid_parser_global");
 
 	switch (item->tag) {
 	case HID_GLOBAL_ITEM_TAG_PUSH:
@@ -513,7 +512,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
     uint32_t data;
 	unsigned n;
 
-	USBH_UsrLog("hid_parser_local");
+	// USBH_UsrLog("hid_parser_local");
 
 	data = item_udata(item);
 
@@ -601,7 +600,7 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
     uint32_t data;
 	int ret;
 
-	USBH_UsrLog("hid_parser_main");
+	// USBH_UsrLog("hid_parser_main");
 
 	data = item_udata(item);
 
@@ -734,75 +733,77 @@ static void hid_device_release(struct device *dev)
 // static u8 *fetch_item(__u8 *start, __u8 *end, struct hid_item *item)
 static uint8_t *fetch_item(uint8_t *start, uint8_t *end, struct hid_item *item)
 {
-	// u8 b;
-    uint8_t b;
+  // u8 b;
+  uint8_t b;
 
-	if ((end - start) <= 0)
-		return NULL;
+  if ((end - start) <= 0)
+    return NULL ;
 
-	b = *start++;
+  b = *start++;
 
-	item->type = (b >> 2) & 3;
-	item->tag  = (b >> 4) & 15;
+  item->type = (b >> 2) & 3;
+  item->tag = (b >> 4) & 15;
 
-	if (item->tag == HID_ITEM_TAG_LONG) {
+  if (item->tag == HID_ITEM_TAG_LONG)
+  {
 
-		item->format = HID_ITEM_FORMAT_LONG;
+    item->format = HID_ITEM_FORMAT_LONG;
 
-		if ((end - start) < 2)
-			return NULL;
+    if ((end - start) < 2)
+      return NULL ;
 
-		item->size = *start++;
-		item->tag  = *start++;
+    item->size = *start++;
+    item->tag = *start++;
 
-		if ((end - start) < item->size)
-			return NULL;
+    if ((end - start) < item->size)
+      return NULL ;
 
-		item->data.longdata = start;
-		start += item->size;
-		return start;
-	}
+    item->data.longdata = start;
+    start += item->size;
+    return start;
+  }
 
-	item->format = HID_ITEM_FORMAT_SHORT;
-	item->size = b & 3;
+  item->format = HID_ITEM_FORMAT_SHORT;
+  item->size = b & 3;
 
-	USBH_UsrLog("fetch item %02x, type: %d, tag: %d, size: %d",
-	    b, item->type, item->tag, item->size);
+//	USBH_UsrLog("fetch item %02x, type: %d, tag: %d, size: %d",
+//	    b, item->type, item->tag, item->size);
 
-	switch (item->size) {
-	case 0:
-	    USBH_UsrLog("  no value");
-	    return start;
-	  break;
+  switch (item->size)
+  {
+  case 0:
+    // USBH_UsrLog("  no value");
+    return start;
+    break;
 
-	case 1:
-		if ((end - start) < 1)
-			return NULL;
-		item->data.u8 = *start++;
-		USBH_UsrLog("  %02x", item->data.u8);
-		return start;
+  case 1:
+    if ((end - start) < 1)
+      return NULL ;
+    item->data.u8 = *start++;
+    // USBH_UsrLog("  %02x", item->data.u8);
+    return start;
 
-	case 2:
-		if ((end - start) < 2)
-			return NULL;
-		item->data.u16 = get_unaligned_le16(start);
-		// start = (__u8 *)((__le16 *)start + 1);
-		start = (uint8_t*)((uint16_t*)start + 1);
-		USBH_UsrLog("  %04x", item->data.u16);
-		return start;
+  case 2:
+    if ((end - start) < 2)
+      return NULL ;
+    item->data.u16 = get_unaligned_le16(start);
+    // start = (__u8 *)((__le16 *)start + 1);
+    start = (uint8_t*) ((uint16_t*) start + 1);
+    // USBH_UsrLog("  %04x", item->data.u16);
+    return start;
 
-	case 3:
-		item->size++;
-		if ((end - start) < 4)
-			return NULL;
-		item->data.u32 = get_unaligned_le32(start);
-		// start = (__u8 *)((__le32 *)start + 1);
-		start = (uint8_t*)((uint32_t*)start + 1);
-		USBH_UsrLog("  %08x", item->data.u32);
-		return start;
-	}
+  case 3:
+    item->size++;
+    if ((end - start) < 4)
+      return NULL ;
+    item->data.u32 = get_unaligned_le32(start);
+    // start = (__u8 *)((__le32 *)start + 1);
+    start = (uint8_t*) ((uint32_t*) start + 1);
+    // USBH_UsrLog("  %08x", (unsigned int)item->data.u32);
+    return start;
+  }
 
-	return NULL;
+  return NULL ;
 }
 
 #if 0

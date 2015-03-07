@@ -57,8 +57,8 @@
 												USBH_LogSE(s, e); 												\
 												printf(NEW_LINE);
 
-#define USBH_DEBOUNCE_DELAY                     1
-#define USBH_ATTACH_DELAY                       1
+#define USBH_DEBOUNCE_DELAY                     500
+#define USBH_ATTACH_DELAY                       500
 
 /**
   * @}
@@ -571,126 +571,139 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
  */
 USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 {
-	static USBH_LL_EventTypeDef e, e_prev = {-1, 0};
-	static HOST_StateTypeDef s_prev = -1;
+  static USBH_LL_EventTypeDef e, e_prev =
+  { -1, 0 };
+  static HOST_StateTypeDef s_prev = -1;
 
-	e = USBH_GetEvent();
+  e = USBH_GetEvent();
 
-	/** print only once for successive state/event **/
-	if ((phost->gState == s_prev) && (e.evt == e_prev.evt)) {
-	}
-	else
-	{
-		USBH_LogSE(phost->gState, e);
-		s_prev = phost->gState;
-		e_prev = e;
-	}
+  /** print only once for successive state/event **/
+  if ((phost->gState == s_prev) && (e.evt == e_prev.evt))
+  {
+  }
+  else
+  {
+    USBH_LogSE(phost->gState, e);
+    s_prev = phost->gState;
+    e_prev = e;
+  }
 
-	switch (e.evt)
-	{
-	case USBH_LL_EVT_NULL:
-		USBH_Process(phost);
-		break;
+  switch (e.evt)
+  {
+  case USBH_LL_EVT_NULL:
+    USBH_Process(phost);
+    break;
 
-	case USBH_LL_EVT_CONNECT:
+  case USBH_LL_EVT_CONNECT:
 
-		if (phost->gState == HOST_IDLE) {
+    if (phost->gState == HOST_IDLE)
+    {
 
-			phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
+      phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
 
-			/** debouncing **/
-			phost->wait_for_attachment_substate = 0;
-			phost->PollingTimer = HAL_GetTick();
-			USBH_UsrLog ("Debounce delay %dms before port reset", USBH_DEBOUNCE_DELAY);
-		}
-		else
+      /** debouncing **/
+      phost->wait_for_attachment_substate = 0;
+      phost->PollingTimer = HAL_GetTick();
+      USBH_UsrLog("Debounce delay %dms before port reset", USBH_DEBOUNCE_DELAY);
+    }
+    else
 
-			goto ILLEGAL_STATE;
+      goto ILLEGAL_STATE;
 
-		break;
+    break;
 
-	case USBH_LL_EVT_DISCONNECT:
+  case USBH_LL_EVT_DISCONNECT:
 
-		switch (phost->gState) {
-		case HOST_IDLE:
-			USBH_ILLEGAL_SE(phost->gState, e);
-			break;
-		case HOST_DEV_WAIT_FOR_ATTACHMENT:
-			if (phost->wait_for_attachment_substate == 0) { /** debouncing **/
+    switch (phost->gState)
+    {
+    case HOST_IDLE:
+      USBH_ILLEGAL_SE(phost->gState, e)
+      ;
+      break;
 
-			}
-			else if (phost->wait_for_attachment_substate == 1) { /** resetting **/
-				USBH_LL_ResetDeassert(phost);
-			}
-			else {
+    case HOST_DEV_WAIT_FOR_ATTACHMENT:
+      if (phost->wait_for_attachment_substate == 0)
+      { /** debouncing **/
 
-			}
+      }
+      else if (phost->wait_for_attachment_substate == 1)
+      { /** resetting **/
+        USBH_LL_ResetDeassert(phost);
+      }
+      else
+      {
 
-			phost->wait_for_attachment_substate = -1;
-			phost->gState = HOST_IDLE;
-			break;
+      }
 
-		default:
-			USBH_UsrLog("USB Device disconnected");
+      phost->wait_for_attachment_substate = -1;
+      phost->gState = HOST_IDLE;
+      break;
 
-			USBH_FreePipe  (phost, phost->Control.pipe_in);
-			USBH_FreePipe  (phost, phost->Control.pipe_out);
+    default:
+      USBH_UsrLog("USB Device disconnected")
+      ;
 
-		    DeInitStateMachine(phost);
+      USBH_FreePipe(phost, phost->Control.pipe_in);
+      USBH_FreePipe(phost, phost->Control.pipe_out);
 
-		    /* Re-Initilaize Host for new Enumeration */
-		    if(phost->pActiveClass != NULL)
-		    {
-		      phost->pActiveClass->DeInit(phost);
-		      phost->pActiveClass = NULL;
-		    }
+      DeInitStateMachine(phost);
 
-			break;
-		}
-		break;
+      /* Re-Initilaize Host for new Enumeration */
+      if (phost->pActiveClass != NULL)
+      {
+        phost->pActiveClass->DeInit(phost);
+        phost->pActiveClass = NULL;
+      }
 
-	case USBH_LL_EVT_PORTUP:
+      break;
+    }
+    break;
 
-		switch (phost->gState) {
-		case HOST_IDLE:
-			USBH_ILLEGAL_SE(phost->gState, e);
-			break;
-		case HOST_DEV_WAIT_FOR_ATTACHMENT:
-			phost->gState = HOST_DEV_ATTACHED;
-			break;
-		default:
-			USBH_ILLEGAL_SE(phost->gState, e);
-			break;
-		}
-		break;
+  case USBH_LL_EVT_PORTUP:
 
-	case USBH_LL_EVT_PORTDOWN:
-		switch (phost->gState) {
-		case HOST_DEV_WAIT_FOR_ATTACHMENT:
-			if (phost->wait_for_attachment_substate == 2) {
-				/** do nothing **/
-			}
+    switch (phost->gState)
+    {
+    case HOST_IDLE:
+      USBH_ILLEGAL_SE(phost->gState, e);
+      break;
+    case HOST_DEV_WAIT_FOR_ATTACHMENT:
+      phost->gState = HOST_DEV_ATTACHED;
+      break;
+    default:
+      USBH_ILLEGAL_SE(phost->gState, e);
+      break;
+    }
+    break;
 
-			break;
-		default:
-			break;
-		}
-		break;
+  case USBH_LL_EVT_PORTDOWN:
+    switch (phost->gState)
+    {
+    case HOST_DEV_WAIT_FOR_ATTACHMENT:
+      if (phost->wait_for_attachment_substate == 2)
+      {
+        /** do nothing **/
+      }
 
-	case USBH_LL_EVT_OVERFLOW:
-		break;
+      break;
+    default:
+      break;
+    }
+    break;
 
-	default:
-		// TODO illegal event
-		break;
-	}
+  case USBH_LL_EVT_OVERFLOW:
+    break;
 
-	return USBH_OK;
+  default:
+    // TODO illegal event
+    break;
+  }
 
-ILLEGAL_STATE:
+  return USBH_OK;
 
-	printf("ERROR STATE / EVENT combination !!!!!!!!!!!!" NEW_LINE);
-	return USBH_OK;
+  ILLEGAL_STATE:
+
+  printf("ERROR STATE / EVENT combination !!!!!!!!!!!!" NEW_LINE);
+  return USBH_OK;
 }
 
 extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
@@ -776,7 +789,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     
   case HOST_ENUMERATION:     
     /* Check for enumeration status */  
-    if ( USBH_HandleEnum(phost) == USBH_OK)
+    if (USBH_OK == ( status = USBH_HandleEnum(phost) ) )
     { 
       /* The function shall return USBH_OK when full enumeration is complete */
       USBH_UsrLog ("Enumeration done.");
@@ -796,6 +809,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
       }
           
     }
+
     break;
     
   case HOST_INPUT:
@@ -965,7 +979,7 @@ static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
   
   switch (phost->EnumState)
   {
-  case ENUM_IDLE:  
+  case ENUM_IDLE:
     /* Get Device Desc for only 1st 8 bytes : To get EP0 MaxPacketSize */
     if ( USBH_Get_DevDesc(phost, 8) == USBH_OK)
     {

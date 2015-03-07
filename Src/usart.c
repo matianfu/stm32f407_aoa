@@ -270,6 +270,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
   }
 } 
 
+extern void uart_print_tx_complete_cb(void);
+
 /* USER CODE BEGIN 1 */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
 
