@@ -50,10 +50,10 @@ extern void hid_close_report(struct hid_device *device);
 // extern int hid_device_probe(struct hid_device *hdev);
 extern int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size);
 
-extern int hid_device_probe(USBH_HandleTypeDef *phost);
+// extern int hid_device_probe(USBH_HandleTypeDef *phost);
 
-static USBH_StatusTypeDef USBH_HID_DeviceProbe(USBH_HandleTypeDef *phost);
-static USBH_StatusTypeDef USBH_HID_DeviceRelease(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef USBH_USBHID_Disconnect(USBH_HandleTypeDef *phost);
 
 static USBH_StatusTypeDef USBH_HID_InterfaceInit(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost);
@@ -285,7 +285,6 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
   USBH_StatusTypeDef status = USBH_BUSY;
   USBH_StatusTypeDef classReqStatus = USBH_BUSY;
   HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
-  int i;
 
   /* Switch HID state machine */
   switch (HID_Handle->ctl_state)
@@ -305,10 +304,9 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
   case HID_REQ_GET_REPORT_DESC:
 
     /* Get Report Desc */
-    if (USBH_HID_GetHIDReportDescriptor(phost, HID_Handle->HID_Desc.wItemLength)
-        == USBH_OK)
+    if (USBH_HID_GetHIDReportDescriptor(phost, HID_Handle->HID_Desc.wItemLength) == USBH_OK)
     {
-      if (USBH_HID_DeviceProbe(phost) == USBH_OK)
+      if (USBH_USBHID_Probe(phost) == USBH_OK)
       {
         HID_Handle->ctl_state = HID_REQ_SET_IDLE;
       }
@@ -855,12 +853,13 @@ static HID_KEYBD_Info_TypeDef prev = {0};
 /**
  * @brief   HID Device Probe
  *          Assuming the report descriptor is available in phost->device.Data
+ *
+ *          This function merges logic in both usbhid_probe and hid_probe.
  * @param   phost
  * @retval  status
  */
-static USBH_StatusTypeDef USBH_HID_DeviceProbe(USBH_HandleTypeDef *phost)
+static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
 {
-
   int i, ret = 0;
   struct hid_device* hiddev;
   HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
@@ -878,62 +877,40 @@ static USBH_StatusTypeDef USBH_HID_DeviceProbe(USBH_HandleTypeDef *phost)
     USBH_UsrLog(" - 0x%02x", phost->device.Data[i]);
   }
 
-  /** check report descriptor size, non-zero and max length 1024 **/
-  if (rsize == 0)
-  {
-    USBH_ErrLog("Invalid report descriptor length.");
-    return USBH_FAIL;
-  }
-
-  if (rsize > 1024)
-  {
-    USBH_ErrLog("Report descriptor length too long (>1024)");
-    return USBH_NOT_SUPPORTED;
-  }
-
-  /**
-   * close_report (aka, init report) is called inside this function
-   */
   hiddev = hid_allocate_device();
 
-  if (!hiddev)
-  {
-    USBH_ErrLog("hid_allocate_device fail");
-    goto fail0;
-  }
+  if (hiddev == NULL)
+    goto fail;
 
-  hiddev->dev_rdesc = (uint8_t *) malloc(rsize);
-  if (!hiddev->dev_rdesc)
-  {
-    USBH_ErrLog("mem fail");
-    goto fail1;
-  }
-
-  memcpy(hiddev->dev_rdesc, rdesc, rsize);
-  hiddev->dev_rsize = rsize;
+  ret = hid_set_report_descriptor(hiddev, rdesc, rsize);
+  if (ret)
+    goto fail;
 
   ret = hid_open_report(hiddev);
   if (ret)
-    goto fail2;
+    goto fail;
 
-  ret = hid_connect(hiddev, HID_CONNECT_DEFAULT);
+  // ret = hid_connect(hiddev, HID_CONNECT_DEFAULT);
+  ret = hidinput_connect(hiddev, 0);    // force?
   if (ret)
-    goto fail3;
+    goto fail;
 
   HID_Handle->hiddev = hiddev;
   return USBH_OK;
 
-  fail3: hid_close_report(hiddev);
+fail: hid_destroy_device(hiddev);
 
-  fail2: free(hiddev->dev_rdesc);
-
-  fail1: hid_destroy_device(hiddev);
-
-  fail0: return USBH_FAIL;
+  return USBH_FAIL;
 }
 
-static USBH_StatusTypeDef USBH_HID_DeviceRelease(USBH_HandleTypeDef *phost) {
+static USBH_StatusTypeDef USBH_USBHID_Disconnect(USBH_HandleTypeDef *phost) {
 
+  HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
+  struct hid_device *hiddev = HID_Handle->hiddev;
+
+  hid_destroy_device(hiddev);
+
+  return USBH_OK;
 }
 
 

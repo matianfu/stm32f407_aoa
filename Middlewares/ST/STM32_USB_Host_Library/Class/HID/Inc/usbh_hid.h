@@ -217,6 +217,9 @@ typedef struct
 
 
 /* Structure for HID process */
+/*
+ * This struct is equivalent to linux struct usbhid_device
+ */
 typedef struct _HID_Process
 {
   uint8_t OutPipe;
@@ -234,6 +237,8 @@ typedef struct _HID_Process
   uint8_t DataReady;
   HID_DescTypeDef HID_Desc;
   USBH_StatusTypeDef (*Init)(USBH_HandleTypeDef *phost);
+
+  /*
 
   /* embed a linux hid_device inside st hid handle */
   struct hid_device *hiddev;

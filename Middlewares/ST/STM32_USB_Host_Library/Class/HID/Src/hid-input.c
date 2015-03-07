@@ -2477,23 +2477,24 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
               report->field[i]->usage + j);
         }
       }
-//			if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
-//			    !hidinput_has_been_populated(hidinput))
-//				continue;
 
-//			if (hid->quirks & HID_QUIRK_MULTI_INPUT) {
-//				/* This will leave hidinput NULL, so that it
-//				 * allocates another one if we have more inputs on
-//				 * the same interface. Some devices (e.g. Happ's
-//				 * UGCI) cram a lot of unrelated inputs into the
-//				 * same interface. */
-//				hidinput->report = report;
-//				if (drv->input_configured)
-//					drv->input_configured(hid, hidinput);
-//				if (input_register_device(hidinput->input))
-//					goto out_cleanup;
-//				hidinput = NULL;
-//			}
+      if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
+          !hidinput_has_been_populated(hidinput))
+          continue;
+
+//          if (hid->quirks & HID_QUIRK_MULTI_INPUT) {
+//              /* This will leave hidinput NULL, so that it
+//               * allocates another one if we have more inputs on
+//               * the same interface. Some devices (e.g. Happ's
+//               * UGCI) cram a lot of unrelated inputs into the
+//               * same interface. */
+//              hidinput->report = report;
+//              if (drv->input_configured)
+//                  drv->input_configured(hid, hidinput);
+//              if (input_register_device(hidinput->input))
+//                  goto out_cleanup;
+//              hidinput = NULL;
+//          }
     }
   }
 
@@ -2519,16 +2520,17 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 
   return 0;
 
-  out_cleanup: list_del(&hidinput->list);
-  // input_free_device(hidinput->input);
-  // kfree(hidinput);
-  free(hidinput);
+  out_cleanup:
+    list_del(&hidinput->list);
+    // input_free_device(hidinput->input);
+    // kfree(hidinput);
+    free(hidinput);
 
   out_unwind:
-  /* unwind the ones we already registered */
-  hidinput_disconnect(hid);
-  // TODO unwind disabled for failure
-  return -1;
+    /* unwind the ones we already registered */
+    hidinput_disconnect(hid);
+    // TODO unwind disabled for failure
+    return -1;
 }
 // EXPORT_SYMBOL_GPL(hidinput_connect);
 

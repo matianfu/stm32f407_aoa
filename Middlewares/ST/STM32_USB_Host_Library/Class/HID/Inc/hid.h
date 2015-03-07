@@ -916,16 +916,13 @@ struct hid_report *hid_validate_values(struct hid_device *hid,
     unsigned int report_counts);
 #endif
 
+int hid_set_report_descriptor(struct hid_device *hiddev, uint8_t* rdesc, uint16_t rsize);
 int hid_open_report(struct hid_device *device);
 
 #if 0
 int hid_check_keys_pressed(struct hid_device *hid);
-#endif
-
 int hid_connect(struct hid_device *hid, unsigned int connect_mask);
 void hid_disconnect(struct hid_device *hid);
-
-#if 0
 const struct hid_device_id *hid_match_id(struct hid_device *hdev,
     const struct hid_device_id *id);
 s32 hid_snto32(__u32 value, unsigned n);

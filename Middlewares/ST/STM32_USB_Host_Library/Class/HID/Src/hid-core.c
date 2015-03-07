@@ -1001,6 +1001,31 @@ EXPORT_SYMBOL_GPL(hid_validate_values);
 #endif
 
 /**
+ * hid_set_report_descriptor
+ *
+ *
+ */
+int hid_set_report_descriptor(struct hid_device *hiddev, uint8_t* rdesc, uint16_t rsize)
+{
+  if (hiddev == NULL || rdesc == NULL || rsize == 0 || rsize > 1024) {
+    // TODO log error
+    return -1;
+  }
+
+  hiddev->dev_rdesc = (uint8_t *)malloc(rsize);
+  if (!hiddev->dev_rdesc)
+  {
+    // TODO log err
+    return -1;
+  }
+
+  memcpy(hiddev->dev_rdesc, rdesc, rsize);
+  hiddev->dev_rsize = rsize;
+
+  return 0;
+}
+
+/**
  * hid_open_report - open a driver-specific device report
  *
  * @device: hid device
@@ -1846,118 +1871,105 @@ static struct bin_attribute dev_bin_attr_report_desc = {
 	.size = HID_MAX_DESCRIPTOR_SIZE,
 };
 
-#endif
-
-extern int hidinput_connect(struct hid_device *hid, unsigned int force);
-
-/*
- * The original code connect to many subsystems, we are interested only in input subsystem
- */
 int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 {
-	static const char *types[] = { "Device", "Pointer", "Mouse", "Device",
-		"Joystick", "Gamepad", "Keyboard", "Keypad",
-		"Multi-Axis Controller"
-	};
-//	const char *type, *bus;
-	const char *type;
-//	char buf[64];
-	unsigned int i;
-//	int len;
-//	int ret;
+    static const char *types[] = { "Device", "Pointer", "Mouse", "Device",
+        "Joystick", "Gamepad", "Keyboard", "Keypad",
+        "Multi-Axis Controller"
+    };
+    const char *type, *bus;
+    char buf[64];
+    unsigned int i;
+    int len;
+    int ret;
 
-//	if (hdev->quirks & HID_QUIRK_HIDDEV_FORCE)
-//		connect_mask |= (HID_CONNECT_HIDDEV_FORCE | HID_CONNECT_HIDDEV);
-//	if (hdev->quirks & HID_QUIRK_HIDINPUT_FORCE)
-//		connect_mask |= HID_CONNECT_HIDINPUT_FORCE;
-//	if (hdev->bus != BUS_USB)
-//		connect_mask &= ~HID_CONNECT_HIDDEV;
-//	if (hid_hiddev(hdev))
-//		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
+    if (hdev->quirks & HID_QUIRK_HIDDEV_FORCE)
+        connect_mask |= (HID_CONNECT_HIDDEV_FORCE | HID_CONNECT_HIDDEV);
+    if (hdev->quirks & HID_QUIRK_HIDINPUT_FORCE)
+        connect_mask |= HID_CONNECT_HIDINPUT_FORCE;
+    if (hdev->bus != BUS_USB)
+        connect_mask &= ~HID_CONNECT_HIDDEV;
+    if (hid_hiddev(hdev))
+        connect_mask |= HID_CONNECT_HIDDEV_FORCE;
 
-	if ((connect_mask & HID_CONNECT_HIDINPUT) && !hidinput_connect(hdev,
-				connect_mask & HID_CONNECT_HIDINPUT_FORCE))
-		hdev->claimed |= HID_CLAIMED_INPUT;
+    if ((connect_mask & HID_CONNECT_HIDINPUT) && !hidinput_connect(hdev,
+                connect_mask & HID_CONNECT_HIDINPUT_FORCE))
+        hdev->claimed |= HID_CLAIMED_INPUT;
 
-//	if ((connect_mask & HID_CONNECT_HIDDEV) && hdev->hiddev_connect &&
-//			!hdev->hiddev_connect(hdev,
-//				connect_mask & HID_CONNECT_HIDDEV_FORCE))
-//		hdev->claimed |= HID_CLAIMED_HIDDEV;
-//	if ((connect_mask & HID_CONNECT_HIDRAW) && !hidraw_connect(hdev))
-//		hdev->claimed |= HID_CLAIMED_HIDRAW;
-//
-//	/* Drivers with the ->raw_event callback set are not required to connect
-//	 * to any other listener. */
-//	if (!hdev->claimed && !hdev->driver->raw_event) {
-//		hid_err(hdev, "device has no listeners, quitting\n");
-//		return -ENODEV;
-//	}
+    if ((connect_mask & HID_CONNECT_HIDDEV) && hdev->hiddev_connect &&
+            !hdev->hiddev_connect(hdev,
+                connect_mask & HID_CONNECT_HIDDEV_FORCE))
+        hdev->claimed |= HID_CLAIMED_HIDDEV;
+    if ((connect_mask & HID_CONNECT_HIDRAW) && !hidraw_connect(hdev))
+        hdev->claimed |= HID_CLAIMED_HIDRAW;
 
-//	if ((hdev->claimed & HID_CLAIMED_INPUT) &&
-//			(connect_mask & HID_CONNECT_FF) && hdev->ff_init)
-//		hdev->ff_init(hdev);
+    /* Drivers with the ->raw_event callback set are not required to connect
+     * to any other listener. */
+    if (!hdev->claimed && !hdev->driver->raw_event) {
+        hid_err(hdev, "device has no listeners, quitting\n");
+        return -ENODEV;
+    }
 
-//	len = 0;
-//	if (hdev->claimed & HID_CLAIMED_INPUT)
-//		len += sprintf(buf + len, "input");
-//	if (hdev->claimed & HID_CLAIMED_HIDDEV)
-//		len += sprintf(buf + len, "%shiddev%d", len ? "," : "",
-//				hdev->minor);
-//	if (hdev->claimed & HID_CLAIMED_HIDRAW)
-//		len += sprintf(buf + len, "%shidraw%d", len ? "," : "",
-//				((struct hidraw *)hdev->hidraw)->minor);
+    if ((hdev->claimed & HID_CLAIMED_INPUT) &&
+            (connect_mask & HID_CONNECT_FF) && hdev->ff_init)
+        hdev->ff_init(hdev);
 
-	type = "Device";
-	for (i = 0; i < hdev->maxcollection; i++) {
-		struct hid_collection *col = &hdev->collection[i];
-		if (col->type == HID_COLLECTION_APPLICATION &&
-		   (col->usage & HID_USAGE_PAGE) == HID_UP_GENDESK &&
-		   (col->usage & 0xffff) < ARRAY_SIZE(types)) {
-			type = types[col->usage & 0xffff];
-			break;
-		}
-	}
+    len = 0;
+    if (hdev->claimed & HID_CLAIMED_INPUT)
+        len += sprintf(buf + len, "input");
+    if (hdev->claimed & HID_CLAIMED_HIDDEV)
+        len += sprintf(buf + len, "%shiddev%d", len ? "," : "",
+                hdev->minor);
+    if (hdev->claimed & HID_CLAIMED_HIDRAW)
+        len += sprintf(buf + len, "%shidraw%d", len ? "," : "",
+                ((struct hidraw *)hdev->hidraw)->minor);
 
-//	switch (hdev->bus) {
-//	case BUS_USB:
-//		bus = "USB";
-//		break;
-//	case BUS_BLUETOOTH:
-//		bus = "BLUETOOTH";
-//		break;
-//	default:
-//		bus = "<UNKNOWN>";
-//	}
+    type = "Device";
+    for (i = 0; i < hdev->maxcollection; i++) {
+        struct hid_collection *col = &hdev->collection[i];
+        if (col->type == HID_COLLECTION_APPLICATION &&
+           (col->usage & HID_USAGE_PAGE) == HID_UP_GENDESK &&
+           (col->usage & 0xffff) < ARRAY_SIZE(types)) {
+            type = types[col->usage & 0xffff];
+            break;
+        }
+    }
 
-//	ret = device_create_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
-//	if (ret)
-//		hid_warn(hdev,
-//			 "can't create sysfs report descriptor attribute err: %d\n", ret);
-//
-//	hid_info(hdev, "%s: %s HID v%x.%02x %s [%s] on %s\n",
-//		 buf, bus, hdev->version >> 8, hdev->version & 0xff,
-//		 type, hdev->name, hdev->phys);
+    switch (hdev->bus) {
+    case BUS_USB:
+        bus = "USB";
+        break;
+    case BUS_BLUETOOTH:
+        bus = "BLUETOOTH";
+        break;
+    default:
+        bus = "<UNKNOWN>";
+    }
 
-	USBH_UsrLog("HID %s connected", type);
+    ret = device_create_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
+    if (ret)
+        hid_warn(hdev,
+             "can't create sysfs report descriptor attribute err: %d\n", ret);
 
-	return 0;
+    hid_info(hdev, "%s: %s HID v%x.%02x %s [%s] on %s\n",
+         buf, bus, hdev->version >> 8, hdev->version & 0xff,
+         type, hdev->name, hdev->phys);
+
+    return 0;
 }
-// EXPORT_SYMBOL_GPL(hid_connect);
-
+EXPORT_SYMBOL_GPL(hid_connect);
 
 void hid_disconnect(struct hid_device *hdev)
 {
-//  device_remove_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
-  if (hdev->claimed & HID_CLAIMED_INPUT)
-    hidinput_disconnect(hdev);
-//  if (hdev->claimed & HID_CLAIMED_HIDDEV)
-//    hdev->hiddev_disconnect(hdev);
-//  if (hdev->claimed & HID_CLAIMED_HIDRAW)
-//    hidraw_disconnect(hdev);
+    device_remove_bin_file(&hdev->dev, &dev_bin_attr_report_desc);
+    if (hdev->claimed & HID_CLAIMED_INPUT)
+        hidinput_disconnect(hdev);
+    if (hdev->claimed & HID_CLAIMED_HIDDEV)
+        hdev->hiddev_disconnect(hdev);
+    if (hdev->claimed & HID_CLAIMED_HIDRAW)
+        hidraw_disconnect(hdev);
 }
-// EXPORT_SYMBOL_GPL(hid_disconnect);
-
-#if 0
+EXPORT_SYMBOL_GPL(hid_disconnect);
 
 /*
  * A list of devices for which there is a specialized driver on HID bus.
@@ -2868,10 +2880,17 @@ struct hid_device *hid_allocate_device(void)
 
   memset(hdev, 0, sizeof(*hdev));
 
+  /*
+   * The following functions are commented out, but keep in mind there are two steps
+   * to destruct the hid_device: bus removal and device release.
+   */
 //  device_initialize(&hdev->dev);
 //  hdev->dev.release = hid_device_release;
 //  hdev->dev.bus = &hid_bus_type;
 
+  /*
+   * init
+   */
   hid_close_report(hdev);
 
 //  init_waitqueue_head(&hdev->debug_wait);
@@ -2879,13 +2898,18 @@ struct hid_device *hid_allocate_device(void)
 //  spin_lock_init(&hdev->debug_list_lock);
 //  sema_init(&hdev->driver_lock, 1);
 //  sema_init(&hdev->driver_input_lock, 1);
-
   return hdev;
 }
 // EXPORT_SYMBOL_GPL(hid_allocate_device);
 
-static void hid_remove_device(struct hid_device *hdev)
-{
+/*
+ * This code are merged into hid_destroy_device
+ *
+ * NOTE: device_del removes devices out of kernel object system but do not destroy it.
+ *       this function will trigger bus_type remove function, ie hid_device_remove.
+ */
+//static void hid_remove_device(struct hid_device *hdev)
+//{
 //  if (hdev->status & HID_STAT_ADDED)
 //  {
 //    device_del(&hdev->dev);
@@ -2893,12 +2917,9 @@ static void hid_remove_device(struct hid_device *hdev)
 //    hdev->status &= ~HID_STAT_ADDED;
 //  }
 //  kfree(hdev->dev_rdesc);
-  if (hdev->dev_rdesc) {
-    free(hdev->dev_rdesc);
-    hdev->dev_rdesc = NULL;
-  }
-  hdev->dev_rsize = 0;
-}
+//  hdev->dev_rdesc = NULL;
+//  hdev->dev_rsize = 0;
+//}
 
 
 /**
@@ -2911,13 +2932,24 @@ static void hid_remove_device(struct hid_device *hdev)
  */
 void hid_destroy_device(struct hid_device *hdev)
 {
-	hid_remove_device(hdev);
+  /*
+   * hid_remove_device(hdev)
+   *   device_del(dev)
+   *      bus_remove_device(dev)
+   *          hid_device_remove()
+   */
+  // hid_disconnect(hdev);       // hw_stop, destroy input_devs
+  if (hdev->claimed & HID_CLAIMED_INPUT)
+    hidinput_disconnect(hdev);
 
-	/*
-	 * put_device will free dev container.
-	 */
-	// put_device(&hdev->dev);
-	free(hdev);
+  hid_close_report(hdev);
+
+  /*
+   * put_device(&hdev->dev);
+   *   hid_device_release
+   */
+  // close_report will free report descriptor
+  free(hdev);
 }
 // EXPORT_SYMBOL_GPL(hid_destroy_device);
 
