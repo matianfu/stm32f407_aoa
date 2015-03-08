@@ -357,6 +357,7 @@ USBH_StatusTypeDef   USBH_LL_OpenPipe    (USBH_HandleTypeDef *phost,
                                       uint8_t ep_type,
                                       uint16_t mps)
 {
+  HAL_StatusTypeDef status =
   HAL_HCD_HC_Init(phost->pData,
                   pipe_num,
                   epnum,
@@ -364,6 +365,16 @@ USBH_StatusTypeDef   USBH_LL_OpenPipe    (USBH_HandleTypeDef *phost,
                   speed,
                   ep_type,
                   mps);
+/*  HAL_OK       = 0x00,
+  HAL_ERROR    = 0x01,
+  HAL_BUSY     = 0x02,
+  HAL_TIMEOUT  = 0x03
+  */
+
+  if (status != HAL_OK) {
+    printf("%s HAL_HCD_HC_INIT not ok, %d\n", __func__, (int)status);
+  }
+
   return USBH_OK; 
 }
 

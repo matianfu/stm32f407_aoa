@@ -57,6 +57,7 @@ void MX_USB_HOST_Process(void);
 extern void initialise_monitor_handles(void);
 #endif
 
+static char hello[] = NEW_LINE NEW_LINE NEW_LINE "================ System Starts ================" NEW_LINE NEW_LINE;
 
 int main(void)
 {
@@ -89,12 +90,11 @@ int main(void)
   MX_UART4_Init();
   MX_USART2_UART_Init();
 
-  static char hello[] = NEW_LINE NEW_LINE NEW_LINE "================ System Starts ================" NEW_LINE NEW_LINE;
-  // HAL_UART_Transmit_DMA(&huart2, hello, strlen(hello));
   printf("%s", hello);
-  printf("size of input_dev: %d\r\n", sizeof(struct input_dev));
-  printf("size of hid_device: %d\r\n", sizeof(struct hid_device));
-  printf("size of hid_parser: %d\r\n", sizeof(struct hid_parser));
+
+//  printf("size of input_dev: %d\r\n", sizeof(struct input_dev));
+//  printf("size of hid_device: %d\r\n", sizeof(struct hid_device));
+//  printf("size of hid_parser: %d\r\n", sizeof(struct hid_parser));
   HAL_Delay(100);
 
   MX_USART3_UART_Init();

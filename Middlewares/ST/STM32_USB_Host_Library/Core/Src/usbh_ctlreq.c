@@ -30,6 +30,36 @@
 #include "usbh_conf.h"
 #include "usbh_ctlreq.h"
 
+static const char* urb_status_string[] =
+{ "URB_IDLE", "URB_DONE", "URB_NOTREADY", "URB_NYET", "URB_ERROR", "URB_STALL" };
+
+static void print_urb_status(USBH_URBStateTypeDef us) {
+
+  static const int sizeof_urb_status_string = sizeof(urb_status_string)
+          / sizeof(urb_status_string[0]);
+
+  static int prev_is_idle = 0;
+
+  if (us == URB_IDLE)
+  {
+    if (prev_is_idle)
+      return;
+
+    prev_is_idle = 1;
+  }
+  else {
+    prev_is_idle = 0;
+  }
+
+  if (us < sizeof_urb_status_string) {
+    printf("urb: %s\r\n", urb_status_string[us]);
+  }
+  else
+  {
+    printf("urb: invalide value %d\r\n", (int)us);
+  }
+}
+
 /** @addtogroup USBH_LIB
 * @{
 */
@@ -614,6 +644,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
   case CTRL_SETUP_WAIT:
     
     URB_Status = USBH_LL_GetURBState(phost, phost->Control.pipe_out); 
+    print_urb_status(URB_Status);
     /* case SETUP packet sent successfully */
     if(URB_Status == USBH_URB_DONE)
     { 
@@ -674,7 +705,9 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     
   case CTRL_DATA_IN_WAIT:
     
-    URB_Status = USBH_LL_GetURBState(phost , phost->Control.pipe_in); 
+    URB_Status = USBH_LL_GetURBState(phost , phost->Control.pipe_in);
+
+    print_urb_status(URB_Status);
     
     /* check is DATA packet transfered successfully */
     if  (URB_Status == USBH_URB_DONE)

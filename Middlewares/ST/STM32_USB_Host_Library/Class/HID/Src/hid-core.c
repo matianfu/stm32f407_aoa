@@ -2944,7 +2944,7 @@ void hid_destroy_device(struct hid_device *hdev)
 //  if (hdev->claimed & HID_CLAIMED_INPUT)
 //    hidinput_disconnect(hdev);
 
-  // hid_close_report(hdev);
+  hid_close_report(hdev);
 
   /*
    * put_device(&hdev->dev);

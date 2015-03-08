@@ -262,14 +262,14 @@ USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost)
 
 static void USBH_HID_PrintHIDDesc(HID_DescTypeDef* desc) {
 
-  USBH_UsrLog("      HID Device Descriptor:");
-  USBH_UsrLog("        bLength: %d", desc->bLength);
-  USBH_UsrLog("        bDescriptorType: %d", desc->bDescriptorType);
-  USBH_UsrLog("        bcdHID: %d", desc->bcdHID);
-  USBH_UsrLog("        bCountryCode: %d", desc->bCountryCode);
-  USBH_UsrLog("        bNumDescriptors: %d", desc->bNumDescriptors);
-  USBH_UsrLog("        bDescriptorType: %d %s", desc->bReportDescriptorType, "(for report descriptor)");
-  USBH_UsrLog("        wDescriptorLength: %d %s", desc->wItemLength, "(for report descriptor)");
+  USBH_UsrLog("  HID Device Descriptor:");
+  USBH_UsrLog("    bLength: %d", desc->bLength);
+  USBH_UsrLog("    bDescriptorType: %d", desc->bDescriptorType);
+  USBH_UsrLog("    bcdHID: %d", desc->bcdHID);
+  USBH_UsrLog("    bCountryCode: %d", desc->bCountryCode);
+  USBH_UsrLog("    bNumDescriptors: %d", desc->bNumDescriptors);
+  USBH_UsrLog("    bDescriptorType: %d %s", desc->bReportDescriptorType, "(for report descriptor)");
+  USBH_UsrLog("    wDescriptorLength: %d %s", desc->wItemLength, "(for report descriptor)");
 }
 
 
@@ -308,19 +308,23 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
     /* Get Report Desc */
     if (USBH_HID_GetHIDReportDescriptor(phost, HID_Handle->HID_Desc.wItemLength) == USBH_OK)
     {
-      // return USBH_FAIL; debug
+//      return USBH_FAIL; debug
 //      HID_Handle->ctl_state = HID_REQ_SET_IDLE;
 //      break;
 
-      if (USBH_USBHID_Probe(phost) == USBH_OK)
-      {
-        USBH_UsrLog("USBH_USBHID_Probe OK");
-        HID_Handle->ctl_state = HID_REQ_SET_IDLE;
-      }
-      else {
-        USBH_UsrLog("USBH_USBHID_Probe Fail");
-        return USBH_FAIL;
-      }
+      USBH_USBHID_Probe(phost);
+      HID_Handle->ctl_state = HID_REQ_SET_IDLE;
+      break;
+
+//      if (USBH_USBHID_Probe(phost) == USBH_OK)
+//      {
+//        USBH_UsrLog("USBH_USBHID_Probe OK");
+//        HID_Handle->ctl_state = HID_REQ_SET_IDLE;
+//      }
+//      else {
+//        USBH_UsrLog("USBH_USBHID_Probe Fail");
+//        return USBH_FAIL;
+//      }
 //      else
 //      {
 //        HID_Handle->ctl_state = HID_REQ_INIT;
@@ -903,18 +907,25 @@ static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
   if (ret)
     goto fail;
 
+//  HID_Handle->hiddev = hiddev;
+//
+//  return USBH_OK;   // DEBUG
+
   /* ret = hid_connect(hiddev, HID_CONNECT_DEFAULT); */
   ret = hidinput_connect(hiddev, 0);    // force?
   if (ret)
     goto fail;
 
-  hiddev->claimed |= HID_CLAIMED_INPUT;
+  hidinput_disconnect(hiddev);
+
+//  hiddev->claimed |= HID_CLAIMED_INPUT;
 
   HID_Handle->hiddev = hiddev;
   return USBH_OK;
 
 fail: hid_destroy_device(hiddev);
 
+  USBH_UsrLog("Hid probe fail");
   return USBH_FAIL;
 }
 

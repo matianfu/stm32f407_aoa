@@ -454,7 +454,7 @@ typedef struct _USBH_HandleTypeDef
   /** new member end **/
 
   ENUM_StateTypeDef     EnumState;    /* Enumeration state Machine */
-  CMD_StateTypeDef      RequestState;       
+  CMD_StateTypeDef      RequestState;
   USBH_CtrlTypeDef      Control;
   USBH_DeviceTypeDef    device;
   USBH_ClassTypeDef*    pClass[USBH_MAX_NUM_SUPPORTED_CLASS];
@@ -462,8 +462,8 @@ typedef struct _USBH_HandleTypeDef
   uint32_t              ClassNumber;
   uint32_t              Pipes[15];
   __IO uint32_t         Timer;
-  uint8_t               id;  
-  void*                 pData;                  
+  uint8_t               id;
+  void*                 pData;
   void                 (* pUser )(struct _USBH_HandleTypeDef *pHandle, uint8_t id);
   
 #if (USBH_USE_OS == 1)

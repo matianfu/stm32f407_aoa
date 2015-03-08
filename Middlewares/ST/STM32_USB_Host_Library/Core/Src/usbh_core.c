@@ -42,25 +42,12 @@
 												USBH_LogSE(s, e); 												\
 												printf(NEW_LINE);
 
-#define USBH_DEBOUNCE_DELAY                     500
-#define USBH_ATTACH_DELAY                       500
+#define USBH_DEBOUNCE_DELAY                     20
+#define USBH_ATTACH_DELAY                       20
 
-/**
-  * @}
-  */ 
-
-/** @defgroup USBH_CORE_Private_Macros
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-
-/** @defgroup USBH_CORE_Private_Variables
-  * @{
-  */ 
-
+/*
+ * Event (interrupt) type
+ */
 typedef enum {
 	USBH_LL_EVT_NULL = 0,
 	USBH_LL_EVT_CONNECT,
@@ -70,12 +57,15 @@ typedef enum {
 	USBH_LL_EVT_OVERFLOW
 } USBH_LL_EventEnumTypeDef;
 
+/*
+ * Event type with time stamp
+ */
 typedef struct {
 	USBH_LL_EventEnumTypeDef evt;
 	uint32_t timestamp;
 } USBH_LL_EventTypeDef;
 
-static void USBH_LogSE(HOST_StateTypeDef s, USBH_LL_EventTypeDef e)
+static void USBH_LogSE(USBH_HandleTypeDef* phost /* HOST_StateTypeDef s */, USBH_LL_EventTypeDef e)
 {
   const static char* event_string[] =
   { "USBH_LL_EVT_NULL", "USBH_LL_EVT_CONNECT", "USBH_LL_EVT_DISCONNECT",
@@ -88,20 +78,31 @@ static void USBH_LogSE(HOST_StateTypeDef s, USBH_LL_EventTypeDef e)
       "HOST_CHECK_CLASS", "HOST_HAND_SHAKE", "HOST_CLASS", "HOST_SUSPENDED",
       "HOST_ABORT_STATE" };
 
+  const static char* enum_state_string[] =
+  { "ENUM_IDLE", "ENUM_GET_FULL_DEV_DESC", "ENUM_SET_ADDR", "ENUM_GET_CFG_DESC",
+      "ENUM_GET_FULL_CFG_DESC", "ENUM_GET_MFC_STRING_DESC",
+      "ENUM_GET_PRODUCT_STRING_DESC", "ENUM_GET_SERIALNUM_STRING_DESC" };
+
   const static int sizeof_events = sizeof(event_string)
       / sizeof(event_string[0]);
   const static int sizeof_states = sizeof(state_string)
       / sizeof(state_string[0]);
+  const static int sizeof_enum_states = sizeof(enum_state_string)
+      / sizeof(enum_state_string[0]);
 
-  if ((s < sizeof_states) && (e.evt < sizeof_events))
+  HOST_StateTypeDef s = phost->gState;
+  ENUM_StateTypeDef es = phost->EnumState;
+
+  if ((s < sizeof_states) && (es < sizeof_enum_states) && (e.evt < sizeof_events))
   {
-    USBH_UsrLog("- s: %s, e: %s @ %08u ", state_string[s], event_string[e.evt],
+    USBH_UsrLog("- s: %s, es: %s, e: %s @ %08u ",
+        state_string[s], enum_state_string[es], event_string[e.evt],
         (unsigned int )e.timestamp);
   }
   else
   {
-    USBH_UsrLog("!!!! illegal state or event, state: %d, event: %d @ %010u", s,
-        e.evt, (unsigned int )e.timestamp);
+    USBH_UsrLog("!!!! Illegal USBH sStates, s: %d, es: %d, event: %d @ %010u",
+        s, es, e.evt, (unsigned int )e.timestamp);
   }
 }
 
@@ -165,10 +166,10 @@ for (i = 0; i < bNumInterfaces; i++) {
  *
  * TODO these data should be changed to struct, since each USB (HS, FS) need an instance
  */
-#define USBH_LL_EVENT_RING_SIZE				(16)
-static USBH_LL_EventTypeDef USBH_LL_Events[USBH_LL_EVENT_RING_SIZE] = { {0, 0} };
-static int get_event_index = 0;
-static int put_event_index = 0;
+#define USBH_LL_EVENT_RING_SIZE				(64)
+static volatile USBH_LL_EventTypeDef USBH_LL_Events[USBH_LL_EVENT_RING_SIZE] = { {0, 0} };
+static volatile int get_event_index = 0;
+static volatile int put_event_index = 0;
 
 static inline int next_event_index(int i) {
 
@@ -211,12 +212,6 @@ static void USBH_PutEvent(USBH_LL_EventTypeDef e) {
 	USBH_LL_Events[put_event_index] = e;
 	put_event_index = next_event_index(put_event_index);
 }
-
-
-/**
-  * @}
-  */ 
- 
 
 /** @defgroup USBH_CORE_Private_Functions
   * @{
@@ -547,20 +542,60 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
  */
 USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 {
-  static USBH_LL_EventTypeDef e, e_prev =
-  { -1, 0 };
+  static USBH_LL_EventTypeDef e, e_prev = { -1, 0 };
   static HOST_StateTypeDef s_prev = -1;
+  static ENUM_StateTypeDef es_prev = -1;
 
   e = USBH_GetEvent();
 
+//  if (phost->gState == HOST_SET_CONFIGURATION &&
+//      phost->EnumState == ENUM_GET_SERIALNUM_STRING_DESC &&
+//      e.evt == USBH_LL_EVT_NULL)
+//  {
+//    USBH_UsrLog("trap here");
+//  }
+
+//  if (phost->gState == HOST_CHECK_CLASS &&
+//      phost->EnumState == ENUM_GET_SERIALNUM_STRING_DESC &&
+//      e.evt == USBH_LL_EVT_NULL)
+//  {
+//    USBH_UsrLog("trap 1");
+//  }
+
+  // - s: HOST_CLASS_REQUEST, es: ENUM_GET_SERIALNUM_STRING_DESC, e: USBH_LL_EVT_NULL @ 00000000
+
+//  if (phost->gState == HOST_CLASS_REQUEST &&
+//      phost->EnumState == ENUM_GET_SERIALNUM_STRING_DESC &&
+//      e.evt == USBH_LL_EVT_NULL)
+//  {
+//    USBH_UsrLog("trap 2");
+//  }
+
+  // s: HOST_CLASS, es: ENUM_GET_SERIALNUM_STRING_DESC, e: USBH_LL_EVT_NULL @ 00000000
+
+//  static int trap_host_class_once = 0;
+//
+//  if (phost->gState == HOST_CLASS &&
+//      phost->EnumState == ENUM_GET_SERIALNUM_STRING_DESC &&
+//      e.evt == USBH_LL_EVT_NULL && trap_host_class_once == 0)
+//  {
+//    trap_host_class_once = 1;
+//    USBH_UsrLog("trap 3");
+//  }
+
+
+
+  /****************************************************************************/
+
   /** print only once for successive state/event **/
-  if ((phost->gState == s_prev) && (e.evt == e_prev.evt))
+  if ((phost->gState == s_prev) && (phost->EnumState == es_prev) && (e.evt == e_prev.evt))
   {
   }
   else
   {
-    USBH_LogSE(phost->gState, e);
+    USBH_LogSE(phost, e);
     s_prev = phost->gState;
+    es_prev = phost->EnumState;
     e_prev = e;
   }
 
@@ -593,8 +628,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
     switch (phost->gState)
     {
     case HOST_IDLE:
-      USBH_ILLEGAL_SE(phost->gState, e)
-      ;
+      USBH_ILLEGAL_SE(phost, e);
       break;
 
     case HOST_DEV_WAIT_FOR_ATTACHMENT:
@@ -639,13 +673,13 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
     switch (phost->gState)
     {
     case HOST_IDLE:
-      USBH_ILLEGAL_SE(phost->gState, e);
+      USBH_ILLEGAL_SE(phost, e);
       break;
     case HOST_DEV_WAIT_FOR_ATTACHMENT:
       phost->gState = HOST_DEV_ATTACHED;
       break;
     default:
-      USBH_ILLEGAL_SE(phost->gState, e);
+      USBH_ILLEGAL_SE(phost, e);
       break;
     }
     break;
@@ -677,7 +711,8 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 
   ILLEGAL_STATE:
 
-  printf("ERROR STATE / EVENT combination !!!!!!!!!!!!" NEW_LINE);
+  printf("ERROR STATE / EVENT combination !!!!!!!!!!!!");
+  USBH_ILLEGAL_SE(phost, e);
   return USBH_OK;
 }
 
@@ -968,22 +1003,14 @@ static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
       phost->EnumState = ENUM_GET_FULL_DEV_DESC;
       
       /* modify control channels configuration for MaxPacket size */
-      USBH_OpenPipe (phost,
-                           phost->Control.pipe_in,
-                           0x80,
-                           phost->device.address,
-                           phost->device.speed,
-                           USBH_EP_CONTROL,
-                           phost->Control.pipe_size); 
-      
+      USBH_OpenPipe(phost, phost->Control.pipe_in, 0x80, phost->device.address,
+          phost->device.speed,
+          USBH_EP_CONTROL, phost->Control.pipe_size);
+
       /* Open Control pipes */
-      USBH_OpenPipe (phost,
-                           phost->Control.pipe_out,
-                           0x00,
-                           phost->device.address,
-                           phost->device.speed,
-                           USBH_EP_CONTROL,
-                           phost->Control.pipe_size);           
+      USBH_OpenPipe(phost, phost->Control.pipe_out, 0x00, phost->device.address,
+          phost->device.speed,
+          USBH_EP_CONTROL, phost->Control.pipe_size);
       
     }
     break;
@@ -1109,7 +1136,7 @@ static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
                                0xff) == USBH_OK)
       {
         /* User callback for Serial number string */
-         USBH_UsrLog("Serial Number : %s",  (char *)phost->device.Data);
+        USBH_UsrLog("Serial Number : %s",  (char *)phost->device.Data);
         Status = USBH_OK;
       }
     }
