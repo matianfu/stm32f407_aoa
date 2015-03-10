@@ -88,16 +88,16 @@ void MX_USB_HOST_Init(void)
 
   // USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS);
   USBH_RegisterClass(&hUsbHostHS, USBH_HID_CLASS);
-  USBH_RegisterClass(&hUsbHostHS, USBH_AOA_CLASS);
+//  USBH_RegisterClass(&hUsbHostHS, USBH_AOA_CLASS);
 
   USBH_Start(&hUsbHostHS);
 
   /* Init Host Library,Add Supported Class and Start the library*/
-  USBH_Init(&hUsbHostFS, USBH_UserProcess2, HOST_FS);
+//  USBH_Init(&hUsbHostFS, USBH_UserProcess2, HOST_FS);
 
-  USBH_RegisterClass(&hUsbHostFS, USBH_HID_CLASS);
+//  USBH_RegisterClass(&hUsbHostFS, USBH_HID_CLASS);
 
-  USBH_Start(&hUsbHostFS);
+//  USBH_Start(&hUsbHostFS);
 
 }
 /*

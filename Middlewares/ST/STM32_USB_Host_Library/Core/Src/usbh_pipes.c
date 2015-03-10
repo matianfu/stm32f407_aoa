@@ -26,51 +26,14 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
+#include "debug.h"
 #include "usbh_pipes.h"
 
-/** @addtogroup USBH_LIB
-  * @{
-  */
-
-/** @addtogroup USBH_LIB_CORE
-* @{
-*/
-  
-/** @defgroup USBH_PIPES
-  * @brief This file includes opening and closing Pipes
-  * @{
-  */ 
-
-/** @defgroup USBH_PIPES_Private_Defines
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-/** @defgroup USBH_PIPES_Private_TypesDefinitions
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-
-/** @defgroup USBH_PIPES_Private_Macros
-  * @{
-  */ 
-/**
-  * @}
-  */ 
-
-
-/** @defgroup USBH_PIPES_Private_Variables
-  * @{
-  */ 
 
 /**
-  * @}
-  */ 
+ * Debug configurations
+ */
+int debug_usbh_allocpipe = DEBUG_USBH_ALLOCPIPE_DEFAULT;
 
 
 /** @defgroup USBH_PIPES_Private_Functions
@@ -90,25 +53,12 @@ static uint16_t USBH_GetFreePipe (USBH_HandleTypeDef *phost);
   * @param  mps: max pkt size
   * @retval USBH Status
   */
-USBH_StatusTypeDef USBH_OpenPipe  (USBH_HandleTypeDef *phost,
-                            uint8_t pipe_num,
-                            uint8_t epnum,
-                            uint8_t dev_address,
-                            uint8_t speed,
-                            uint8_t ep_type,
-                            uint16_t mps)
+USBH_StatusTypeDef USBH_OpenPipe(USBH_HandleTypeDef *phost, uint8_t pipe_num,
+    uint8_t epnum, uint8_t dev_address, uint8_t speed, uint8_t ep_type,
+    uint16_t mps)
 {
-
-  USBH_LL_OpenPipe(phost,
-                        pipe_num,
-                        epnum,
-                        dev_address,
-                        speed,
-                        ep_type,
-                        mps);
-  
-  return USBH_OK; 
-
+  USBH_LL_OpenPipe(phost, pipe_num, epnum, dev_address, speed, ep_type, mps);
+  return USBH_OK;
 }
 
 /**
@@ -145,6 +95,11 @@ uint8_t USBH_AllocPipe  (USBH_HandleTypeDef *phost, uint8_t ep_addr)
   {
 	phost->Pipes[pipe] = 0x8000 | ep_addr;
   }
+
+  if (debug_usbh_allocpipe) {
+    USBH_UsrLog("%s ep_addr %04x pipe %d", __func__, ep_addr, pipe);
+  }
+
   return pipe;
 }
 

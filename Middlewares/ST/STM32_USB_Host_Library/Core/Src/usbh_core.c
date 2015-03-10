@@ -31,8 +31,9 @@
 #include "usbh_conf.h"
 #include "usbh_core.h"
 
-
-
+/*
+ * Macro definition
+ */
 #define USBH_ADDRESS_DEFAULT                    0
 #define USBH_ADDRESS_ASSIGNED                   1
 #define USBH_MPS_DEFAULT                        0x40
@@ -42,67 +43,89 @@
 												USBH_LogSE(s, e); 												\
 												printf(NEW_LINE);
 
-#define USBH_DEBOUNCE_DELAY                     20
-#define USBH_ATTACH_DELAY                       20
+#define USBH_DEBOUNCE_DELAY                     200
+#define USBH_ATTACH_DELAY                       200
+
+#define SIZE_OF_ARRAY(array)                    (sizeof(array) /  sizeof(array[0]))
+
+
 
 /*
- * Event (interrupt) type
+ * local constants
  */
-typedef enum {
-	USBH_LL_EVT_NULL = 0,
-	USBH_LL_EVT_CONNECT,
-	USBH_LL_EVT_DISCONNECT,
-	USBH_LL_EVT_PORTUP,
-	USBH_LL_EVT_PORTDOWN,
-	USBH_LL_EVT_OVERFLOW
-} USBH_LL_EventEnumTypeDef;
+const static char* event_string[] =
+{ "USBH_LL_EVT_NULL", "USBH_LL_EVT_CONNECT", "USBH_LL_EVT_DISCONNECT",
+    "USBH_LL_EVT_PORTUP", "USBH_LL_EVT_PORTDOWN", "USBH_LL_EVT_OVERFLOW",
+    "USBH_LL_EVT_HCINT" };
+
+const static char* state_string[] =
+{ "HOST_IDLE", "HOST_DEV_WAIT_FOR_ATTACHMENT", "HOST_DEV_ATTACHED",
+    "HOST_DEV_DISCONNECTED", "HOST_DETECT_DEVICE_SPEED", "HOST_ENUMERATION",
+    "HOST_CLASS_REQUEST", "HOST_INPUT", "HOST_SET_CONFIGURATION",
+    "HOST_CHECK_CLASS", "HOST_HAND_SHAKE", "HOST_CLASS", "HOST_SUSPENDED",
+    "HOST_ABORT_STATE" };
+
+const static char* enum_state_string[] =
+{ "ENUM_IDLE", "ENUM_GET_FULL_DEV_DESC", "ENUM_SET_ADDR", "ENUM_GET_CFG_DESC",
+    "ENUM_GET_FULL_CFG_DESC", "ENUM_GET_MFC_STRING_DESC",
+    "ENUM_GET_PRODUCT_STRING_DESC", "ENUM_GET_SERIALNUM_STRING_DESC" };
+
+const static char* request_state_string[] =
+{ "CMD_IDLE", "CMD_SEND", "CMD_WAIT" };
+
+
+const static char* control_state_string[] =
+{ "CTRL_IDLE", "CTRL_SETUP", "CTRL_SETUP_WAIT", "CTRL_DATA_IN",
+    "CTRL_DATA_IN_WAIT", "CTRL_DATA_OUT", "CTRL_DATA_OUT_WAIT",
+    "CTRL_STATUS_IN", "CTRL_STATUS_IN_WAIT", "CTRL_STATUS_OUT",
+    "CTRL_STATUS_OUT_WAIT", "CTRL_ERROR", "CTRL_STALLED", "CTRL_COMPLETE" };
 
 /*
- * Event type with time stamp
+ * local functions
  */
-typedef struct {
-	USBH_LL_EventEnumTypeDef evt;
-	uint32_t timestamp;
-} USBH_LL_EventTypeDef;
 
-static void USBH_LogSE(USBH_HandleTypeDef* phost /* HOST_StateTypeDef s */, USBH_LL_EventTypeDef e)
+static void USBH_LogSE(USBH_HandleTypeDef* phost, USBH_LL_EventTypeDef event)
 {
-  const static char* event_string[] =
-  { "USBH_LL_EVT_NULL", "USBH_LL_EVT_CONNECT", "USBH_LL_EVT_DISCONNECT",
-      "USBH_LL_EVT_PORTUP", "USBH_LL_EVT_PORTDOWN", "USBH_LL_EVT_OVERFLOW" };
+  static HOST_StateTypeDef s = -1;
+  static ENUM_StateTypeDef es = -1;
+  static CMD_StateTypeDef rs = -1;
+  static CTRL_StateTypeDef cs = -1;
+  static USBH_LL_EventTypeDef e = {-1, 0};
 
-  const static char* state_string[] =
-  { "HOST_IDLE", "HOST_DEV_WAIT_FOR_ATTACHMENT", "HOST_DEV_ATTACHED",
-      "HOST_DEV_DISCONNECTED", "HOST_DETECT_DEVICE_SPEED", "HOST_ENUMERATION",
-      "HOST_CLASS_REQUEST", "HOST_INPUT", "HOST_SET_CONFIGURATION",
-      "HOST_CHECK_CLASS", "HOST_HAND_SHAKE", "HOST_CLASS", "HOST_SUSPENDED",
-      "HOST_ABORT_STATE" };
-
-  const static char* enum_state_string[] =
-  { "ENUM_IDLE", "ENUM_GET_FULL_DEV_DESC", "ENUM_SET_ADDR", "ENUM_GET_CFG_DESC",
-      "ENUM_GET_FULL_CFG_DESC", "ENUM_GET_MFC_STRING_DESC",
-      "ENUM_GET_PRODUCT_STRING_DESC", "ENUM_GET_SERIALNUM_STRING_DESC" };
-
-  const static int sizeof_events = sizeof(event_string)
-      / sizeof(event_string[0]);
-  const static int sizeof_states = sizeof(state_string)
-      / sizeof(state_string[0]);
-  const static int sizeof_enum_states = sizeof(enum_state_string)
-      / sizeof(enum_state_string[0]);
-
-  HOST_StateTypeDef s = phost->gState;
-  ENUM_StateTypeDef es = phost->EnumState;
-
-  if ((s < sizeof_states) && (es < sizeof_enum_states) && (e.evt < sizeof_events))
+  /** print only once for successive state/event **/
+  if ((phost->gState == s) &&
+      (phost->EnumState == es) &&
+      (phost->RequestState == rs) &&
+      (phost->Control.state == cs) &&
+      (e.evt == event.evt))
   {
-    USBH_UsrLog("- s: %s, es: %s, e: %s @ %08u ",
-        state_string[s], enum_state_string[es], event_string[e.evt],
+    return;
+  }
+
+  s = phost->gState;
+  es = phost->EnumState;
+  rs = phost->RequestState;
+  cs = phost->Control.state;
+  e.evt = event.evt;
+
+  if (s < SIZE_OF_ARRAY(state_string) &&
+      es < SIZE_OF_ARRAY(enum_state_string) &&
+      rs < SIZE_OF_ARRAY(request_state_string) &&
+      cs < SIZE_OF_ARRAY(control_state_string) &&
+      e.evt < SIZE_OF_ARRAY(event_string))
+  {
+    USBH_UsrLog("- s %s, es %s, rs %s, cs %s, e %s @ %08u ",
+        state_string[s],
+        enum_state_string[es],
+        request_state_string[rs],
+        control_state_string[cs],
+        event_string[e.evt],
         (unsigned int )e.timestamp);
   }
   else
   {
-    USBH_UsrLog("!!!! Illegal USBH sStates, s: %d, es: %d, event: %d @ %010u",
-        s, es, e.evt, (unsigned int )e.timestamp);
+    USBH_UsrLog("!!!! Illegal USBH States, s %d, es %d, rs %d, cs %d, e %d @ %010u",
+        s, es, rs, cs, e.evt, (unsigned int )e.timestamp);
   }
 }
 
@@ -166,10 +189,10 @@ for (i = 0; i < bNumInterfaces; i++) {
  *
  * TODO these data should be changed to struct, since each USB (HS, FS) need an instance
  */
-#define USBH_LL_EVENT_RING_SIZE				(64)
-static volatile USBH_LL_EventTypeDef USBH_LL_Events[USBH_LL_EVENT_RING_SIZE] = { {0, 0} };
-static volatile int get_event_index = 0;
-static volatile int put_event_index = 0;
+#define USBH_LL_EVENT_RING_SIZE				(256)
+static USBH_LL_EventTypeDef USBH_LL_Events[USBH_LL_EVENT_RING_SIZE] = { 0 };
+static int get_event_index = 0;
+static int put_event_index = 0;
 
 static inline int next_event_index(int i) {
 
@@ -533,6 +556,52 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   return USBH_OK;  
 }
 
+void hcint2string(char* buf, uint32_t hcint)
+{
+  int i ;
+
+  static const char* name[] =
+  { "XFRC", "CHH", "AHBERR", "STALL", "NAK", "ACK", "NYET", "TXERR", "BBERR",
+      "FRMOR", "DTERR" };
+
+  for (i = 0; i < 11; i++) {
+
+    if (hcint & (1 << i)) {
+      strcpy(buf, name[i]);
+      buf += strlen(name[i]);
+      *buf = ' ';
+      buf ++;
+    }
+  }
+}
+
+/**
+  * @brief  URB States definition
+  */
+const char * urb_state_string[] = {
+  "URB_IDLE", // = 0,
+  "URB_DONE",
+  "URB_NOTREADY",
+  "URB_NYET",
+  "URB_ERROR",
+  "URB_STALL"
+}; //USB_OTG_URBStateTypeDef;
+
+/**
+  * @brief  Host channel States  definition
+  */
+const char * channel_state_string[] = {
+  "HC_IDLE", // = 0,
+  "HC_XFRC",
+  "HC_HALTED",
+  "HC_NAK",
+  "HC_NYET",
+  "HC_STALL",
+  "HC_XACTERR",
+  "HC_BBLERR",
+  "HC_DATATGLERR"
+}; //USB_OTG_HCStateTypeDef;
+
 /**
  * 	@brief	USBH_ProcessEvent
  * 			Background process of the USB Core with asynchronous event processing.
@@ -542,11 +611,31 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
  */
 USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 {
-  static USBH_LL_EventTypeDef e, e_prev = { -1, 0 };
-  static HOST_StateTypeDef s_prev = -1;
-  static ENUM_StateTypeDef es_prev = -1;
+  static USBH_LL_EventTypeDef e;
 
+  static char buf[128];
+
+pop:
   e = USBH_GetEvent();
+
+  if (e.evt == USBH_LL_EVT_HCINT) {
+
+    memset(buf, 0, 128);
+
+    hcint2string(buf, e.data.hcint.hcint_reg);
+
+    printf(" :: HCINT int %02x hcint %s, DIR %s, s: %s %s, urb: %s %s - %08u" NEW_LINE,
+        (unsigned int)e.data.hcint.interrupt,
+        buf,
+        ((e.data.hcint.direction == 0) ? "OUT" : "IN"),
+        channel_state_string[e.data.hcint.in_state],
+        channel_state_string[e.data.hcint.out_state],
+        urb_state_string[e.data.hcint.in_urbstate],
+        urb_state_string[e.data.hcint.out_urbstate],
+        (unsigned int)e.timestamp);
+
+    goto pop;
+  }
 
 //  if (phost->gState == HOST_SET_CONFIGURATION &&
 //      phost->EnumState == ENUM_GET_SERIALNUM_STRING_DESC &&
@@ -587,17 +676,19 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 
   /****************************************************************************/
 
-  /** print only once for successive state/event **/
-  if ((phost->gState == s_prev) && (phost->EnumState == es_prev) && (e.evt == e_prev.evt))
-  {
-  }
-  else
-  {
-    USBH_LogSE(phost, e);
-    s_prev = phost->gState;
-    es_prev = phost->EnumState;
-    e_prev = e;
-  }
+//  /** print only once for successive state/event **/
+//  if ((phost->gState == s_prev) && (phost->EnumState == es_prev) && (e.evt == e_prev.evt))
+//  {
+//  }
+//  else
+//  {
+//    USBH_LogSE(phost, e);
+//    s_prev = phost->gState;
+//    es_prev = phost->EnumState;
+//    e_prev = e;
+//  }
+
+  USBH_LogSE(phost, e);
 
   switch (e.evt)
   {
@@ -624,6 +715,9 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
     break;
 
   case USBH_LL_EVT_DISCONNECT:
+
+    /** the wild way **/
+    // HAL_NVIC_SystemReset();
 
     switch (phost->gState)
     {
@@ -652,10 +746,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
     default:
       USBH_UsrLog("USB Device disconnected");
 
-      USBH_FreePipe(phost, phost->Control.pipe_in);
-      USBH_FreePipe(phost, phost->Control.pipe_out);
-
-      DeInitStateMachine(phost);
+      USBH_LL_Stop(phost);
 
       /* Re-Initilaize Host for new Enumeration */
       if (phost->pActiveClass != NULL)
@@ -663,6 +754,15 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
         phost->pActiveClass->DeInit(phost);
         phost->pActiveClass = NULL;
       }
+
+      USBH_ClosePipe(phost, phost->Control.pipe_in);
+      USBH_ClosePipe(phost, phost->Control.pipe_out);
+
+      USBH_FreePipe(phost, phost->Control.pipe_in);
+      USBH_FreePipe(phost, phost->Control.pipe_out);
+      USBH_Delay(100);
+      DeInitStateMachine(phost);
+      USBH_LL_Start(phost);
 
       break;
     }
@@ -774,6 +874,10 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
     phost->gState = HOST_ENUMERATION;
 
+    /*
+     * USBH_AllocPipe ep_addr 0000 pipe 0
+     * USBH_AllocPipe ep_addr 0080 pipe 1
+     */
     phost->Control.pipe_out = USBH_AllocPipe(phost, 0x00);
     phost->Control.pipe_in = USBH_AllocPipe(phost, 0x80);
 
@@ -835,8 +939,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
   case HOST_SET_CONFIGURATION:
     /* set configuration */
-    if (USBH_SetCfg(phost, phost->device.CfgDesc.bConfigurationValue)
-        == USBH_OK)
+    if (USBH_SetCfg(phost, phost->device.CfgDesc.bConfigurationValue) == USBH_OK)
     {
       USBH_UsrLog("Default configuration set.");
 
@@ -1260,7 +1363,7 @@ USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
 	}
 
 	/* Start the low level driver  */
-	USBH_LL_Start(phost);
+//	USBH_LL_Start(phost);
 //
 //  phost->gState = HOST_DEV_DISCONNECTED;
 //
@@ -1282,6 +1385,19 @@ USBH_StatusTypeDef USBH_LL_PortDown (USBH_HandleTypeDef *phost)
 	e.timestamp = HAL_GetTick();
 	USBH_PutEvent(e);
 	return USBH_OK;
+}
+
+/*********************************************************************/
+
+USBH_StatusTypeDef USBH_LL_HCINT(USBH_HandleTypeDef *phost, struct hcint_t * hcint) {
+
+  USBH_LL_EventTypeDef e;
+  e.evt = USBH_LL_EVT_HCINT;
+  e.timestamp = HAL_GetTick();
+  e.data.hcint = *hcint;
+
+  USBH_PutEvent(e);
+  return USBH_OK;
 }
 
 #if (USBH_USE_OS == 1)  

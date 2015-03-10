@@ -91,6 +91,47 @@
   * @{
   */ 
 
+/*
+ * Event (interrupt) type
+ */
+typedef enum {
+    USBH_LL_EVT_NULL = 0,
+    USBH_LL_EVT_CONNECT,
+    USBH_LL_EVT_DISCONNECT,
+    USBH_LL_EVT_PORTUP,
+    USBH_LL_EVT_PORTDOWN,
+    USBH_LL_EVT_OVERFLOW,
+    USBH_LL_EVT_HCINT
+} USBH_LL_EventEnumTypeDef;
+
+struct hcint_t {
+
+  uint32_t interrupt;
+  uint32_t hcint_reg;
+
+  int direction;        // 0 for out, 1 for in
+  int in_state;
+  int out_state;
+  int in_urbstate;
+  int out_urbstate;
+};
+
+typedef union {
+
+  struct hcint_t hcint;
+
+
+} USBH_LL_EventData;
+
+/*
+ * Event type with time stamp
+ */
+typedef struct {
+    USBH_LL_EventEnumTypeDef    evt;
+    uint32_t                    timestamp;
+    USBH_LL_EventData           data;
+} USBH_LL_EventTypeDef;
+
   
 USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_HandleTypeDef *phost, uint8_t ), uint8_t id);
 USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost);
@@ -128,6 +169,10 @@ USBH_StatusTypeDef 	 USBH_LL_ResetAssert  (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef 	 USBH_LL_ResetDeassert(USBH_HandleTypeDef *phost);
 uint32_t             USBH_LL_GetLastXferSize   (USBH_HandleTypeDef *phost, uint8_t ); 
 USBH_StatusTypeDef   USBH_LL_DriverVBUS   (USBH_HandleTypeDef *phost, uint8_t );
+
+/********************************************************************/
+USBH_StatusTypeDef   USBH_LL_HCINT        (USBH_HandleTypeDef *phost, struct hcint_t * hcint);
+/********************************************************************/
 
 USBH_StatusTypeDef   USBH_LL_OpenPipe     (USBH_HandleTypeDef *phost, uint8_t, uint8_t, uint8_t, uint8_t , uint8_t, uint16_t ); 
 USBH_StatusTypeDef   USBH_LL_ClosePipe    (USBH_HandleTypeDef *phost, uint8_t );   

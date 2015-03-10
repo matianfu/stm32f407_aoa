@@ -97,20 +97,18 @@
   * @param  pipe_num: Pipe Number
   * @retval USBH Status
   */
-USBH_StatusTypeDef USBH_CtlSendSetup (USBH_HandleTypeDef *phost, 
-                                uint8_t *buff, 
-                                uint8_t pipe_num)
+USBH_StatusTypeDef USBH_CtlSendSetup(USBH_HandleTypeDef *phost, uint8_t *buff,
+    uint8_t pipe_num)
 {
-
-  USBH_LL_SubmitURB (phost,         /* Driver handle    */
-                          pipe_num,             /* Pipe index       */
-                          0,                    /* Direction : OUT  */
-                          USBH_EP_CONTROL,      /* EP type          */
-                          USBH_PID_SETUP,       /* Type setup       */
-                          buff,                 /* data buffer      */
-                          USBH_SETUP_PKT_SIZE,  /* data length      */ 
-                          0);
-  return USBH_OK;  
+  USBH_LL_SubmitURB(phost, /* Driver handle    */
+                    pipe_num, /* Pipe index       */
+                    0, /* Direction : OUT  */
+                    USBH_EP_CONTROL, /* EP type          */
+                    USBH_PID_SETUP, /* Type setup       */
+                    buff, /* data buffer      */
+                    USBH_SETUP_PKT_SIZE, /* data length      */
+                    0);
+  return USBH_OK;
 }
 
 

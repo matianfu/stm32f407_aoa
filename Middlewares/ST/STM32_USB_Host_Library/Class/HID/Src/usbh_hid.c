@@ -40,9 +40,11 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "debug.h"
 #include "hid.h"
 #include "usbh_hid.h"
 // #include "usbh_hid_parser.h"
+
 
 
 extern int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size);
@@ -226,8 +228,14 @@ USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost)
 
   USBH_USBHID_Disconnect(phost);
 
+
   if (HID_Handle->InPipe != 0x00)
   {
+    /*
+     * restore debug default
+     */
+    debug_hc_hcintx_mask[HID_Handle->InPipe] = DEBUG_HC_HCINTX_MASK_DEFAULT;
+
     USBH_ClosePipe(phost, HID_Handle->InPipe);
     USBH_FreePipe(phost, HID_Handle->InPipe);
     HID_Handle->InPipe = 0; /* Reset the pipe as Free */
@@ -256,6 +264,8 @@ USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost)
       phost->pActiveClass->pData = NULL;
     }
   }
+
+  DEBUG_HAL_HCD_HC_SubmitRequest = DEBUG_HAL_HCD_HC_SUBMITREQUEST_DEFAULT;
 
   return USBH_OK;
 }
@@ -431,6 +441,11 @@ static USBH_StatusTypeDef USBH_HID_Process(USBH_HandleTypeDef *phost)
     {
       HID_Handle->state = HID_GET_DATA;
       USBH_UsrLog("SYNCed. Go to HID_GET_DATA.");
+
+      /** suppress debug message **/
+      DEBUG_HAL_HCD_HC_SubmitRequest = 0;
+      debug_hc_hcintx_mask[HID_Handle->InPipe] = 0;
+
     }
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_URB_EVENT, 0);

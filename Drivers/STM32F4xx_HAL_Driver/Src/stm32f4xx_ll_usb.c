@@ -1695,7 +1695,7 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
   /* Clear any pending Host interrups */  
   USBx_HOST->HAINT = 0xFFFFFFFF;
   USBx->GINTSTS = 0xFFFFFFFF;
-  USB_EnableGlobalInt(USBx);
+  // USB_EnableGlobalInt(USBx);
   return HAL_OK;  
 }
 /**

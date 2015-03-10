@@ -33,7 +33,7 @@
 static const char* urb_status_string[] =
 { "URB_IDLE", "URB_DONE", "URB_NOTREADY", "URB_NYET", "URB_ERROR", "URB_STALL" };
 
-static void print_urb_status(USBH_URBStateTypeDef us) {
+static void print_urb_status(const char* func, const char* state, USBH_URBStateTypeDef us) {
 
   static const int sizeof_urb_status_string = sizeof(urb_status_string)
           / sizeof(urb_status_string[0]);
@@ -52,7 +52,7 @@ static void print_urb_status(USBH_URBStateTypeDef us) {
   }
 
   if (us < sizeof_urb_status_string) {
-    printf("urb: %s\r\n", urb_status_string[us]);
+    printf("%s, %s, urb: %s\r\n", func, state, urb_status_string[us]);
   }
   else
   {
@@ -60,43 +60,6 @@ static void print_urb_status(USBH_URBStateTypeDef us) {
   }
 }
 
-/** @addtogroup USBH_LIB
-* @{
-*/
-
-/** @addtogroup USBH_LIB_CORE
-* @{
-*/
-
-/** @defgroup USBH_CTLREQ 
-* @brief This file implements the standard requests for device enumeration
-* @{
-*/
-
-
-/** @defgroup USBH_CTLREQ_Private_Defines
-* @{
-*/ 
-/**
-* @}
-*/ 
-
-
-/** @defgroup USBH_CTLREQ_Private_TypesDefinitions
-* @{
-*/ 
-/**
-* @}
-*/ 
-
-
-
-/** @defgroup USBH_CTLREQ_Private_Macros
-* @{
-*/ 
-/**
-* @}
-*/ 
 
 
 /** @defgroup USBH_CTLREQ_Private_Variables
@@ -121,16 +84,6 @@ static void USBH_ParseCfgDesc (USBH_CfgDescTypeDef* cfg_desc,
 static void USBH_ParseEPDesc (USBH_EpDescTypeDef  *ep_descriptor, uint8_t *buf);
 static void USBH_ParseStringDesc (uint8_t* psrc, uint8_t* pdest, uint16_t length);
 static void USBH_ParseInterfaceDesc (USBH_InterfaceDescTypeDef  *if_descriptor, uint8_t *buf);
-
-
-/**
-* @}
-*/ 
-
-
-/** @defgroup USBH_CTLREQ_Private_Functions
-* @{
-*/ 
 
 
 /**
@@ -588,7 +541,7 @@ USBH_StatusTypeDef USBH_CtlReq(USBH_HandleTypeDef *phost,
     
   case CMD_WAIT:
     status = USBH_HandleControl(phost);
-     if (status == USBH_OK) 
+    if (status == USBH_OK)
     {
       /* Commands successfully sent and Response Received  */       
       phost->RequestState = CMD_SEND;
@@ -634,17 +587,18 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
   {
   case CTRL_SETUP:
     /* send a SETUP packet */
-    USBH_CtlSendSetup     (phost, 
-	                   (uint8_t *)phost->Control.setup.d8 , 
-	                   phost->Control.pipe_out); 
-    
+    USBH_CtlSendSetup(phost, (uint8_t *)phost->Control.setup.d8, phost->Control.pipe_out);
     phost->Control.state = CTRL_SETUP_WAIT; 
     break; 
     
   case CTRL_SETUP_WAIT:
     
     URB_Status = USBH_LL_GetURBState(phost, phost->Control.pipe_out); 
-    print_urb_status(URB_Status);
+    // print_urb_status(__func__, "CTRL_SETUP_WAIT", URB_Status);
+    if (URB_Status == USBH_URB_IDLE) {
+      // phost->Control.state = CTRL_SETUP;    /** revert to send setup */
+    }
+
     /* case SETUP packet sent successfully */
     if(URB_Status == USBH_URB_DONE)
     { 
@@ -706,9 +660,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
   case CTRL_DATA_IN_WAIT:
     
     URB_Status = USBH_LL_GetURBState(phost , phost->Control.pipe_in);
-
-    print_urb_status(URB_Status);
-    
+    // print_urb_status(__func__, "CTRL_DATA_IN_WAIT", URB_Status);
     /* check is DATA packet transfered successfully */
     if  (URB_Status == USBH_URB_DONE)
     { 
@@ -723,6 +675,8 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     { 
       /* In stall case, return to previous machine state*/
       status = USBH_NOT_SUPPORTED;
+      // printf("%s, USBH_URB_STALL", __func__);
+
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
 #endif      

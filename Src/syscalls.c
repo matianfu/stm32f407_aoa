@@ -92,7 +92,7 @@ caddr_t _sbrk(int32_t incr)
 	{
 //		write(1, "Heap and stack collision\n", 25);
 //		abort();
-	    printf("--------------------------- no memory ------------------ !!! \n");
+	    printf("--------------------------- no memory ------------------ !!! \r\n");
 
 		errno = ENOMEM;
 		return (caddr_t) -1;

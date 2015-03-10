@@ -349,33 +349,19 @@ uint32_t USBH_LL_GetLastXferSize  (USBH_HandleTypeDef *phost, uint8_t pipe)
   * @param  
   * @retval Status
   */
-USBH_StatusTypeDef   USBH_LL_OpenPipe    (USBH_HandleTypeDef *phost, 
-                                      uint8_t pipe_num,
-                                      uint8_t epnum,                                      
-                                      uint8_t dev_address,
-                                      uint8_t speed,
-                                      uint8_t ep_type,
-                                      uint16_t mps)
+USBH_StatusTypeDef USBH_LL_OpenPipe(USBH_HandleTypeDef *phost, uint8_t pipe_num,
+    uint8_t epnum, uint8_t dev_address, uint8_t speed, uint8_t ep_type,
+    uint16_t mps)
 {
-  HAL_StatusTypeDef status =
-  HAL_HCD_HC_Init(phost->pData,
-                  pipe_num,
-                  epnum,
-                  dev_address,
-                  speed,
-                  ep_type,
-                  mps);
-/*  HAL_OK       = 0x00,
-  HAL_ERROR    = 0x01,
-  HAL_BUSY     = 0x02,
-  HAL_TIMEOUT  = 0x03
-  */
+  HAL_StatusTypeDef status = HAL_HCD_HC_Init(phost->pData, pipe_num, epnum,
+      dev_address, speed, ep_type, mps);
 
-  if (status != HAL_OK) {
-    printf("%s HAL_HCD_HC_INIT not ok, %d\n", __func__, (int)status);
+  if (status != HAL_OK)
+  {
+    printf("%s --------- HAL_HCD_HC_INIT not ok, %d\n", __func__, (int) status);
   }
 
-  return USBH_OK; 
+  return USBH_OK;
 }
 
 /**
@@ -406,6 +392,7 @@ USBH_StatusTypeDef   USBH_LL_SubmitURB  (USBH_HandleTypeDef *phost,
                                             uint16_t length,
                                             uint8_t do_ping ) 
 {
+  HAL_StatusTypeDef status =
   HAL_HCD_HC_SubmitRequest (phost->pData,
                             pipe, 
                             direction ,
@@ -414,6 +401,11 @@ USBH_StatusTypeDef   USBH_LL_SubmitURB  (USBH_HandleTypeDef *phost,
                             pbuff, 
                             length,
                             do_ping);
+
+  if (status != HAL_OK)
+  {
+    printf("%s HAL not ok, %d", __func__, status);
+  }
   return USBH_OK;   
 }
 
