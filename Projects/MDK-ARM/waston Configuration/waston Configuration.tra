@@ -42,7 +42,7 @@
 ### ADS-LD Output File: 'waston Configuration\waston Configuration.axf'
 ### ADS-LD Command File: 'waston Configuration\waston Configuration.lnp'
 ### Checking for dirty Components...
-### Creating CmdFile 'waston Configuration\waston Configuration.lnp', Handle=0x0000078C
+### Creating CmdFile 'waston Configuration\waston Configuration.lnp', Handle=0x00000350
 ### Writing '.lnp' file
 ### ADS-LD Command file 'waston Configuration\waston Configuration.lnp' is ready.
 ### ADS-LD: About to start ADS-LD Thread.

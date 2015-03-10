@@ -1195,7 +1195,7 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 //#endif
 
 	e.evt = USBH_LL_EVT_CONNECT;
-	e.timestamp = GetTimeCount();
+	// e.timestamp = GetTimeCount();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }
@@ -1204,7 +1204,7 @@ USBH_StatusTypeDef USBH_LL_PortUp (USBH_HandleTypeDef *phost)
 {
 	USBH_LL_EventTypeDef e;
 	e.evt = USBH_LL_EVT_PORTUP;
-	e.timestamp = GetTimeCount();
+	// e.timestamp = GetTimeCount();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }

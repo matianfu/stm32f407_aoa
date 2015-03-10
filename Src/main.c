@@ -106,8 +106,8 @@ int main(void)
 
   MX_USART3_UART_Init();
   MX_USB_HOST_Init();
-  time_init();
-  StartTimeCount();
+ // time_init();
+  // StartTimeCount();
 
 
   /* USER CODE BEGIN 2 */
@@ -148,7 +148,7 @@ int main(void)
 */
 void SystemClock_Config(void)
 {
-
+  // TODO hello
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
 

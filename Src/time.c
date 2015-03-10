@@ -1,4 +1,5 @@
 #include "stm32f4xx_hal.h"
+//#include "time.h"
 
 
 TIM_HandleTypeDef htim2;
@@ -7,11 +8,11 @@ static volatile uint32_t TimeCount = 0;
 /* Definition for TIMx's NVIC */
 #define TIMx_IRQn                      TIM2_IRQn
 
-void time_init(void)
+void time2_init(void)
 {
 
 	  TIM_ClockConfigTypeDef sClockSourceConfig;
-	  	    GPIO_InitTypeDef GPIO_InitStruct;
+	  GPIO_InitTypeDef GPIO_InitStruct;
 	
 	
 	  htim2.Instance = TIM2;
@@ -56,7 +57,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 
 
 
-
+#if 0
 void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 {
   if(htim_base->Instance==TIM1)
@@ -66,9 +67,12 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 
   }
 } 
+#endif
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+
+#if 0
 	static uint8_t flag = 0;
 
 	if(htim == &htim2)
@@ -87,7 +91,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			
 			 
 	}
-
+#endif
 	TimeCount ++;
 }
 
