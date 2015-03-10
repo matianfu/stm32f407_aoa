@@ -102,7 +102,8 @@ uint32_t debug_hc_hcintx_mask[16] = {
     DEBUG_HC_HCINTX_MASK_DEFAULT,
     DEBUG_HC_HCINTX_MASK_DEFAULT};                /** init as none enabled **/
 static struct hcint_t hcint[16];
-static int hc_report_channel[16];
+static uint32_t hc_report_channel[16];
+static unsigned int debug_hc_uid = 0;
 
 int DEBUG_HAL_HCD_HC_SubmitRequest = DEBUG_HAL_HCD_HC_SUBMITREQUEST_DEFAULT;
 
@@ -479,7 +480,9 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
 void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+  // USB_OTG_GlobalTypeDef *USBx = hhcd->Instance
   uint32_t i = 0 , interrupt = 0;
+  volatile unsigned int x;
   
   /* ensure that we are in device mode */
   if (USB_GetMode(hhcd->Instance) == USB_OTG_MODE_HOST)
@@ -551,7 +554,9 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
       {
         if (interrupt & (1 << i))
         {
-          hc_report_channel[i] = debug_hc_hcintx_mask[i] & (USBx_HC(i)->HCINT);
+          uint32_t HCINT = (USBx_HC(i)->HCINT);
+
+          hc_report_channel[i] = (debug_hc_hcintx_mask[i] & (USBx_HC(i)->HCINT));
 
           if (hc_report_channel[i])
           {
@@ -560,6 +565,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
             hcint[i].hcint_reg = (USBx_HC(i)->HCINT);
             hcint[i].in_state = hhcd->hc[i].state;
             hcint[i].in_urbstate = hhcd->hc[i].urb_state;
+            hcint[i].uid = debug_hc_uid++;
           }
 
           if ((USBx_HC(i)->HCCHAR) &  USB_OTG_HCCHAR_EPDIR)

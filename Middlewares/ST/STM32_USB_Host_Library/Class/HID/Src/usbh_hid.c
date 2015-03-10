@@ -443,8 +443,8 @@ static USBH_StatusTypeDef USBH_HID_Process(USBH_HandleTypeDef *phost)
       USBH_UsrLog("SYNCed. Go to HID_GET_DATA.");
 
       /** suppress debug message **/
-      DEBUG_HAL_HCD_HC_SubmitRequest = 0;
-      debug_hc_hcintx_mask[HID_Handle->InPipe] = 0;
+      // DEBUG_HAL_HCD_HC_SubmitRequest = 0;
+      // debug_hc_hcintx_mask[HID_Handle->InPipe] = 0;
 
     }
 #if (USBH_USE_OS == 1)

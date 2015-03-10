@@ -573,6 +573,10 @@ void hcint2string(char* buf, uint32_t hcint)
       buf ++;
     }
   }
+
+  if (strlen(buf) > 0) {
+    *buf = 0;
+  }
 }
 
 /**
@@ -624,8 +628,10 @@ pop:
 
     hcint2string(buf, e.data.hcint.hcint_reg);
 
-    printf(" :: HCINT int %02x hcint %s, DIR %s, s: %s %s, urb: %s %s - %08u" NEW_LINE,
+    printf(" :: HCINT %08x, %02x, %04x, %s, %s, %s %s, %s %s - %08u" NEW_LINE,
+        e.data.hcint.uid,
         (unsigned int)e.data.hcint.interrupt,
+        (unsigned int)e.data.hcint.hcint_reg,
         buf,
         ((e.data.hcint.direction == 0) ? "OUT" : "IN"),
         channel_state_string[e.data.hcint.in_state],

@@ -114,6 +114,8 @@ struct hcint_t {
   int out_state;
   int in_urbstate;
   int out_urbstate;
+
+  unsigned int uid;
 };
 
 typedef union {
