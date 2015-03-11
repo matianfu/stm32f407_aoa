@@ -30,35 +30,35 @@
 #include "usbh_conf.h"
 #include "usbh_ctlreq.h"
 
-static const char* urb_status_string[] =
-{ "URB_IDLE", "URB_DONE", "URB_NOTREADY", "URB_NYET", "URB_ERROR", "URB_STALL" };
-
-static void print_urb_status(const char* func, const char* state, USBH_URBStateTypeDef us) {
-
-  static const int sizeof_urb_status_string = sizeof(urb_status_string)
-          / sizeof(urb_status_string[0]);
-
-  static int prev_is_idle = 0;
-
-  if (us == URB_IDLE)
-  {
-    if (prev_is_idle)
-      return;
-
-    prev_is_idle = 1;
-  }
-  else {
-    prev_is_idle = 0;
-  }
-
-  if (us < sizeof_urb_status_string) {
-    printf("%s, %s, urb: %s\r\n", func, state, urb_status_string[us]);
-  }
-  else
-  {
-    printf("urb: invalide value %d\r\n", (int)us);
-  }
-}
+//static const char* urb_status_string[] =
+//{ "URB_IDLE", "URB_DONE", "URB_NOTREADY", "URB_NYET", "URB_ERROR", "URB_STALL" };
+//
+//static void print_urb_status(const char* func, const char* state, USBH_URBStateTypeDef us) {
+//
+//  static const int sizeof_urb_status_string = sizeof(urb_status_string)
+//          / sizeof(urb_status_string[0]);
+//
+//  static int prev_is_idle = 0;
+//
+//  if (us == URB_IDLE)
+//  {
+//    if (prev_is_idle)
+//      return;
+//
+//    prev_is_idle = 1;
+//  }
+//  else {
+//    prev_is_idle = 0;
+//  }
+//
+//  if (us < sizeof_urb_status_string) {
+//    printf("%s, %s, urb: %s\r\n", func, state, urb_status_string[us]);
+//  }
+//  else
+//  {
+//    printf("urb: invalide value %d\r\n", (int)us);
+//  }
+//}
 
 
 
@@ -660,7 +660,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
   case CTRL_DATA_IN_WAIT:
     
     URB_Status = USBH_LL_GetURBState(phost , phost->Control.pipe_in);
-    // print_urb_status(__func__, "CTRL_DATA_IN_WAIT", URB_Status);
     /* check is DATA packet transfered successfully */
     if  (URB_Status == USBH_URB_DONE)
     { 
@@ -698,7 +697,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
                       phost->Control.length , 
                       phost->Control.pipe_out,
                       1);
-     phost->Control.timer = phost->Timer;
+    phost->Control.timer = phost->Timer;
     phost->Control.state = CTRL_DATA_OUT_WAIT;
     break;
     
@@ -841,6 +840,8 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     {
       /* try to recover control */
       USBH_LL_Stop(phost);
+      USBH_Delay(100);
+      USBH_LL_Start(phost);
          
       /* Do the transmission again, starting from SETUP Packet */
       phost->Control.state = CTRL_SETUP; 
