@@ -38,9 +38,9 @@
 #define USBH_ADDRESS_ASSIGNED                   1
 #define USBH_MPS_DEFAULT                        0x40
 
-#define USBH_ILLEGAL_SE(s, e)					printf(NEW_LINE); 												\
+#define USBH_ILLEGAL_SE(s, e)					printf(NEW_LINE); 												        \
 												printf("USBH ILLEGAL state/event combination encountered. "); 	\
-												USBH_LogSE(s, e); 												\
+												USBH_LogSE(s, e); 												                      \
 												printf(NEW_LINE);
 
 #define USBH_DEBOUNCE_DELAY                     200
@@ -83,7 +83,6 @@ const static char* control_state_string[] =
 /*
  * local functions
  */
-
 static void USBH_LogSE(USBH_HandleTypeDef* phost, USBH_LL_EventTypeDef event)
 {
   static HOST_StateTypeDef s = -1;
@@ -93,11 +92,9 @@ static void USBH_LogSE(USBH_HandleTypeDef* phost, USBH_LL_EventTypeDef event)
   static USBH_LL_EventTypeDef e = {-1, 0};
 
   /** print only once for successive state/event **/
-  if ((phost->gState == s) &&
-      (phost->EnumState == es) &&
-      (phost->RequestState == rs) &&
-      (phost->Control.state == cs) &&
-      (e.evt == event.evt))
+  if ((phost->gState == s) && (phost->EnumState == es)
+      && (phost->RequestState == rs) && (phost->Control.state == cs)
+      && (e.evt == event.evt))
   {
     return;
   }
@@ -129,7 +126,7 @@ static void USBH_LogSE(USBH_HandleTypeDef* phost, USBH_LL_EventTypeDef event)
   }
 }
 
-static void USBH_Print_Descriptor(USBH_HandleTypeDef *phost)
+static void USBH_Print_DeviceDescriptor(USBH_HandleTypeDef *phost)
 {
 	int i;
 
@@ -573,6 +570,10 @@ void hcint2string(char* buf, uint32_t hcint)
       buf ++;
     }
   }
+
+  if (strlen(buf) > 0) {
+    *buf = 0;
+  }
 }
 
 /**
@@ -624,69 +625,22 @@ pop:
 
     hcint2string(buf, e.data.hcint.hcint_reg);
 
-    printf(" :: HCINT int %02x hcint %s, DIR %s, s: %s %s, urb: %s %s - %08u" NEW_LINE,
+    printf(" :: HCINT %08x, %02x, %04x, %s, %s, %s %s, %s %s, %d %d, - %08u" NEW_LINE,
+        e.data.hcint.uid,
         (unsigned int)e.data.hcint.interrupt,
+        (unsigned int)e.data.hcint.hcint_reg,
         buf,
         ((e.data.hcint.direction == 0) ? "OUT" : "IN"),
         channel_state_string[e.data.hcint.in_state],
         channel_state_string[e.data.hcint.out_state],
         urb_state_string[e.data.hcint.in_urbstate],
         urb_state_string[e.data.hcint.out_urbstate],
+        e.data.hcint.in_err_count,
+        e.data.hcint.out_err_count,
         (unsigned int)e.timestamp);
 
     goto pop;
   }
-
-//  if (phost->gState == HOST_SET_CONFIGURATION &&
-//      phost->EnumState == ENUM_GET_SERIALNUM_STRING_DESC &&
-//      e.evt == USBH_LL_EVT_NULL)
-//  {
-//    USBH_UsrLog("trap here");
-//  }
-
-//  if (phost->gState == HOST_CHECK_CLASS &&
-//      phost->EnumState == ENUM_GET_SERIALNUM_STRING_DESC &&
-//      e.evt == USBH_LL_EVT_NULL)
-//  {
-//    USBH_UsrLog("trap 1");
-//  }
-
-  // - s: HOST_CLASS_REQUEST, es: ENUM_GET_SERIALNUM_STRING_DESC, e: USBH_LL_EVT_NULL @ 00000000
-
-//  if (phost->gState == HOST_CLASS_REQUEST &&
-//      phost->EnumState == ENUM_GET_SERIALNUM_STRING_DESC &&
-//      e.evt == USBH_LL_EVT_NULL)
-//  {
-//    USBH_UsrLog("trap 2");
-//  }
-
-  // s: HOST_CLASS, es: ENUM_GET_SERIALNUM_STRING_DESC, e: USBH_LL_EVT_NULL @ 00000000
-
-//  static int trap_host_class_once = 0;
-//
-//  if (phost->gState == HOST_CLASS &&
-//      phost->EnumState == ENUM_GET_SERIALNUM_STRING_DESC &&
-//      e.evt == USBH_LL_EVT_NULL && trap_host_class_once == 0)
-//  {
-//    trap_host_class_once = 1;
-//    USBH_UsrLog("trap 3");
-//  }
-
-
-
-  /****************************************************************************/
-
-//  /** print only once for successive state/event **/
-//  if ((phost->gState == s_prev) && (phost->EnumState == es_prev) && (e.evt == e_prev.evt))
-//  {
-//  }
-//  else
-//  {
-//    USBH_LogSE(phost, e);
-//    s_prev = phost->gState;
-//    es_prev = phost->EnumState;
-//    e_prev = e;
-//  }
 
   USBH_LogSE(phost, e);
 
@@ -700,7 +654,6 @@ pop:
 
     if (phost->gState == HOST_IDLE)
     {
-
       phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
 
       /** debouncing **/
@@ -760,9 +713,13 @@ pop:
 
       USBH_FreePipe(phost, phost->Control.pipe_in);
       USBH_FreePipe(phost, phost->Control.pipe_out);
+
       USBH_Delay(100);
       DeInitStateMachine(phost);
+
       USBH_LL_Start(phost);
+
+      restore_debug_defaults();
 
       break;
     }
@@ -904,7 +861,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       /* The function shall return USBH_OK when full enumeration is complete */
       USBH_UsrLog("Enumeration done.");
 
-      USBH_Print_Descriptor(phost);
+      USBH_Print_DeviceDescriptor(phost);
 
       phost->device.current_interface = 0;
       if (phost->device.DevDesc.bNumConfigurations == 1)

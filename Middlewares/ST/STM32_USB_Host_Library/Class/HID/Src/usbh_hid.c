@@ -43,9 +43,21 @@
 #include "debug.h"
 #include "hid.h"
 #include "usbh_hid.h"
-// #include "usbh_hid_parser.h"
 
+/**
+ * debug control
+ */
+static void suppress_in_pipe_debug_print(uint8_t pipenum)
+{
+	debug_hal_hcd_hc_submitrequest_print = 0;
+	debug_hc_hcintx_mask[pipenum] = 0;
+}
 
+static void unsupress_in_pipe_debug_print(uint8_t pipenum)
+{
+  debug_hal_hcd_hc_submitrequest_print = DEBUG_HAL_HCD_HC_SUBMITREQUEST_DEFAULT;
+  debug_hc_hcintx_mask[pipenum] = DEBUG_HC_HCINTX_MASK_DEFAULT;
+}
 
 extern int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size);
 
@@ -234,7 +246,7 @@ USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost)
     /*
      * restore debug default
      */
-    debug_hc_hcintx_mask[HID_Handle->InPipe] = DEBUG_HC_HCINTX_MASK_DEFAULT;
+    unsupress_in_pipe_debug_print(HID_Handle->InPipe);
 
     USBH_ClosePipe(phost, HID_Handle->InPipe);
     USBH_FreePipe(phost, HID_Handle->InPipe);
@@ -265,7 +277,7 @@ USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost)
     }
   }
 
-  DEBUG_HAL_HCD_HC_SubmitRequest = DEBUG_HAL_HCD_HC_SUBMITREQUEST_DEFAULT;
+  debug_hal_hcd_hc_submitrequest_print = DEBUG_HAL_HCD_HC_SUBMITREQUEST_DEFAULT;
 
   return USBH_OK;
 }
@@ -366,6 +378,9 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
     {
       HID_Handle->ctl_state = HID_REQ_IDLE;
 
+      /* suppress periodical debug print */
+      suppress_in_pipe_debug_print(HID_Handle->InPipe);
+
       /* all requests performed*/
       phost->pUser(phost, HOST_USER_CLASS_ACTIVE);
       status = USBH_OK;
@@ -441,11 +456,6 @@ static USBH_StatusTypeDef USBH_HID_Process(USBH_HandleTypeDef *phost)
     {
       HID_Handle->state = HID_GET_DATA;
       USBH_UsrLog("SYNCed. Go to HID_GET_DATA.");
-
-      /** suppress debug message **/
-      DEBUG_HAL_HCD_HC_SubmitRequest = 0;
-      debug_hc_hcintx_mask[HID_Handle->InPipe] = 0;
-
     }
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_URB_EVENT, 0);
