@@ -87,11 +87,6 @@ void SysTick_Handler(void)
   * @retval None
   */
 
-void TIM2_IRQHandler(void)
-{
-  // HAL_TIM_IRQHandler(&htim2);
-}
-
 /**
 * @brief This function handles DMA1 Stream6 global interrupt.
 */
