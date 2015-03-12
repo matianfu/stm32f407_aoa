@@ -23,6 +23,8 @@ waston Configuration\stm32f4xx_hal_flash_ex.o: ..\..\Drivers\STM32F4xx_HAL_Drive
 waston Configuration\stm32f4xx_hal_flash_ex.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ramfunc.h
 waston Configuration\stm32f4xx_hal_flash_ex.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr.h
 waston Configuration\stm32f4xx_hal_flash_ex.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr_ex.h
+waston Configuration\stm32f4xx_hal_flash_ex.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h
+waston Configuration\stm32f4xx_hal_flash_ex.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h
 waston Configuration\stm32f4xx_hal_flash_ex.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h
 waston Configuration\stm32f4xx_hal_flash_ex.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h
 waston Configuration\stm32f4xx_hal_flash_ex.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h

@@ -616,6 +616,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
     {
       USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_RXFLVL);
       
+//	  printf("GINTSTS_RXFLVL interrupt\r\n");
       HCD_RXQLVL_IRQHandler (hhcd);
       
       USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_RXFLVL);
@@ -919,6 +920,8 @@ static inline void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
     
     if (hhcd->Init.dma_enable)
     {
+
+	  printf("xfter is add in USB_OTG_HCINT_XFRC event\r\n");
       hhcd->hc[chnum].xfer_count = hhcd->hc[chnum].xfer_len - \
                                (USBx_HC(chnum)->HCTSIZ & USB_OTG_HCTSIZ_XFRSIZ);
     }
@@ -1204,6 +1207,8 @@ static inline void HCD_RXQLVL_IRQHandler  (HCD_HandleTypeDef *hhcd)
   switch (pktsts)
   {
   case GRXSTS_PKTSTS_IN:
+
+    
     /* Read the data into the host buffer. */
     if ((pktcnt > 0) && (hhcd->hc[channelnum].xfer_buff != (void  *)0))
     {  
@@ -1211,11 +1216,17 @@ static inline void HCD_RXQLVL_IRQHandler  (HCD_HandleTypeDef *hhcd)
       USB_ReadPacket(hhcd->Instance, hhcd->hc[channelnum].xfer_buff, pktcnt);
      
       /*manage multiple Xfer */
+	  
+
       hhcd->hc[channelnum].xfer_buff += pktcnt;           
       hhcd->hc[channelnum].xfer_count  += pktcnt;
+
+	  printf("pktcnt is : %d\r\n",  pktcnt);
+	  printf("hhcd->hc[channelnum].xfer_count is : %d\r\n",  hhcd->hc[channelnum].xfer_count);
         
       if((USBx_HC(channelnum)->HCTSIZ & USB_OTG_HCTSIZ_PKTCNT) > 0)
       {
+//	  	printf("reactive channel\r\n");
         /* re-activate the channel when more packets are expected */
         USBx_HC(channelnum)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS; 
         USBx_HC(channelnum)->HCCHAR |= USB_OTG_HCCHAR_CHENA;

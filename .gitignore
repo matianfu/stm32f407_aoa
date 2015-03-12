@@ -3,6 +3,21 @@
 *.ko
 *.obj
 *.elf
+*.__i
+*.crf
+*.d
+
+# keil
+
+*.map
+*.lnp
+*.plg
+*.tra
+*.bak
+*.uvopt
+*.iex
+*.axf
+*.htm
 
 # Precompiled Headers
 *.gch

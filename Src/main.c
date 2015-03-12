@@ -35,13 +35,17 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "stm32f4xx_hal.h"
 #include "dma.h"
 #include "usart.h"
 #include "usb_host.h"
 #include "gpio.h"
+#include "time.h"
+#include "usbh_adk_core.h"
 #include "kinput.h"
 #include "hid.h"
+#include "time.h"
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -89,6 +93,8 @@ int main(void)
   MX_DMA_Init();
   MX_UART4_Init();
   MX_USART2_UART_Init();
+  time_init();
+  StartTimeCount();
 
   printf("%s", hello);
 
@@ -99,6 +105,8 @@ int main(void)
 
   MX_USART3_UART_Init();
   MX_USB_HOST_Init();
+ // time_init();
+  // StartTimeCount();
 
   /* USER CODE BEGIN 2 */
 

@@ -38,6 +38,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_usart2_tx;
+extern  TIM_HandleTypeDef htim2;
 
 extern HCD_HandleTypeDef hhcd_USB_OTG_FS;
 extern HCD_HandleTypeDef hhcd_USB_OTG_HS;
@@ -57,6 +58,18 @@ void OTG_FS_IRQHandler(void)
 
 extern void uart_ll_print(void);
 
+
+/**
+ * @brief  This function handles TIM interrupt request.
+ * @param  None
+ * @retval None
+ */
+
+void TIM2_IRQHandler(void)
+{
+ HAL_TIM_IRQHandler(&htim2);
+}
+
 /**
 * @brief This function handles System tick timer.
 */
@@ -66,6 +79,13 @@ void SysTick_Handler(void)
   HAL_SYSTICK_IRQHandler();
   uart_ll_print();
 }
+
+
+ /**
+  * @brief  This function handles TIM interrupt request.
+  * @param  None
+  * @retval None
+  */
 
 /**
 * @brief This function handles DMA1 Stream6 global interrupt.

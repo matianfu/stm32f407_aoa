@@ -30,6 +30,7 @@
 #include "debug.h"
 #include "usbh_conf.h"
 #include "usbh_core.h"
+#include "time.h"
 
 /*
  * Macro definition
@@ -1281,7 +1282,7 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 //#endif
 
 	e.evt = USBH_LL_EVT_CONNECT;
-	e.timestamp = HAL_GetTick();
+	// e.timestamp = GetTimeCount();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }
@@ -1290,7 +1291,7 @@ USBH_StatusTypeDef USBH_LL_PortUp (USBH_HandleTypeDef *phost)
 {
 	USBH_LL_EventTypeDef e;
 	e.evt = USBH_LL_EVT_PORTUP;
-	e.timestamp = HAL_GetTick();
+	// e.timestamp = GetTimeCount();
 	USBH_PutEvent(e);
 	return USBH_OK;
 }
