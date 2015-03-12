@@ -24,6 +24,8 @@ waston Configuration\usb_host.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4x
 waston Configuration\usb_host.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ramfunc.h
 waston Configuration\usb_host.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr.h
 waston Configuration\usb_host.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr_ex.h
+waston Configuration\usb_host.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h
+waston Configuration\usb_host.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h
 waston Configuration\usb_host.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h
 waston Configuration\usb_host.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h
 waston Configuration\usb_host.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h
@@ -46,3 +48,4 @@ waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Cla
 waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid.h
 waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h
 waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\HID\Inc\usbh_hid_keybd.h
+waston Configuration\usb_host.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Class\AOA\Inc\usbh_adk_core.h

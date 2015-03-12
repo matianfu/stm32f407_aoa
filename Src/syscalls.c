@@ -40,8 +40,8 @@
 extern int uart_write(int32_t file, uint8_t *ptr, int32_t len);
 
 /* Variables */
-#undef errno
-extern int32_t errno;
+//#undef errno
+//extern int32_t errno;
 
 register uint8_t * stack_ptr asm("sp");
 

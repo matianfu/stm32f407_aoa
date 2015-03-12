@@ -226,7 +226,6 @@ USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
       USBH_UsrLog("AOA: Switch to accessory mode");
     }
     break;
-
   default:
     break;
   }
@@ -352,6 +351,7 @@ static USBH_StatusTypeDef USBH_AOA_ClassRequest(USBH_HandleTypeDef *phost)
 //    break;
 //  }
 //  return status;
+  ADK_Machine.state = ADK_IDLE;		//fanqh add
   return USBH_OK;
 }
 
@@ -365,7 +365,7 @@ static USBH_StatusTypeDef USBH_AOA_ClassRequest(USBH_HandleTypeDef *phost)
 static USBH_StatusTypeDef USBH_ADK_Handle(USBH_HandleTypeDef *phost)
 {
 
-#if 0
+#if 1
   USBH_StatusTypeDef status = USBH_BUSY;
 
   switch (ADK_Machine.state)
@@ -388,7 +388,10 @@ static USBH_StatusTypeDef USBH_ADK_Handle(USBH_HandleTypeDef *phost)
 
     case ADK_GET_DATA:
 
+	if(USBH_LL_GetURBState(phost ,  ADK_Machine.hc_num_in) > USBH_URB_DONE)	   //here problem  the state can not c
+		break;
     USBH_BulkReceiveData(phost, ADK_Machine.inbuff, USBH_ADK_DATA_SIZE, ADK_Machine.hc_num_in);
+//	printf("receingr\r\n");
     ADK_Machine.state = ADK_IDLE;
     break;
 

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "stm32f4xx_hal.h"
+#include <stdio.h>
 
 #define PRINT_BUFFER_SIZE			65536
 
@@ -91,6 +92,23 @@ int uart_write(int32_t file, uint8_t *ptr, int32_t len) {
     uart_hl_print();
 	return len;
 }
+
+#ifndef __GNUC__
+
+int fputc(int ch, FILE *f) {
+
+	print_buffer[in] = ch;
+	if (in + 1 == PRINT_BUFFER_SIZE) {
+	  in = 0;
+	}
+	else {
+	  ++in;
+	}
+
+	return ch;
+}
+
+#endif
 
 void uart_print_tx_complete_cb() {
 

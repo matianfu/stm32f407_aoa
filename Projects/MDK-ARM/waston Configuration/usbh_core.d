@@ -28,6 +28,8 @@ waston Configuration\usbh_core.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4
 waston Configuration\usbh_core.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ramfunc.h
 waston Configuration\usbh_core.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr.h
 waston Configuration\usbh_core.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr_ex.h
+waston Configuration\usbh_core.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h
+waston Configuration\usbh_core.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h
 waston Configuration\usbh_core.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h
 waston Configuration\usbh_core.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_hcd.h
 waston Configuration\usbh_core.o: ..\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h
@@ -36,3 +38,4 @@ waston Configuration\usbh_core.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Co
 waston Configuration\usbh_core.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc\usbh_core.h
 waston Configuration\usbh_core.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc\usbh_pipes.h
 waston Configuration\usbh_core.o: ..\..\Middlewares\ST\STM32_USB_Host_Library\Core\Inc\usbh_ctlreq.h
+waston Configuration\usbh_core.o: ..\..\Inc\time.h

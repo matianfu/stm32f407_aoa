@@ -80,6 +80,18 @@ void SysTick_Handler(void)
   uart_ll_print();
 }
 
+
+ /**
+  * @brief  This function handles TIM interrupt request.
+  * @param  None
+  * @retval None
+  */
+
+void TIM2_IRQHandler(void)
+{
+  // HAL_TIM_IRQHandler(&htim2);
+}
+
 /**
 * @brief This function handles DMA1 Stream6 global interrupt.
 */

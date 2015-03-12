@@ -1,3 +1,8 @@
+
+#ifndef __TIME_H
+#define __TIME_H
+
+
 #include "stm32f4xx_hal.h"
 
 
@@ -9,3 +14,5 @@ void StopTimeCount(void);
 uint32_t GetTimeCount(void);
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
+
+#endif
