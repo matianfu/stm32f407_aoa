@@ -80,6 +80,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Inc/stm32f4xx_it.h</locationURI>
 		</link>
 		<link>
+			<name>Inc/time.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Inc/time.h</locationURI>
+		</link>
+		<link>
 			<name>Inc/usart.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Inc/usart.h</locationURI>
@@ -123,6 +128,11 @@
 			<name>Src/syscalls.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/syscalls.c</locationURI>
+		</link>
+		<link>
+			<name>Src/time.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/time.c</locationURI>
 		</link>
 		<link>
 			<name>Src/uart_printf.c</name>
@@ -310,6 +320,16 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h</locationURI>
@@ -383,6 +403,16 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</name>
