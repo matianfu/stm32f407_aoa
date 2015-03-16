@@ -199,21 +199,42 @@ for (i = 0; i < bNumInterfaces; i++) {
 
 }
 
+void hcint2string(char* buf, uint32_t hcint)
+{
+  int i ;
 
+  static const char* name[] =
+  { "XFRC", "CHH", "AHBERR", "STALL", "NAK", "ACK", "NYET", "TXERR", "BBERR",
+      "FRMOR", "DTERR" };
+
+  for (i = 0; i < 11; i++) {
+
+    if (hcint & (1 << i)) {
+      strcpy(buf, name[i]);
+      buf += strlen(name[i]);
+      *buf = ' ';
+      buf ++;
+    }
+  }
+
+  if (strlen(buf) > 0) {
+    *buf = 0;
+  }
+}
 
 /*
  * a ring buffer for asynchronous USBH event
  *
  * TODO these data should be changed to struct, since each USB (HS, FS) need an instance
  */
-#define USBH_LL_EVENT_RING_SIZE				(256)
-static USBH_EventTypeDef USBH_LL_Events[USBH_LL_EVENT_RING_SIZE] = { 0 };
+#define USBH_EVENT_RING_SIZE				(256)
+static USBH_EventTypeDef USBH_Events[USBH_EVENT_RING_SIZE] = { 0 };
 static int get_event_index = 0;
 static int put_event_index = 0;
 
 static inline int next_event_index(int i) {
 
-	if (i == USBH_LL_EVENT_RING_SIZE - 1)
+	if (i == USBH_EVENT_RING_SIZE - 1)
 		return 0;
 
 	return ++i;
@@ -229,9 +250,9 @@ static USBH_EventTypeDef USBH_GetEvent(void) {
 		return e;
 	}
 
-	e = USBH_LL_Events[get_event_index];
-	USBH_LL_Events[get_event_index].evt = 0;
-	USBH_LL_Events[get_event_index].timestamp = 0;
+	e = USBH_Events[get_event_index];
+	USBH_Events[get_event_index].evt = 0;
+	USBH_Events[get_event_index].timestamp = 0;
 
 	get_event_index = next_event_index(get_event_index);
 
@@ -243,19 +264,21 @@ static void USBH_PutEvent(USBH_EventTypeDef e) {
 	int i;
 	if (next_event_index(put_event_index) == get_event_index) {
 
-		for (i = 0; i < USBH_LL_EVENT_RING_SIZE; i++)
-			USBH_LL_Events[i].evt = USBH_EVT_OVERFLOW;
+		for (i = 0; i < USBH_EVENT_RING_SIZE; i++)
+			USBH_Events[i].evt = USBH_EVT_OVERFLOW;
 
 		return;
 	}
 
-	USBH_LL_Events[put_event_index] = e;
+	USBH_Events[put_event_index] = e;
 	put_event_index = next_event_index(put_event_index);
 }
 
 /** @defgroup USBH_CORE_Private_Functions
   * @{
   */ 
+static USBH_StatusTypeDef  USBH_HandlePortUp(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef  USBH_HandlePortDown(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef  USBH_HandleEnum    (USBH_HandleTypeDef *phost);
 static void                USBH_HandleSof     (USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost);
@@ -585,55 +608,32 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   return USBH_OK;  
 }
 
-void hcint2string(char* buf, uint32_t hcint)
-{
-  int i ;
-
-  static const char* name[] =
-  { "XFRC", "CHH", "AHBERR", "STALL", "NAK", "ACK", "NYET", "TXERR", "BBERR",
-      "FRMOR", "DTERR" };
-
-  for (i = 0; i < 11; i++) {
-
-    if (hcint & (1 << i)) {
-      strcpy(buf, name[i]);
-      buf += strlen(name[i]);
-      *buf = ' ';
-      buf ++;
-    }
-  }
-
-  if (strlen(buf) > 0) {
-    *buf = 0;
-  }
-}
-
-/**
-  * @brief  URB States definition
-  */
-const char * urb_state_string[] = {
-  "URB_IDLE", // = 0,
-  "URB_DONE",
-  "URB_NOTREADY",
-  "URB_NYET",
-  "URB_ERROR",
-  "URB_STALL"
-}; //USB_OTG_URBStateTypeDef;
-
-/**
-  * @brief  Host channel States  definition
-  */
-const char * channel_state_string[] = {
-  "HC_IDLE", // = 0,
-  "HC_XFRC",
-  "HC_HALTED",
-  "HC_NAK",
-  "HC_NYET",
-  "HC_STALL",
-  "HC_XACTERR",
-  "HC_BBLERR",
-  "HC_DATATGLERR"
-}; //USB_OTG_HCStateTypeDef;
+///**
+//  * @brief  URB States definition
+//  */
+//const char * urb_state_string[] = {
+//  "URB_IDLE", // = 0,
+//  "URB_DONE",
+//  "URB_NOTREADY",
+//  "URB_NYET",
+//  "URB_ERROR",
+//  "URB_STALL"
+//}; //USB_OTG_URBStateTypeDef;
+//
+///**
+//  * @brief  Host channel States  definition
+//  */
+//const char * channel_state_string[] = {
+//  "HC_IDLE", // = 0,
+//  "HC_XFRC",
+//  "HC_HALTED",
+//  "HC_NAK",
+//  "HC_NYET",
+//  "HC_STALL",
+//  "HC_XACTERR",
+//  "HC_BBLERR",
+//  "HC_DATATGLERR"
+//}; //USB_OTG_HCStateTypeDef;
 
 /**
  * 	@brief	USBH_ProcessEvent
