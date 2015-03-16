@@ -1171,11 +1171,11 @@ static inline void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnu
       else
       {
         hhcd->hc[chnum].urb_state = URB_NOTREADY;
+
+        /* re-activate the channel  */
+        USBx_HC(chnum)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
+        USBx_HC(chnum)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
       }
-      
-      /* re-activate the channel  */
-      USBx_HC(chnum)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;         
-      USBx_HC(chnum)->HCCHAR |= USB_OTG_HCCHAR_CHENA;      
     }
     
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_CHH);
