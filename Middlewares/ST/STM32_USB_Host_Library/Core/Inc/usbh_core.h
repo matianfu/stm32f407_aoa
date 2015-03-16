@@ -196,6 +196,9 @@ void                 USBH_LL_IncTimer     (USBH_HandleTypeDef *phost);
   * @}
   */ 
 
+unsigned int  USBH_LL_PortStale(USBH_HandleTypeDef *phost);
+
+
 #endif /* __CORE_H */
 /**
   * @}

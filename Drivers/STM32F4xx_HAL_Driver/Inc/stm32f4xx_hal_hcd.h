@@ -213,6 +213,7 @@ uint32_t                HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
 /**
   * @}
   */ 
+unsigned int HAL_HCD_PortStale(HCD_HandleTypeDef *hhcd);
 
 /**
   * @}

@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define  ASSERT(eval)                                       if ((!eval)) \
+  printf("assert fail:" " #eval " "@ %s, %s, %d\r\n",  __FILE__, __func__, __LINE__)
+
 #define DEBUG_HAL_HCD_HC_SUBMITREQUEST_DEFAULT              (1)
 extern int debug_hal_hcd_hc_submitrequest_print;
 extern int debug_hal_hcd_hc_submitrequest_halt;

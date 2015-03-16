@@ -316,6 +316,26 @@ typedef enum
     
 }USBH_SpeedTypeDef;
 
+/*
+ * Port State Definition
+ */
+typedef enum
+{
+  PORT_IDLE = 0,            /** system reset init state, or disconnect wait timeout, stable **/
+  PORT_DEBOUNCE,            /** after connect, debouncing, timed **/
+  PORT_RESET,               /** resetting, timed **/
+  PORT_WAIT_ATTACHMENT,     /** after reset, wait for port up, timed **/
+  PORT_UP_DELAY,            /** port up event received, delay a few miliseconds **/
+  PORT_UP,                  /** port is up, host start working, stable **/
+  PORT_DOWN,                /** port is down, oc or other rease, stable **/
+                            /** since port is up only after reset, apps must trigger port reset
+                             * to leave this state
+                             */
+  PORT_DISCONNECT_DELAY,     /** after disconnect, delay some time to switch to idle
+                               making sure it is a true unplug, not device mode switch
+                             **/
+}PORT_StateTypeDef;
+
 /* Following states are used for gState */
 typedef enum 
 {
@@ -444,6 +464,9 @@ typedef struct
 /* USB Host handle structure */
 typedef struct _USBH_HandleTypeDef
 {
+  __IO PORT_StateTypeDef    pState;         /*  Port State machine */
+  uint32_t                  pStateTimer;
+
   __IO HOST_StateTypeDef     gState;       	/*  Host State Machine Value */
 
   /** new member begin **/

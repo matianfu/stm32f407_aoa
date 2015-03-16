@@ -376,6 +376,11 @@ USBH_StatusTypeDef   USBH_LL_ClosePipe   (USBH_HandleTypeDef *phost, uint8_t pip
   return USBH_OK; 
 }
 
+unsigned int  USBH_LL_PortStale(USBH_HandleTypeDef *phost)
+{
+  return HAL_HCD_PortStale(phost->pData);
+}
+
 /**
   * @brief   
   * @param  
