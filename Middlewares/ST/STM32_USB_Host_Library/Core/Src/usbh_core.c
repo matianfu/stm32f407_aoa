@@ -771,6 +771,9 @@ pop:
       USBH_HandlePortDown(phost);
       phost->pState = PORT_DOWN;
     }
+    else if (e.evt == USBH_EVT_CONNECT) {
+      // no way to deal with this event, not maskable either
+    }
     else {
       USBH_ERRORSTATE(phost, e);
     }
