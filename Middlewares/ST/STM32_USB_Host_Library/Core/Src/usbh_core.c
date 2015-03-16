@@ -83,13 +83,13 @@ const static char* control_state_string[] =
 /*
  * local functions
  */
-static void USBH_LogSE(USBH_HandleTypeDef* phost, USBH_LL_EventTypeDef event)
+static void USBH_LogSE(USBH_HandleTypeDef* phost, USBH_EventTypeDef event)
 {
   static HOST_StateTypeDef s = -1;
   static ENUM_StateTypeDef es = -1;
   static CMD_StateTypeDef rs = -1;
   static CTRL_StateTypeDef cs = -1;
-  static USBH_LL_EventTypeDef e = {-1, 0};
+  static USBH_EventTypeDef e = {-1, 0};
 
   /** print only once for successive state/event **/
   if ((phost->gState == s) && (phost->EnumState == es)
@@ -179,28 +179,6 @@ for (i = 0; i < bNumInterfaces; i++) {
 
 }
 
-void hcint2string(char* buf, uint32_t hcint)
-{
-  int i ;
-
-  static const char* name[] =
-  { "XFRC", "CHH", "AHBERR", "STALL", "NAK", "ACK", "NYET", "TXERR", "BBERR",
-      "FRMOR", "DTERR" };
-
-  for (i = 0; i < 11; i++) {
-
-    if (hcint & (1 << i)) {
-      strcpy(buf, name[i]);
-      buf += strlen(name[i]);
-      *buf = ' ';
-      buf ++;
-    }
-  }
-
-  if (strlen(buf) > 0) {
-    *buf = 0;
-  }
-}
 
 
 /*
@@ -209,7 +187,7 @@ void hcint2string(char* buf, uint32_t hcint)
  * TODO these data should be changed to struct, since each USB (HS, FS) need an instance
  */
 #define USBH_LL_EVENT_RING_SIZE				(256)
-static USBH_LL_EventTypeDef USBH_LL_Events[USBH_LL_EVENT_RING_SIZE] = { 0 };
+static USBH_EventTypeDef USBH_LL_Events[USBH_LL_EVENT_RING_SIZE] = { 0 };
 static int get_event_index = 0;
 static int put_event_index = 0;
 
@@ -221,12 +199,12 @@ static inline int next_event_index(int i) {
 	return ++i;
 }
 
-static USBH_LL_EventTypeDef USBH_GetEvent(void) {
+static USBH_EventTypeDef USBH_GetEvent(void) {
 
-	USBH_LL_EventTypeDef e;
+  USBH_EventTypeDef e;
 
 	if (get_event_index == put_event_index) {
-		e.evt = USBH_LL_EVT_NULL;
+		e.evt = USBH_EVT_NULL;
 		e.timestamp = 0;
 		return e;
 	}
@@ -240,13 +218,13 @@ static USBH_LL_EventTypeDef USBH_GetEvent(void) {
 	return e;
 }
 
-static void USBH_PutEvent(USBH_LL_EventTypeDef e) {
+static void USBH_PutEvent(USBH_EventTypeDef e) {
 
 	int i;
 	if (next_event_index(put_event_index) == get_event_index) {
 
 		for (i = 0; i < USBH_LL_EVENT_RING_SIZE; i++)
-			USBH_LL_Events[i].evt = USBH_LL_EVT_OVERFLOW;
+			USBH_LL_Events[i].evt = USBH_EVT_OVERFLOW;
 
 		return;
 	}
@@ -260,7 +238,7 @@ static void USBH_PutEvent(USBH_LL_EventTypeDef e) {
   */ 
 static USBH_StatusTypeDef  USBH_HandleEnum    (USBH_HandleTypeDef *phost);
 static void                USBH_HandleSof     (USBH_HandleTypeDef *phost);
-static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost);
 
 #if (USBH_USE_OS == 1)  
 static void USBH_Process_OS(void const * argument);
@@ -290,7 +268,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   phost->ClassNumber = 0;
   
   /* Restore default states and prepare EP0 */ 
-  DeInitGStateMachine(phost);
+  DeInitStateMachine(phost);
   
   /* Assign User process */
   if(pUsrFunc != NULL)
@@ -326,7 +304,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   */
 USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
 {
-  DeInitGStateMachine(phost);
+  DeInitStateMachine(phost);
   
   if(phost->pData != NULL)
   {
@@ -343,7 +321,7 @@ USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
   * @param  phost: Host Handle
   * @retval USBH Status
   */
-static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost)
+static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost)
 {
   uint32_t i = 0;
 
@@ -564,7 +542,7 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   USBH_Delay(200);
   
   /* Set State machines in default state */
-  DeInitGStateMachine(phost);
+  DeInitStateMachine(phost);
    
   /* Start again the host */
   USBH_Start(phost);
@@ -575,28 +553,28 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   return USBH_OK;  
 }
 
-//void hcint2string(char* buf, uint32_t hcint)
-//{
-//  int i ;
-//
-//  static const char* name[] =
-//  { "XFRC", "CHH", "AHBERR", "STALL", "NAK", "ACK", "NYET", "TXERR", "BBERR",
-//      "FRMOR", "DTERR" };
-//
-//  for (i = 0; i < 11; i++) {
-//
-//    if (hcint & (1 << i)) {
-//      strcpy(buf, name[i]);
-//      buf += strlen(name[i]);
-//      *buf = ' ';
-//      buf ++;
-//    }
-//  }
-//
-//  if (strlen(buf) > 0) {
-//    *buf = 0;
-//  }
-//}
+void hcint2string(char* buf, uint32_t hcint)
+{
+  int i ;
+
+  static const char* name[] =
+  { "XFRC", "CHH", "AHBERR", "STALL", "NAK", "ACK", "NYET", "TXERR", "BBERR",
+      "FRMOR", "DTERR" };
+
+  for (i = 0; i < 11; i++) {
+
+    if (hcint & (1 << i)) {
+      strcpy(buf, name[i]);
+      buf += strlen(name[i]);
+      *buf = ' ';
+      buf ++;
+    }
+  }
+
+  if (strlen(buf) > 0) {
+    *buf = 0;
+  }
+}
 
 /**
   * @brief  URB States definition
@@ -634,14 +612,14 @@ const char * channel_state_string[] = {
  */
 USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 {
-  static USBH_LL_EventTypeDef e;
+  static USBH_EventTypeDef e;
 
   static char buf[128];
 
 pop:
   e = USBH_GetEvent();
 
-  if (e.evt == USBH_LL_EVT_HCINT) {
+  if (e.evt == USBH_EVT_HCINT) {
 
     memset(buf, 0, 128);
 
@@ -668,11 +646,11 @@ pop:
 
   switch (e.evt)
   {
-  case USBH_LL_EVT_NULL:
+  case USBH_EVT_NULL:
     USBH_Process(phost);
     break;
 
-  case USBH_LL_EVT_CONNECT:
+  case USBH_EVT_CONNECT:
 
     if (phost->gState == HOST_IDLE)
     {
@@ -689,7 +667,7 @@ pop:
 
     break;
 
-  case USBH_LL_EVT_DISCONNECT:
+  case USBH_EVT_DISCONNECT:
 
     /** the wild way **/
     // HAL_NVIC_SystemReset();
@@ -737,7 +715,7 @@ pop:
       USBH_FreePipe(phost, phost->Control.pipe_out);
 
       USBH_Delay(100);
-      DeInitGStateMachine(phost);
+      DeInitStateMachine(phost);
 
       USBH_LL_Start(phost);
 
@@ -747,7 +725,7 @@ pop:
     }
     break;
 
-  case USBH_LL_EVT_PORTUP:
+  case USBH_EVT_PORTUP:
 
     switch (phost->gState)
     {
@@ -763,7 +741,7 @@ pop:
     }
     break;
 
-  case USBH_LL_EVT_PORTDOWN:
+  case USBH_EVT_PORTDOWN:
     switch (phost->gState)
     {
     case HOST_DEV_WAIT_FOR_ATTACHMENT:
@@ -778,7 +756,7 @@ pop:
     }
     break;
 
-  case USBH_LL_EVT_OVERFLOW:
+  case USBH_EVT_OVERFLOW:
     break;
 
   default:
@@ -1045,7 +1023,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
   case HOST_DEV_DISCONNECTED:
 
-    DeInitGStateMachine(phost);
+    DeInitStateMachine(phost);
 
     /* Re-Initilaize Host for new Enumeration */
     if (phost->pActiveClass != NULL)
@@ -1281,7 +1259,7 @@ void  USBH_HandleSof  (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 {
-	USBH_LL_EventTypeDef e;
+	USBH_EventTypeDef e;
 // TODO move to main thread
 //  if(phost->gState == HOST_IDLE )
 //  {
@@ -1302,7 +1280,7 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 //  osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
 //#endif
 
-	e.evt = USBH_LL_EVT_CONNECT;
+	e.evt = USBH_EVT_CONNECT;
 	e.timestamp = HAL_GetTick();
 	USBH_PutEvent(e);
 	return USBH_OK;
@@ -1310,8 +1288,8 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 
 USBH_StatusTypeDef USBH_LL_PortUp (USBH_HandleTypeDef *phost)
 {
-	USBH_LL_EventTypeDef e;
-	e.evt = USBH_LL_EVT_PORTUP;
+	USBH_EventTypeDef e;
+	e.evt = USBH_EVT_PORTUP;
 	e.timestamp = HAL_GetTick();
 	USBH_PutEvent(e);
 	return USBH_OK;
@@ -1350,8 +1328,8 @@ USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
   osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
 #endif
 
-	USBH_LL_EventTypeDef e;
-	e.evt = USBH_LL_EVT_DISCONNECT;
+	USBH_EventTypeDef e;
+	e.evt = USBH_EVT_DISCONNECT;
 	e.timestamp = HAL_GetTick();
 	USBH_PutEvent(e);
 	return USBH_OK;
@@ -1359,8 +1337,8 @@ USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
 
 USBH_StatusTypeDef USBH_LL_PortDown (USBH_HandleTypeDef *phost)
 {
-	USBH_LL_EventTypeDef e;
-	e.evt = USBH_LL_EVT_PORTDOWN;
+	USBH_EventTypeDef e;
+	e.evt = USBH_EVT_PORTDOWN;
 	e.timestamp = HAL_GetTick();
 	USBH_PutEvent(e);
 	return USBH_OK;
@@ -1370,40 +1348,12 @@ USBH_StatusTypeDef USBH_LL_PortDown (USBH_HandleTypeDef *phost)
 
 USBH_StatusTypeDef USBH_LL_HCINT(USBH_HandleTypeDef *phost, struct hcint_t * hcint) {
 
-  USBH_LL_EventTypeDef e;
-  e.evt = USBH_LL_EVT_HCINT;
+  USBH_EventTypeDef e;
+  e.evt = USBH_EVT_HCINT;
   e.timestamp = HAL_GetTick();
   e.data.hcint = *hcint;
 
   USBH_PutEvent(e);
-  return USBH_OK;
-}
-
-static USBH_StatusTypeDef  USBH_HandlePortDown(USBH_HandleTypeDef *phost) {
-
-  USBH_LL_Stop(phost);
-
-  /* Re-Initilaize Host for new Enumeration */
-  if (phost->pActiveClass != NULL)
-  {
-    phost->pActiveClass->DeInit(phost);
-    phost->pActiveClass = NULL;
-  }
-
-  USBH_ClosePipe(phost, phost->Control.pipe_in);
-  USBH_ClosePipe(phost, phost->Control.pipe_out);
-
-  USBH_FreePipe(phost, phost->Control.pipe_in);
-  USBH_FreePipe(phost, phost->Control.pipe_out);
-
-  DeInitGStateMachine(phost);
-
-  USBH_Delay(100);
-
-  USBH_LL_Start(phost);
-
-  restore_debug_defaults();
-
   return USBH_OK;
 }
 
