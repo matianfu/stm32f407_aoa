@@ -440,7 +440,7 @@ static USBH_StatusTypeDef USBH_AOA_SendString(USBH_HandleTypeDef *phost,
     uint16_t index, uint8_t* buff)
 {
   uint16_t length;
-  length = (uint16_t) strlen(buff) + 1;
+  length = (uint16_t) strlen((char*)buff) + 1;
 
   phost->Control.setup.b.bmRequestType = USB_H2D | USB_REQ_TYPE_VENDOR
       | USB_REQ_RECIPIENT_DEVICE;

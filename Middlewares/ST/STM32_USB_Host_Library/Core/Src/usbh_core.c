@@ -236,7 +236,9 @@ void hcint2string(char* buf, uint32_t hcint)
     }
   }
 
+  /* remove last space */
   if (strlen(buf) > 0) {
+    buf--;
     *buf = 0;
   }
 }
@@ -246,8 +248,8 @@ void hcint2string(char* buf, uint32_t hcint)
  *
  * TODO these data should be changed to struct, since each USB (HS, FS) need an instance
  */
-#define USBH_EVENT_RING_SIZE				(256)
-static USBH_EventTypeDef USBH_Events[USBH_EVENT_RING_SIZE] = { 0 };
+#define USBH_EVENT_RING_SIZE				(64)
+static USBH_EventTypeDef USBH_Events[USBH_EVENT_RING_SIZE] = { {0, 0, {0}} };
 static int get_event_index = 0;
 static int put_event_index = 0;
 
@@ -673,7 +675,7 @@ pop:
 
   USBH_DebugOutput(phost, e, 0);
 
-#if 0
+#if 1
 
   switch (phost->pState) {
   case PORT_IDLE:
@@ -682,6 +684,7 @@ pop:
     else if (e.evt == USBH_EVT_CONNECT) {
       phost->pState = PORT_DEBOUNCE;
       phost->pStateTimer = HAL_GetTick();
+      USBH_UsrLog("Debounce delay %dms before port reset", USBH_DEBOUNCE_DELAY);
     }
     else
     {
@@ -691,9 +694,13 @@ pop:
 
   case PORT_DEBOUNCE:
     if (e.evt == USBH_EVT_NULL) {
-      if (phost->pStateTimer - HAL_GetTick() > USBH_DEBOUNCE_DELAY) {
+      if (HAL_GetTick() - phost->pStateTimer > USBH_DEBOUNCE_DELAY) {
         phost->pState = PORT_RESET;
+
+        /** huge bug !!! **/
+        phost->pStateTimer = HAL_GetTick();
         USBH_LL_ResetAssert(phost);
+        USBH_UsrLog("Assert USB port reset");
       }
     }
     else if (e.evt == USBH_EVT_DISCONNECT) {
@@ -707,8 +714,9 @@ pop:
   case PORT_RESET:
     if (e.evt == USBH_EVT_NULL) {
       // TODO ASSERT connected
-      if (phost->pStateTimer - HAL_GetTick() > USBH_RESET_DURATION) {
+      if (HAL_GetTick() - phost->pStateTimer > USBH_RESET_DURATION) {
         USBH_LL_ResetDeassert(phost);
+        USBH_UsrLog("Deassert USB port reset");
         phost->pState = PORT_WAIT_ATTACHMENT;
         phost->pStateTimer = HAL_GetTick();
       }
@@ -724,7 +732,7 @@ pop:
   case PORT_WAIT_ATTACHMENT:
 
     if (e.evt == USBH_EVT_NULL) {
-      if (phost->pStateTimer - HAL_GetTick() > USBH_ATTACH_DELAY) {
+      if (HAL_GetTick() - phost->pStateTimer > USBH_ATTACH_DELAY) {
         // TODO timeout processing
       }
     }
@@ -742,7 +750,7 @@ pop:
 
   case PORT_UP_DELAY:
     if (e.evt == USBH_EVT_NULL) {
-      if (phost->pStateTimer - HAL_GetTick() > 200) {
+      if (HAL_GetTick() - phost->pStateTimer > 10) {
         phost->pState = PORT_UP;
         USBH_HandlePortUp(phost);
       }
@@ -799,7 +807,7 @@ pop:
 
   case PORT_DISCONNECT_DELAY:
     if (e.evt == USBH_EVT_NULL) {
-      if (phost->pStateTimer - HAL_GetTick() > 200) {
+      if (HAL_GetTick() - phost->pStateTimer > 200) {
         // TODO disconnect stablized
         phost->pState = PORT_IDLE;
       }
@@ -1540,6 +1548,8 @@ static USBH_StatusTypeDef USBH_HandlePortUp(USBH_HandleTypeDef *phost)
 
   ASSERT(phost->pState == PORT_UP);
   ASSERT(phost->gState == HOST_IDLE);
+
+  USBH_UsrLog("%s", __func__);
 
   phost->device.speed = USBH_LL_GetSpeed(phost);
   phost->gState = HOST_ENUMERATION;

@@ -102,7 +102,7 @@ typedef enum {
     USBH_EVT_PORTDOWN,
     USBH_EVT_OVERFLOW,
     USBH_EVT_HCINT
-} USBH_LL_EventEnumTypeDef;
+} USBH_EventTypeTypeDef;
 
 struct hcint_t {
 
@@ -122,6 +122,7 @@ struct hcint_t {
 
 typedef union {
 
+  uint32_t init;
   struct hcint_t hcint;
 
 
@@ -131,7 +132,7 @@ typedef union {
  * Event type with time stamp
  */
 typedef struct {
-    USBH_LL_EventEnumTypeDef    evt;
+    USBH_EventTypeTypeDef       evt;
     uint32_t                    timestamp;
     USBH_LL_EventData           data;
 } USBH_EventTypeDef;
