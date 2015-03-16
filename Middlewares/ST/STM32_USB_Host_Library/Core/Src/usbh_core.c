@@ -755,8 +755,8 @@ pop:
         USBH_HandlePortUp(phost);
       }
     }
-    else if (e.evt == USBH_EVT_DISCONNECT) {
-      phost->pState = PORT_IDLE;
+    else if (e.evt == USBH_EVT_PORTDOWN) {
+      phost->pState = PORT_DOWN;
     }
     else {
       USBH_ERRORSTATE(phost, e);
