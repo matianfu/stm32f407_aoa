@@ -38,10 +38,9 @@
 #define USBH_ADDRESS_ASSIGNED                   1
 #define USBH_MPS_DEFAULT                        0x40
 
-#define USBH_ILLEGAL_SE(s, e)					printf(NEW_LINE); 												        \
-												printf("USBH ILLEGAL state/event combination encountered. "); 	\
-												USBH_LogSE(s, e); 												                      \
-												printf(NEW_LINE);
+#define USBH_ERRORSTATE(s, e)                   printf(NEW_LINE "!!! ERROR STATE: %d" NEW_LINE, __LINE__);  \
+                                                USBH_DebugOutput(s, e, 1);                                  \
+                                                printf(NEW_LINE NEW_LINE);
 
 #define USBH_DEBOUNCE_DELAY                     200
 #define USBH_RESET_DURATION                     15
@@ -98,50 +97,67 @@ const static char * channel_state_string[] =
 { "HC_IDLE", "HC_XFRC", "HC_HALTED", "HC_NAK", "HC_NYET", "HC_STALL",
     "HC_XACTERR", "HC_BBLERR", "HC_DATATGLERR" };
 
-
 /*
  * local functions
  */
-static void USBH_LogSE(USBH_HandleTypeDef* phost, USBH_EventTypeDef event)
+static void USBH_DebugOutput(USBH_HandleTypeDef* phost, USBH_EventTypeDef event, int force)
 {
-  static HOST_StateTypeDef s = -1;
+  static PORT_StateTypeDef ps = -1;
+  static HOST_StateTypeDef gs = -1;
   static ENUM_StateTypeDef es = -1;
   static CMD_StateTypeDef rs = -1;
   static CTRL_StateTypeDef cs = -1;
   static USBH_EventTypeDef e = {-1, 0};
+  static char time_strbuf[16];
 
-  /** print only once for successive state/event **/
-  if ((phost->gState == s) && (phost->EnumState == es)
-      && (phost->RequestState == rs) && (phost->Control.state == cs)
-      && (e.evt == event.evt))
-  {
-    return;
+  if (!force) {
+    /** print only once for successive state/event **/
+    if ((phost->pState == ps) &&
+        (phost->gState == gs) &&
+        (phost->EnumState == es) &&
+        (phost->RequestState == rs) &&
+        (phost->Control.state == cs) &&
+        (e.evt == event.evt))
+    {
+      return;
+    }
   }
 
-  s = phost->gState;
+  ps = phost->pState;
+  gs = phost->gState;
   es = phost->EnumState;
   rs = phost->RequestState;
   cs = phost->Control.state;
   e.evt = event.evt;
+  e.timestamp = event.timestamp;
 
-  if (s < SIZE_OF_ARRAY(gstate_string) &&
+  if (ps < SIZE_OF_ARRAY(pstate_string) &&
+      gs < SIZE_OF_ARRAY(gstate_string) &&
       es < SIZE_OF_ARRAY(enum_state_string) &&
       rs < SIZE_OF_ARRAY(request_state_string) &&
       cs < SIZE_OF_ARRAY(control_state_string) &&
       e.evt < SIZE_OF_ARRAY(event_string))
   {
-    USBH_UsrLog("- s %s, es %s, rs %s, cs %s, e %s @ %08u ",
-        gstate_string[s],
+    if (e.evt == USBH_EVT_NULL) {
+      time_strbuf[0] = '\0';
+    }
+    else {
+      snprintf(time_strbuf, 16, "@ %08u", (unsigned int)e.timestamp);
+    }
+
+    USBH_UsrLog("- %s, %s, %s, %s, %s, %s %s",
+        pstate_string[ps],
+        gstate_string[gs],
         enum_state_string[es],
         request_state_string[rs],
         control_state_string[cs],
         event_string[e.evt],
-        (unsigned int )e.timestamp);
+        time_strbuf);
   }
   else
   {
     USBH_UsrLog("!!!! Illegal USBH States, s %d, es %d, rs %d, cs %d, e %d @ %010u",
-        s, es, rs, cs, e.evt, (unsigned int )e.timestamp);
+        gs, es, rs, cs, e.evt, (unsigned int )e.timestamp);
   }
 }
 
@@ -651,7 +667,7 @@ pop:
     goto pop;
   }
 
-  USBH_LogSE(phost, e);
+  USBH_DebugOutput(phost, e, 0);
 
   switch (e.evt)
   {
@@ -684,7 +700,7 @@ pop:
     switch (phost->gState)
     {
     case HOST_IDLE:
-      USBH_ILLEGAL_SE(phost, e);
+      USBH_ERRORSTATE(phost, e);
       break;
 
     case HOST_DEV_WAIT_FOR_ATTACHMENT:
@@ -739,13 +755,13 @@ pop:
     switch (phost->gState)
     {
     case HOST_IDLE:
-      USBH_ILLEGAL_SE(phost, e);
+      USBH_ERRORSTATE(phost, e);
       break;
     case HOST_DEV_WAIT_FOR_ATTACHMENT:
       phost->gState = HOST_DEV_ATTACHED;
       break;
     default:
-      USBH_ILLEGAL_SE(phost, e);
+      USBH_ERRORSTATE(phost, e);
       break;
     }
     break;
@@ -778,7 +794,7 @@ pop:
   ILLEGAL_STATE:
 
   printf("ERROR STATE / EVENT combination !!!!!!!!!!!!");
-  USBH_ILLEGAL_SE(phost, e);
+  USBH_ERRORSTATE(phost, e);
   return USBH_OK;
 }
 
