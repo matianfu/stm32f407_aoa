@@ -179,6 +179,28 @@ for (i = 0; i < bNumInterfaces; i++) {
 
 }
 
+void hcint2string(char* buf, uint32_t hcint)
+{
+  int i ;
+
+  static const char* name[] =
+  { "XFRC", "CHH", "AHBERR", "STALL", "NAK", "ACK", "NYET", "TXERR", "BBERR",
+      "FRMOR", "DTERR" };
+
+  for (i = 0; i < 11; i++) {
+
+    if (hcint & (1 << i)) {
+      strcpy(buf, name[i]);
+      buf += strlen(name[i]);
+      *buf = ' ';
+      buf ++;
+    }
+  }
+
+  if (strlen(buf) > 0) {
+    *buf = 0;
+  }
+}
 
 
 /*
@@ -238,7 +260,7 @@ static void USBH_PutEvent(USBH_LL_EventTypeDef e) {
   */ 
 static USBH_StatusTypeDef  USBH_HandleEnum    (USBH_HandleTypeDef *phost);
 static void                USBH_HandleSof     (USBH_HandleTypeDef *phost);
-static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost);
 
 #if (USBH_USE_OS == 1)  
 static void USBH_Process_OS(void const * argument);
@@ -268,7 +290,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   phost->ClassNumber = 0;
   
   /* Restore default states and prepare EP0 */ 
-  DeInitStateMachine(phost);
+  DeInitGStateMachine(phost);
   
   /* Assign User process */
   if(pUsrFunc != NULL)
@@ -304,7 +326,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   */
 USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
 {
-  DeInitStateMachine(phost);
+  DeInitGStateMachine(phost);
   
   if(phost->pData != NULL)
   {
@@ -321,7 +343,7 @@ USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
   * @param  phost: Host Handle
   * @retval USBH Status
   */
-static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost)
+static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost)
 {
   uint32_t i = 0;
 
@@ -521,8 +543,8 @@ USBH_StatusTypeDef  USBH_Stop   (USBH_HandleTypeDef *phost)
   USBH_LL_DriverVBUS (phost, FALSE);
   
   /* FRee Control Pipes */
-  USBH_FreePipe  (phost, phost->Control.pipe_in);
-  USBH_FreePipe  (phost, phost->Control.pipe_out);  
+//  USBH_FreePipe  (phost, phost->Control.pipe_in);
+//  USBH_FreePipe  (phost, phost->Control.pipe_out);
   
   return USBH_OK;  
 }
@@ -542,7 +564,7 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   USBH_Delay(200);
   
   /* Set State machines in default state */
-  DeInitStateMachine(phost);
+  DeInitGStateMachine(phost);
    
   /* Start again the host */
   USBH_Start(phost);
@@ -553,28 +575,28 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   return USBH_OK;  
 }
 
-void hcint2string(char* buf, uint32_t hcint)
-{
-  int i ;
-
-  static const char* name[] =
-  { "XFRC", "CHH", "AHBERR", "STALL", "NAK", "ACK", "NYET", "TXERR", "BBERR",
-      "FRMOR", "DTERR" };
-
-  for (i = 0; i < 11; i++) {
-
-    if (hcint & (1 << i)) {
-      strcpy(buf, name[i]);
-      buf += strlen(name[i]);
-      *buf = ' ';
-      buf ++;
-    }
-  }
-
-  if (strlen(buf) > 0) {
-    *buf = 0;
-  }
-}
+//void hcint2string(char* buf, uint32_t hcint)
+//{
+//  int i ;
+//
+//  static const char* name[] =
+//  { "XFRC", "CHH", "AHBERR", "STALL", "NAK", "ACK", "NYET", "TXERR", "BBERR",
+//      "FRMOR", "DTERR" };
+//
+//  for (i = 0; i < 11; i++) {
+//
+//    if (hcint & (1 << i)) {
+//      strcpy(buf, name[i]);
+//      buf += strlen(name[i]);
+//      *buf = ' ';
+//      buf ++;
+//    }
+//  }
+//
+//  if (strlen(buf) > 0) {
+//    *buf = 0;
+//  }
+//}
 
 /**
   * @brief  URB States definition
@@ -715,7 +737,7 @@ pop:
       USBH_FreePipe(phost, phost->Control.pipe_out);
 
       USBH_Delay(100);
-      DeInitStateMachine(phost);
+      DeInitGStateMachine(phost);
 
       USBH_LL_Start(phost);
 
@@ -1023,7 +1045,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
   case HOST_DEV_DISCONNECTED:
 
-    DeInitStateMachine(phost);
+    DeInitGStateMachine(phost);
 
     /* Re-Initilaize Host for new Enumeration */
     if (phost->pActiveClass != NULL)
@@ -1263,7 +1285,7 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 // TODO move to main thread
 //  if(phost->gState == HOST_IDLE )
 //  {
-	phost->device.is_connected = 1;
+//	phost->device.is_connected = 1;
 //    phost->gState = HOST_IDLE ;
 //
     if(phost->pUser != NULL)
@@ -1354,6 +1376,34 @@ USBH_StatusTypeDef USBH_LL_HCINT(USBH_HandleTypeDef *phost, struct hcint_t * hci
   e.data.hcint = *hcint;
 
   USBH_PutEvent(e);
+  return USBH_OK;
+}
+
+static USBH_StatusTypeDef  USBH_HandlePortDown(USBH_HandleTypeDef *phost) {
+
+  USBH_LL_Stop(phost);
+
+  /* Re-Initilaize Host for new Enumeration */
+  if (phost->pActiveClass != NULL)
+  {
+    phost->pActiveClass->DeInit(phost);
+    phost->pActiveClass = NULL;
+  }
+
+  USBH_ClosePipe(phost, phost->Control.pipe_in);
+  USBH_ClosePipe(phost, phost->Control.pipe_out);
+
+  USBH_FreePipe(phost, phost->Control.pipe_in);
+  USBH_FreePipe(phost, phost->Control.pipe_out);
+
+  DeInitGStateMachine(phost);
+
+  USBH_Delay(100);
+
+  USBH_LL_Start(phost);
+
+  restore_debug_defaults();
+
   return USBH_OK;
 }
 
