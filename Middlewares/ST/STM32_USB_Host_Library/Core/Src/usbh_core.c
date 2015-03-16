@@ -44,9 +44,10 @@
 												printf(NEW_LINE);
 
 #define USBH_DEBOUNCE_DELAY                     200
+#define USBH_RESET_DURATION                     15
 #define USBH_ATTACH_DELAY                       200
 
-#define SIZE_OF_ARRAY(array)                    (sizeof(array) /  sizeof(array[0]))
+#define SIZE_OF_ARRAY(array)                    (sizeof(array) / sizeof(array[0]))
 
 
 
@@ -83,7 +84,6 @@ const static char* control_state_string[] =
     "CTRL_DATA_IN_WAIT", "CTRL_DATA_OUT", "CTRL_DATA_OUT_WAIT",
     "CTRL_STATUS_IN", "CTRL_STATUS_IN_WAIT", "CTRL_STATUS_OUT",
     "CTRL_STATUS_OUT_WAIT", "CTRL_ERROR", "CTRL_STALLED", "CTRL_COMPLETE" };
-
 /**
   * @brief  URB States definition
   */
@@ -97,7 +97,6 @@ const static char * urb_state_string[] =
 const static char * channel_state_string[] =
 { "HC_IDLE", "HC_XFRC", "HC_HALTED", "HC_NAK", "HC_NYET", "HC_STALL",
     "HC_XACTERR", "HC_BBLERR", "HC_DATATGLERR" };
-
 
 
 /*
@@ -279,6 +278,7 @@ static void USBH_PutEvent(USBH_EventTypeDef e) {
   */ 
 static USBH_StatusTypeDef  USBH_HandlePortUp(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef  USBH_HandlePortDown(USBH_HandleTypeDef *phost);
+
 static USBH_StatusTypeDef  USBH_HandleEnum    (USBH_HandleTypeDef *phost);
 static void                USBH_HandleSof     (USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost);
@@ -608,32 +608,9 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   return USBH_OK;  
 }
 
-///**
-//  * @brief  URB States definition
-//  */
-//const char * urb_state_string[] = {
-//  "URB_IDLE", // = 0,
-//  "URB_DONE",
-//  "URB_NOTREADY",
-//  "URB_NYET",
-//  "URB_ERROR",
-//  "URB_STALL"
-//}; //USB_OTG_URBStateTypeDef;
-//
-///**
-//  * @brief  Host channel States  definition
-//  */
-//const char * channel_state_string[] = {
-//  "HC_IDLE", // = 0,
-//  "HC_XFRC",
-//  "HC_HALTED",
-//  "HC_NAK",
-//  "HC_NYET",
-//  "HC_STALL",
-//  "HC_XACTERR",
-//  "HC_BBLERR",
-//  "HC_DATATGLERR"
-//}; //USB_OTG_HCStateTypeDef;
+
+
+
 
 /**
  * 	@brief	USBH_ProcessEvent
