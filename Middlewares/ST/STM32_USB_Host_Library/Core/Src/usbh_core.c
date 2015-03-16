@@ -238,7 +238,7 @@ static void USBH_PutEvent(USBH_EventTypeDef e) {
   */ 
 static USBH_StatusTypeDef  USBH_HandleEnum    (USBH_HandleTypeDef *phost);
 static void                USBH_HandleSof     (USBH_HandleTypeDef *phost);
-static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost);
 
 #if (USBH_USE_OS == 1)  
 static void USBH_Process_OS(void const * argument);
@@ -268,7 +268,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   phost->ClassNumber = 0;
   
   /* Restore default states and prepare EP0 */ 
-  DeInitStateMachine(phost);
+  DeInitGStateMachine(phost);
   
   /* Assign User process */
   if(pUsrFunc != NULL)
@@ -304,7 +304,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   */
 USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
 {
-  DeInitStateMachine(phost);
+  DeInitGStateMachine(phost);
   
   if(phost->pData != NULL)
   {
@@ -321,7 +321,7 @@ USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
   * @param  phost: Host Handle
   * @retval USBH Status
   */
-static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost)
+static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost)
 {
   uint32_t i = 0;
 
@@ -542,7 +542,7 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   USBH_Delay(200);
   
   /* Set State machines in default state */
-  DeInitStateMachine(phost);
+  DeInitGStateMachine(phost);
    
   /* Start again the host */
   USBH_Start(phost);
@@ -715,7 +715,7 @@ pop:
       USBH_FreePipe(phost, phost->Control.pipe_out);
 
       USBH_Delay(100);
-      DeInitStateMachine(phost);
+      DeInitGStateMachine(phost);
 
       USBH_LL_Start(phost);
 
@@ -1023,7 +1023,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
   case HOST_DEV_DISCONNECTED:
 
-    DeInitStateMachine(phost);
+    DeInitGStateMachine(phost);
 
     /* Re-Initilaize Host for new Enumeration */
     if (phost->pActiveClass != NULL)
@@ -1354,6 +1354,74 @@ USBH_StatusTypeDef USBH_LL_HCINT(USBH_HandleTypeDef *phost, struct hcint_t * hci
   e.data.hcint = *hcint;
 
   USBH_PutEvent(e);
+  return USBH_OK;
+}
+
+/*****************************************************************************/
+/*
+ * This function setup communication pipes and kick start host gstate machine.
+ */
+static USBH_StatusTypeDef USBH_HandlePortUp(USBH_HandleTypeDef *phost)
+{
+
+  ASSERT(phost->pState == PORT_UP);
+  ASSERT(phost->gState == HOST_IDLE);
+
+  phost->device.speed = USBH_LL_GetSpeed(phost);
+  phost->gState = HOST_ENUMERATION;
+
+  /* Debug output:
+   * USBH_AllocPipe ep_addr 0000 pipe 0
+   * USBH_AllocPipe ep_addr 0080 pipe 1
+   */
+  phost->Control.pipe_out = USBH_AllocPipe(phost, 0x00);
+  phost->Control.pipe_in = USBH_AllocPipe(phost, 0x80);
+
+  /* Open Control pipes */
+  USBH_OpenPipe(phost, phost->Control.pipe_in, 0x80, phost->device.address,
+      phost->device.speed,
+      USBH_EP_CONTROL, phost->Control.pipe_size);
+
+  /* Open Control pipes */
+  USBH_OpenPipe(phost, phost->Control.pipe_out, 0x00, phost->device.address,
+      phost->device.speed,
+      USBH_EP_CONTROL, phost->Control.pipe_size);
+
+#if (USBH_USE_OS == 1)
+    osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
+#endif
+
+  return USBH_OK;
+}
+
+/*
+ *
+ */
+static USBH_StatusTypeDef  USBH_HandlePortDown(USBH_HandleTypeDef *phost) {
+
+  USBH_LL_Stop(phost);
+
+  /* Re-Initilaize Host for new Enumeration */
+  if (phost->pActiveClass != NULL)
+  {
+    phost->pActiveClass->DeInit(phost);
+    phost->pActiveClass = NULL;
+  }
+
+  USBH_ClosePipe(phost, phost->Control.pipe_in);
+  USBH_ClosePipe(phost, phost->Control.pipe_out);
+
+  USBH_FreePipe(phost, phost->Control.pipe_in);
+  USBH_FreePipe(phost, phost->Control.pipe_out);
+
+  DeInitGStateMachine(phost);
+
+  USBH_Delay(100);
+
+  USBH_LL_Start(phost);
+
+  restore_debug_defaults();
+
   return USBH_OK;
 }
 
