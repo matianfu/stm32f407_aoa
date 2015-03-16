@@ -239,6 +239,7 @@ static void USBH_PutEvent(USBH_EventTypeDef e) {
 static USBH_StatusTypeDef  USBH_HandleEnum    (USBH_HandleTypeDef *phost);
 static void                USBH_HandleSof     (USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef  DeInitPStateMachine(USBH_HandleTypeDef *phost);
 
 #if (USBH_USE_OS == 1)  
 static void USBH_Process_OS(void const * argument);
@@ -268,7 +269,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   phost->ClassNumber = 0;
   
   /* Restore default states and prepare EP0 */ 
-  DeInitGStateMachine(phost);
+  DeInitPStateMachine(phost);
   
   /* Assign User process */
   if(pUsrFunc != NULL)
@@ -304,7 +305,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   */
 USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
 {
-  DeInitGStateMachine(phost);
+  DeInitPStateMachine(phost);
   
   if(phost->pData != NULL)
   {
@@ -351,6 +352,17 @@ static USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost)
   phost->device.address = USBH_ADDRESS_DEFAULT;
   phost->device.speed   = USBH_SPEED_FULL;
   
+  return USBH_OK;
+}
+
+/*
+ * This function also reset port state
+ */
+static USBH_StatusTypeDef  DeInitPStateMachine(USBH_HandleTypeDef *phost)
+{
+  DeInitGStateMachine(phost);
+  phost->pState = PORT_IDLE;
+
   return USBH_OK;
 }
 
