@@ -54,11 +54,15 @@
  * local constants
  */
 const static char* event_string[] =
-{ "USBH_LL_EVT_NULL", "USBH_LL_EVT_CONNECT", "USBH_LL_EVT_DISCONNECT",
-    "USBH_LL_EVT_PORTUP", "USBH_LL_EVT_PORTDOWN", "USBH_LL_EVT_OVERFLOW",
-    "USBH_LL_EVT_HCINT" };
+{ "USBH_EVT_NULL", "USBH_EVT_CONNECT", "USBH_EVT_DISCONNECT",
+    "USBH_EVT_PORTUP", "USBH_EVT_PORTDOWN", "USBH_EVT_OVERFLOW",
+    "USBH_EVT_HCINT" };
 
-const static char* state_string[] =
+const static char* pstate_string[] =
+{ "PORT_IDLE", "PORT_DEBOUNCE", "PORT_RESET", "PORT_WAIT_ATTACHMENT",
+    "PORT_UP_DELAY", "PORT_UP", "PORT_DOWN", "PORT_DISCONNECT_DELAY" };
+
+const static char* gstate_string[] =
 { "HOST_IDLE", "HOST_DEV_WAIT_FOR_ATTACHMENT", "HOST_DEV_ATTACHED",
     "HOST_DEV_DISCONNECTED", "HOST_DETECT_DEVICE_SPEED", "HOST_ENUMERATION",
     "HOST_CLASS_REQUEST", "HOST_INPUT", "HOST_SET_CONFIGURATION",
@@ -79,6 +83,22 @@ const static char* control_state_string[] =
     "CTRL_DATA_IN_WAIT", "CTRL_DATA_OUT", "CTRL_DATA_OUT_WAIT",
     "CTRL_STATUS_IN", "CTRL_STATUS_IN_WAIT", "CTRL_STATUS_OUT",
     "CTRL_STATUS_OUT_WAIT", "CTRL_ERROR", "CTRL_STALLED", "CTRL_COMPLETE" };
+
+/**
+  * @brief  URB States definition
+  */
+const static char * urb_state_string[] =
+{ "URB_IDLE", // = 0,
+    "URB_DONE", "URB_NOTREADY", "URB_NYET", "URB_ERROR", "URB_STALL" };
+
+/**
+  * @brief  Host channel States  definition
+  */
+const static char * channel_state_string[] =
+{ "HC_IDLE", "HC_XFRC", "HC_HALTED", "HC_NAK", "HC_NYET", "HC_STALL",
+    "HC_XACTERR", "HC_BBLERR", "HC_DATATGLERR" };
+
+
 
 /*
  * local functions
@@ -105,14 +125,14 @@ static void USBH_LogSE(USBH_HandleTypeDef* phost, USBH_EventTypeDef event)
   cs = phost->Control.state;
   e.evt = event.evt;
 
-  if (s < SIZE_OF_ARRAY(state_string) &&
+  if (s < SIZE_OF_ARRAY(gstate_string) &&
       es < SIZE_OF_ARRAY(enum_state_string) &&
       rs < SIZE_OF_ARRAY(request_state_string) &&
       cs < SIZE_OF_ARRAY(control_state_string) &&
       e.evt < SIZE_OF_ARRAY(event_string))
   {
     USBH_UsrLog("- s %s, es %s, rs %s, cs %s, e %s @ %08u ",
-        state_string[s],
+        gstate_string[s],
         enum_state_string[es],
         request_state_string[rs],
         control_state_string[cs],
