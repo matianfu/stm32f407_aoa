@@ -673,6 +673,148 @@ pop:
 
   USBH_DebugOutput(phost, e, 0);
 
+#if 0
+
+  switch (phost->pState) {
+  case PORT_IDLE:
+    if (e.evt == USBH_EVT_NULL) {
+    }
+    else if (e.evt == USBH_EVT_CONNECT) {
+      phost->pState = PORT_DEBOUNCE;
+      phost->pStateTimer = HAL_GetTick();
+    }
+    else
+    {
+      USBH_ERRORSTATE(phost, e);
+    };
+    break;
+
+  case PORT_DEBOUNCE:
+    if (e.evt == USBH_EVT_NULL) {
+      if (phost->pStateTimer - HAL_GetTick() > USBH_DEBOUNCE_DELAY) {
+        phost->pState = PORT_RESET;
+        USBH_LL_ResetAssert(phost);
+      }
+    }
+    else if (e.evt == USBH_EVT_DISCONNECT) {
+      phost->pState = PORT_IDLE;
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+
+  case PORT_RESET:
+    if (e.evt == USBH_EVT_NULL) {
+      // TODO ASSERT connected
+      if (phost->pStateTimer - HAL_GetTick() > USBH_RESET_DURATION) {
+        USBH_LL_ResetDeassert(phost);
+        phost->pState = PORT_WAIT_ATTACHMENT;
+        phost->pStateTimer = HAL_GetTick();
+      }
+    }
+    else if (e.evt == USBH_EVT_DISCONNECT) {
+      phost->pState = PORT_IDLE;
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+
+  case PORT_WAIT_ATTACHMENT:
+
+    if (e.evt == USBH_EVT_NULL) {
+      if (phost->pStateTimer - HAL_GetTick() > USBH_ATTACH_DELAY) {
+        // TODO timeout processing
+      }
+    }
+    else if (e.evt == USBH_EVT_PORTUP) {
+      phost->pState = PORT_UP_DELAY;
+      phost->pStateTimer = HAL_GetTick();
+    }
+    else if (e.evt == USBH_EVT_DISCONNECT) {
+      phost->pState = PORT_IDLE;
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+
+  case PORT_UP_DELAY:
+    if (e.evt == USBH_EVT_NULL) {
+      if (phost->pStateTimer - HAL_GetTick() > 200) {
+        phost->pState = PORT_UP;
+        USBH_HandlePortUp(phost);
+      }
+    }
+    else if (e.evt == USBH_EVT_DISCONNECT) {
+      phost->pState = PORT_IDLE;
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+
+  case PORT_UP:
+    if (e.evt == USBH_EVT_NULL) {
+      USBH_Process(phost);
+    }
+    else if (e.evt == USBH_EVT_PORTDOWN) {
+      USBH_HandlePortDown(phost);
+      phost->pState = PORT_DOWN;
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+
+  case PORT_DOWN:
+    if (e.evt == USBH_EVT_NULL) {
+      /*
+       * a bug states is observed several times for unreliable plug.
+       * with OTG_HS_HPRT as 0x00041801
+       *
+       * PCSTS = 1
+       * PCDET = 0
+       * PENA = 0
+       * PENCHGN = 0
+       *
+       * the port is indeed disabled but physical connection is present.
+       */
+      // TODO clear this bug, maybe detect it and then re-enumeration
+      if (USBH_LL_PortStale(phost)) {
+        phost->pState = PORT_RESET;   // try to reset again
+        USBH_LL_ResetAssert(phost);
+        phost->pStateTimer = HAL_GetTick();
+      }
+    }
+    else if (e.evt == USBH_EVT_DISCONNECT) {
+      phost->pState = PORT_DISCONNECT_DELAY;
+      phost->pStateTimer = HAL_GetTick();
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+
+  case PORT_DISCONNECT_DELAY:
+    if (e.evt == USBH_EVT_NULL) {
+      if (phost->pStateTimer - HAL_GetTick() > 200) {
+        // TODO disconnect stablized
+        phost->pState = PORT_IDLE;
+      }
+    }
+    else if (e.evt == USBH_EVT_CONNECT) {
+      phost->pState = PORT_DEBOUNCE;
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+  }
+
+#else
+
   switch (e.evt)
   {
   case USBH_EVT_NULL:
@@ -799,6 +941,9 @@ pop:
 
   printf("ERROR STATE / EVENT combination !!!!!!!!!!!!");
   USBH_ERRORSTATE(phost, e);
+
+#endif
+
   return USBH_OK;
 }
 
