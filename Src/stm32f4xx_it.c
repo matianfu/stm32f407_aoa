@@ -38,6 +38,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_usart2_tx;
+extern  TIM_HandleTypeDef htim2;
 
 extern HCD_HandleTypeDef hhcd_USB_OTG_FS;
 extern HCD_HandleTypeDef hhcd_USB_OTG_HS;
@@ -46,6 +47,17 @@ extern HCD_HandleTypeDef hhcd_USB_OTG_HS;
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
 
+
+/**
+ * @brief  This function handles TIM interrupt request.
+ * @param  None
+ * @retval None
+ */
+
+void TIM2_IRQHandler(void)
+{
+ HAL_TIM_IRQHandler(&htim2);
+}
 /**
 * @brief This function handles USB On The Go FS global interrupt.
 */
