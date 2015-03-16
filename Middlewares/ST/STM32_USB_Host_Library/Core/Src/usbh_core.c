@@ -48,7 +48,7 @@
 
 #define SIZE_OF_ARRAY(array)                    (sizeof(array) / sizeof(array[0]))
 
-
+extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
 
 /*
  * local constants
@@ -807,8 +807,8 @@ pop:
 
   case PORT_DISCONNECT_DELAY:
     if (e.evt == USBH_EVT_NULL) {
-      if (HAL_GetTick() - phost->pStateTimer > 200) {
-        // TODO disconnect stablized
+      if (HAL_GetTick() - phost->pStateTimer > 500) {
+        // TODO disconnect stabilized
         phost->pState = PORT_IDLE;
       }
     }
@@ -954,8 +954,6 @@ pop:
 
   return USBH_OK;
 }
-
-extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
 
 /**
   * @brief  USBH_Process 
@@ -1203,20 +1201,22 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     }
     break;
 
-  case HOST_DEV_DISCONNECTED:
-
-    DeInitGStateMachine(phost);
-
-    /* Re-Initilaize Host for new Enumeration */
-    if (phost->pActiveClass != NULL)
-    {
-      phost->pActiveClass->DeInit(phost);
-      phost->pActiveClass = NULL;
-    }
+//  case HOST_DEV_DISCONNECTED:
+//
+//    DeInitGStateMachine(phost);
+//
+//    /* Re-Initilaize Host for new Enumeration */
+//    if (phost->pActiveClass != NULL)
+//    {
+//      phost->pActiveClass->DeInit(phost);
+//      phost->pActiveClass = NULL;
+//    }
+//    break;
+  case HOST_ABORT_STATE:
     break;
 
-  case HOST_ABORT_STATE:
   default:
+    USBH_UsrLog("Unhandled host state: %s", gstate_string[phost->gState]);
     break;
   }
 
@@ -1442,26 +1442,6 @@ void  USBH_HandleSof  (USBH_HandleTypeDef *phost)
 USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 {
 	USBH_EventTypeDef e;
-// TODO move to main thread
-//  if(phost->gState == HOST_IDLE )
-//  {
-	phost->device.is_connected = 1;
-//    phost->gState = HOST_IDLE ;
-//
-//    if(phost->pUser != NULL)
-//    {
-//      phost->pUser(phost, HOST_USER_CONNECTION);
-//    }
-
-//  }
-//  else if(phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT )
-//  {
-//    phost->gState = HOST_DEV_ATTACHED ;
-//  }
-//#if (USBH_USE_OS == 1)
-//  osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
-//#endif
-
 	e.evt = USBH_EVT_CONNECT;
 	e.timestamp = HAL_GetTick();
 	USBH_PutEvent(e);
@@ -1485,31 +1465,6 @@ USBH_StatusTypeDef USBH_LL_PortUp (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
 {
-	/*Stop Host */
-//	USBH_LL_Stop(phost);
-
-	/** free pipes in non-ISR to avoid racing condition. **/
-
-	/* FRee Control Pipes */
-//	USBH_FreePipe  (phost, phost->Control.pipe_in);
-//	USBH_FreePipe  (phost, phost->Control.pipe_out);
-
-	phost->device.is_connected = 0;
-
-	if(phost->pUser != NULL)
-	{
-		phost->pUser(phost, HOST_USER_DISCONNECTION);
-	}
-
-	/* Start the low level driver  */
-//	USBH_LL_Start(phost);
-//
-//  phost->gState = HOST_DEV_DISCONNECTED;
-//
-#if (USBH_USE_OS == 1)
-  osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
-#endif
-
 	USBH_EventTypeDef e;
 	e.evt = USBH_EVT_DISCONNECT;
 	e.timestamp = HAL_GetTick();
@@ -1534,7 +1489,6 @@ USBH_StatusTypeDef USBH_LL_HCINT(USBH_HandleTypeDef *phost, struct hcint_t * hci
   e.evt = USBH_EVT_HCINT;
   e.timestamp = HAL_GetTick();
   e.data.hcint = *hcint;
-
   USBH_PutEvent(e);
   return USBH_OK;
 }
@@ -1571,6 +1525,9 @@ static USBH_StatusTypeDef USBH_HandlePortUp(USBH_HandleTypeDef *phost)
       phost->device.speed,
       USBH_EP_CONTROL, phost->Control.pipe_size);
 
+  /** this field is only meaningful for upper layer apps **/
+  phost->device.is_connected = 1;
+
   /* do this here, instead in connection handler **/
   if(phost->pUser != NULL)
   {
@@ -1589,9 +1546,12 @@ static USBH_StatusTypeDef USBH_HandlePortUp(USBH_HandleTypeDef *phost)
  */
 static USBH_StatusTypeDef  USBH_HandlePortDown(USBH_HandleTypeDef *phost) {
 
+  ASSERT(phost->pState == PORT_UP);
+  ASSERT(phost->gState != HOST_IDLE);
+
   USBH_LL_Stop(phost);
 
-  /* Re-Initilaize Host for new Enumeration */
+  /* Re-Initialize Host for new Enumeration */
   if (phost->pActiveClass != NULL)
   {
     phost->pActiveClass->DeInit(phost);
@@ -1604,7 +1564,15 @@ static USBH_StatusTypeDef  USBH_HandlePortDown(USBH_HandleTypeDef *phost) {
   USBH_FreePipe(phost, phost->Control.pipe_in);
   USBH_FreePipe(phost, phost->Control.pipe_out);
 
+  /** gstate -> HOST_IDLE **/
   DeInitGStateMachine(phost);
+
+  phost->device.is_connected = 0;
+
+  if(phost->pUser != NULL)
+  {
+    phost->pUser(phost, HOST_USER_DISCONNECTION);
+  }
 
   USBH_Delay(100);
 
