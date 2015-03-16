@@ -88,7 +88,7 @@ void MX_USB_HOST_Init(void)
 
   // USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS);
   USBH_RegisterClass(&hUsbHostHS, USBH_HID_CLASS);
-//  USBH_RegisterClass(&hUsbHostHS, USBH_AOA_CLASS);
+  USBH_RegisterClass(&hUsbHostHS, USBH_AOA_CLASS);
 
   USBH_Start(&hUsbHostHS);
 

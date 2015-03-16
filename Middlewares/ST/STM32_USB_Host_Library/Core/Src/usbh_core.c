@@ -818,6 +818,9 @@ pop:
     else if (e.evt == USBH_EVT_CONNECT) {
       phost->pState = PORT_DEBOUNCE;
     }
+    else if (e.evt == USBH_EVT_DISCONNECT) {
+      // Do nothing. It occurs occasionally.
+    }
     else {
       USBH_ERRORSTATE(phost, e);
     }
@@ -974,68 +977,68 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   case HOST_IDLE:
     break;
 
-  case HOST_DEV_WAIT_FOR_ATTACHMENT:
+//  case HOST_DEV_WAIT_FOR_ATTACHMENT:
+//
+//    if (phost->wait_for_attachment_substate == 0)
+//    { /** Debouncing **/
+//
+//      if (HAL_GetTick() - phost->PollingTimer > USBH_DEBOUNCE_DELAY)
+//      {
+//        phost->wait_for_attachment_substate = 1; /** switching substate **/
+//        phost->PollingTimer = HAL_GetTick();
+//        USBH_LL_ResetAssert(phost);
+//        USBH_UsrLog("Assert USB port reset");
+//      }
+//    }
+//    else if (phost->wait_for_attachment_substate == 1) /** resetting **/
+//    {
+//      if (HAL_GetTick() - phost->PollingTimer > 12)
+//      { /** 10 - 20ms conforming to standard **/
+//        USBH_LL_ResetDeassert(phost);
+//        USBH_UsrLog("Deassert USB port reset");
+//        phost->wait_for_attachment_substate = 2;
+//      }
+//    }
+//    else
+//    {
+//      // TODO waiting for port up event, need timeout mechanism
+//    }
+//    break;
 
-    if (phost->wait_for_attachment_substate == 0)
-    { /** Debouncing **/
-
-      if (HAL_GetTick() - phost->PollingTimer > USBH_DEBOUNCE_DELAY)
-      {
-        phost->wait_for_attachment_substate = 1; /** switching substate **/
-        phost->PollingTimer = HAL_GetTick();
-        USBH_LL_ResetAssert(phost);
-        USBH_UsrLog("Assert USB port reset");
-      }
-    }
-    else if (phost->wait_for_attachment_substate == 1) /** resetting **/
-    {
-      if (HAL_GetTick() - phost->PollingTimer > 12)
-      { /** 10 - 20ms conforming to standard **/
-        USBH_LL_ResetDeassert(phost);
-        USBH_UsrLog("Deassert USB port reset");
-        phost->wait_for_attachment_substate = 2;
-      }
-    }
-    else
-    {
-      // TODO waiting for port up event, need timeout mechanism
-    }
-    break;
-
-  case HOST_DEV_ATTACHED:
-
-    USBH_UsrLog("USB Device Attached")
-    ;
-
-    /* Wait for some time after Reset */
-    USBH_Delay(USBH_ATTACH_DELAY);
-
-    phost->device.speed = USBH_LL_GetSpeed(phost);
-
-    phost->gState = HOST_ENUMERATION;
-
-    /*
-     * USBH_AllocPipe ep_addr 0000 pipe 0
-     * USBH_AllocPipe ep_addr 0080 pipe 1
-     */
-    phost->Control.pipe_out = USBH_AllocPipe(phost, 0x00);
-    phost->Control.pipe_in = USBH_AllocPipe(phost, 0x80);
-
-    /* Open Control pipes */
-    USBH_OpenPipe(phost, phost->Control.pipe_in, 0x80, phost->device.address,
-        phost->device.speed,
-        USBH_EP_CONTROL, phost->Control.pipe_size);
-
-    /* Open Control pipes */
-    USBH_OpenPipe(phost, phost->Control.pipe_out, 0x00, phost->device.address,
-        phost->device.speed,
-        USBH_EP_CONTROL, phost->Control.pipe_size);
-
-#if (USBH_USE_OS == 1)
-    osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
-#endif    
-
-    break;
+//  case HOST_DEV_ATTACHED:
+//
+//    USBH_UsrLog("USB Device Attached")
+//    ;
+//
+//    /* Wait for some time after Reset */
+//    USBH_Delay(USBH_ATTACH_DELAY);
+//
+//    phost->device.speed = USBH_LL_GetSpeed(phost);
+//
+//    phost->gState = HOST_ENUMERATION;
+//
+//    /*
+//     * USBH_AllocPipe ep_addr 0000 pipe 0
+//     * USBH_AllocPipe ep_addr 0080 pipe 1
+//     */
+//    phost->Control.pipe_out = USBH_AllocPipe(phost, 0x00);
+//    phost->Control.pipe_in = USBH_AllocPipe(phost, 0x80);
+//
+//    /* Open Control pipes */
+//    USBH_OpenPipe(phost, phost->Control.pipe_in, 0x80, phost->device.address,
+//        phost->device.speed,
+//        USBH_EP_CONTROL, phost->Control.pipe_size);
+//
+//    /* Open Control pipes */
+//    USBH_OpenPipe(phost, phost->Control.pipe_out, 0x00, phost->device.address,
+//        phost->device.speed,
+//        USBH_EP_CONTROL, phost->Control.pipe_size);
+//
+//#if (USBH_USE_OS == 1)
+//    osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
+//#endif
+//
+//    break;
 
   case HOST_ENUMERATION:
     /* Check for enumeration status */
