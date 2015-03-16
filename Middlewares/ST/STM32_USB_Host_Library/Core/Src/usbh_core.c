@@ -1448,10 +1448,10 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 	phost->device.is_connected = 1;
 //    phost->gState = HOST_IDLE ;
 //
-    if(phost->pUser != NULL)
-    {
-      phost->pUser(phost, HOST_USER_CONNECTION);
-    }
+//    if(phost->pUser != NULL)
+//    {
+//      phost->pUser(phost, HOST_USER_CONNECTION);
+//    }
 
 //  }
 //  else if(phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT )
@@ -1570,6 +1570,12 @@ static USBH_StatusTypeDef USBH_HandlePortUp(USBH_HandleTypeDef *phost)
   USBH_OpenPipe(phost, phost->Control.pipe_out, 0x00, phost->device.address,
       phost->device.speed,
       USBH_EP_CONTROL, phost->Control.pipe_size);
+
+  /* do this here, instead in connection handler **/
+  if(phost->pUser != NULL)
+  {
+    phost->pUser(phost, HOST_USER_CONNECTION);
+  }
 
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
