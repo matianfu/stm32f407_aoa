@@ -100,6 +100,10 @@ const static char * channel_state_string[] =
 /*
  * local functions
  */
+
+/*
+ * @param force, forcefully print, otherwise successive same event print only once
+ */
 static void USBH_DebugOutput(USBH_HandleTypeDef* phost, USBH_EventTypeDef event, int force)
 {
   static PORT_StateTypeDef ps = -1;
@@ -1288,7 +1292,7 @@ USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 // TODO move to main thread
 //  if(phost->gState == HOST_IDLE )
 //  {
-//	phost->device.is_connected = 1;
+	phost->device.is_connected = 1;
 //    phost->gState = HOST_IDLE ;
 //
     if(phost->pUser != NULL)
@@ -1329,7 +1333,7 @@ USBH_StatusTypeDef USBH_LL_PortUp (USBH_HandleTypeDef *phost)
 USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
 {
 	/*Stop Host */
-	USBH_LL_Stop(phost);
+//	USBH_LL_Stop(phost);
 
 	/** free pipes in non-ISR to avoid racing condition. **/
 
