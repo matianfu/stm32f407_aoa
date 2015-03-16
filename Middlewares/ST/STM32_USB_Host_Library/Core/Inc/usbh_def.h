@@ -325,9 +325,9 @@ typedef enum
   PORT_DEBOUNCE,            /** after connect, debouncing, timed **/
   PORT_RESET,               /** resetting, timed **/
   PORT_WAIT_ATTACHMENT,     /** after reset, wait for port up, timed **/
-  PORT_UP_DELAY,            /** port up event received, delay a few miliseconds **/
+  PORT_UP_WAIT,             /** port up event received, delay a few of milliseconds **/
   PORT_UP,                  /** port is up, host start working, stable **/
-  PORT_DOWN,                /** port is down, oc or other rease, stable **/
+  PORT_DOWN,                /** port is down, oc or other reason, stable **/
                             /** since port is up only after reset, apps must trigger port reset
                              * to leave this state
                              */

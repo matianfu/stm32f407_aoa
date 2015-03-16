@@ -60,7 +60,7 @@ const static char* event_string[] =
 
 const static char* pstate_string[] =
 { "PORT_IDLE", "PORT_DEBOUNCE", "PORT_RESET", "PORT_WAIT_ATTACHMENT",
-    "PORT_UP_DELAY", "PORT_UP", "PORT_DOWN", "PORT_DISCONNECT_DELAY" };
+    "PORT_UP_WAIT", "PORT_UP", "PORT_DOWN", "PORT_DISCONNECT_DELAY" };
 
 const static char* gstate_string[] =
 { "HOST_IDLE", "HOST_DEV_WAIT_FOR_ATTACHMENT", "HOST_DEV_ATTACHED",
@@ -737,7 +737,7 @@ pop:
       }
     }
     else if (e.evt == USBH_EVT_PORTUP) {
-      phost->pState = PORT_UP_DELAY;
+      phost->pState = PORT_UP_WAIT;
       phost->pStateTimer = HAL_GetTick();
     }
     else if (e.evt == USBH_EVT_DISCONNECT) {
@@ -748,7 +748,7 @@ pop:
     }
     break;
 
-  case PORT_UP_DELAY:
+  case PORT_UP_WAIT:
     if (e.evt == USBH_EVT_NULL) {
       if (HAL_GetTick() - phost->pStateTimer > 10) {
         phost->pState = PORT_UP;

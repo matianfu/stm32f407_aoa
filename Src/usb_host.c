@@ -56,7 +56,7 @@ ApplicationTypeDef Appli_state = APPLICATION_IDLE;
 * user callbak declaration
 */ 
 static void USBH_UserProcess1  (USBH_HandleTypeDef *phost, uint8_t id);
-static void USBH_UserProcess2  (USBH_HandleTypeDef *phost, uint8_t id);
+// static void USBH_UserProcess2  (USBH_HandleTypeDef *phost, uint8_t id);
 
 /**
 * -- Insert your external function declaration here --
@@ -139,6 +139,8 @@ static void USBH_UserProcess1  (USBH_HandleTypeDef *phost, uint8_t id)
   }
   /* USER CODE END 2 */
 }
+
+#if 0
 static void USBH_UserProcess2  (USBH_HandleTypeDef *phost, uint8_t id)
 {
 
@@ -165,6 +167,8 @@ static void USBH_UserProcess2  (USBH_HandleTypeDef *phost, uint8_t id)
   }
   /* USER CODE END 2 */
 }
+
+#endif
 
 /**
   * @}
