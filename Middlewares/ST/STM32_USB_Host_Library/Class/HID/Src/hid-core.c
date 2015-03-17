@@ -119,13 +119,13 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
   report->device = device;
   report_enum->report_id_hash[id] = report;
 
-  // list_add_tail(&report->list, &report_enum->report_list);
+//  list_add_tail(&report->list, &report_enum->report_list);
 //  memcpy(&report_enum->report_array[report_enum->report_array_size],
 //      report, sizeof(struct hid_report));
 
 //  free(report);
 //  report = &report_enum->report_array[report_enum->report_array_size];
-  report_enum->report_id_hash[id] = report;
+//  report_enum->report_id_hash[id] = report;
 
   report_enum->report_array_size++;
 
@@ -145,6 +145,8 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned 
 	struct hid_field *field;
 	size_t size;
 
+	static unsigned int total_field_size = 0;
+
 	if (report->maxfield == HID_MAX_FIELDS) {
 		hid_err(report->device, "too many fields in report\n");
 		return NULL;
@@ -157,9 +159,16 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned 
 	size = (sizeof(struct hid_field) +
         usages * sizeof(struct hid_usage) +
         values * sizeof(unsigned));
-    field = malloc(size);
+  field = malloc(size);
 	if (!field)
 		return NULL;
+
+	total_field_size += size;
+	USBH_UsrLog("total field size: %d", total_field_size);
+	USBH_UsrLog("  size of struct hid_filed: %d", sizeof(struct hid_field));
+	USBH_UsrLog("  usages: %d, size of struct hid_usage %d", usages, sizeof(struct hid_usage));
+	USBH_UsrLog("  values: %d, size of unsigned %d", values, sizeof(unsigned));
+
 	memset(field, 0, size);
 
 	field->index = report->maxfield++;
@@ -181,7 +190,7 @@ static int open_collection(struct hid_parser *parser, unsigned type)
   struct hid_collection *collection;
   unsigned usage;
 
-  // USBH_UsrLog("open collection");
+// USBH_UsrLog("open collection");
 
   usage = parser->local.usage[0];
 
@@ -191,6 +200,7 @@ static int open_collection(struct hid_parser *parser, unsigned type)
     return -EINVAL;
   }
 
+  /** this code try to re-allocate collect pointer array, double **/
   if (parser->device->maxcollection == parser->device->collection_size)
   {
     // collection = kmalloc(sizeof(struct hid_collection) *
@@ -246,7 +256,6 @@ static int close_collection(struct hid_parser *parser)
  * Climb up the stack, search for the specified collection type
  * and return the usage.
  */
-
 static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
 {
 	struct hid_collection *collection = parser->device->collection;

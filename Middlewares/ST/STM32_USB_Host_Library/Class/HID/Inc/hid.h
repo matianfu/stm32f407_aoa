@@ -404,15 +404,15 @@ struct hid_collection
 
 struct hid_usage
 {
-  unsigned hid; /* hid usage code */
-  unsigned collection_index; /* index into collection array */
-  unsigned usage_index; /* index into usage array */
+  unsigned hid;                     /* hid usage code */
+  unsigned collection_index;        /* index into collection array */
+  unsigned usage_index;             /* index into usage array */
   /* hidinput data */
-  uint16_t code; /* input driver code */
-  uint8_t type; /* input driver type */
-  int8_t hat_min; /* hat switch fun */
-  int8_t hat_max; /* ditto */
-  int8_t hat_dir; /* ditto */
+  uint16_t code;                    /* input driver code */
+  uint8_t type;                     /* input driver type */
+  int8_t hat_min;                   /* hat switch fun */
+  int8_t hat_max;                   /* ditto */
+  int8_t hat_dir;                   /* ditto */
 };
 
 struct hid_input;
