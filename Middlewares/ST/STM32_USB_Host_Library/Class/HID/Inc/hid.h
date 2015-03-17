@@ -632,6 +632,8 @@ struct hid_device {                         /* device report descriptor */
 };
 #endif
 
+
+#define HID_REPORT_DESCRIPTOR_SIZE          512
 #define HID_FIELD_POOL_SIZE                 8
 #define HID_USAGE_POOL_SIZE                 512
 #define HID_VALUE_POOL_SIZE                 512
@@ -642,7 +644,7 @@ struct hid_device {                         /* device report descriptor */
 struct hid_device
 {
   /* device report descriptor */
-  uint8_t* dev_rdesc;
+  uint8_t  dev_rdesc[HID_REPORT_DESCRIPTOR_SIZE];
   unsigned dev_rsize;
 
   /* use fixed size array, no dynamic resize */

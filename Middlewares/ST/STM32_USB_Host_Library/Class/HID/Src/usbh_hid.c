@@ -919,6 +919,8 @@ static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
 //    USBH_UsrLog(" - 0x%02x", phost->device.Data[i]);
 //  }
 
+  USBH_UsrLog("size of hid_device is %d", sizeof(struct hid_device));
+
   hiddev = hid_allocate_device();
 
   if (hiddev == NULL)

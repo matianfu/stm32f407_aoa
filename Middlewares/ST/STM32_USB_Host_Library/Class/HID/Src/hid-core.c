@@ -29,6 +29,7 @@ struct hid_device hid_device1;
 
 
 
+
 /** from linux kernel tree linux/kernel.h **/
 /*
  * ..and if you can't take the strict
@@ -718,28 +719,12 @@ static int hid_parser_reserved(struct hid_parser *parser, struct hid_item *item)
 
 
 /*
- * Free a report and all registered fields. The field->usage and
- * field->value table's are allocated behind the field, so we need
- * only to free(field) itself.
- */
-
-//static void hid_free_report(struct hid_report *report)
-//{
-//	unsigned n;
-//
-//	for (n = 0; n < report->maxfield; n++)
-//		free(report->field[n]);
-//	free(report);
-//}
-
-
-/*
  * Close report. This function returns the device
  * state to the point prior to hid_open_report().
  */
 void hid_close_report(struct hid_device *device)
 {
-  unsigned i, j;
+  unsigned i;
 
   for (i = 0; i < HID_REPORT_TYPES; i++)
   {
@@ -767,10 +752,10 @@ void hid_close_report(struct hid_device *device)
 //  device->rdesc = NULL;
 //  device->rsize = 0;
 
-  if (device->dev_rdesc) {
-    free(device->dev_rdesc);
-    device->dev_rdesc = NULL;
-  }
+//  if (device->dev_rdesc) {
+//    free(device->dev_rdesc);
+//    device->dev_rdesc = NULL;
+//  }
   device->dev_rsize = 0;
 
   // kfree(device->collection);
@@ -784,23 +769,6 @@ void hid_close_report(struct hid_device *device)
 
   device->status &= ~HID_STAT_PARSED;
 }
-
-#if 0
-
-/*
- * Free a device structure, all reports, and all fields.
- */
-
-static void hid_device_release(struct device *dev)
-{
-	struct hid_device *hid = container_of(dev, struct hid_device, dev);
-
-	hid_close_report(hid);
-	kfree(hid->dev_rdesc);
-	kfree(hid);
-}
-
-#endif
 
 /*
  * Fetch a report description item from the data stream. We support long
@@ -1083,23 +1051,21 @@ EXPORT_SYMBOL_GPL(hid_validate_values);
  *
  *
  */
-int hid_set_report_descriptor(struct hid_device *hiddev, uint8_t* rdesc, uint16_t rsize)
+int hid_set_report_descriptor(struct hid_device *hiddev, uint8_t* rdesc,
+    uint16_t rsize)
 {
-  if (hiddev == NULL || rdesc == NULL || rsize == 0 || rsize > 1024) {
-    // TODO log error
-    return -1;
-  }
-
-  hiddev->dev_rdesc = (uint8_t *)malloc(rsize);
-  if (!hiddev->dev_rdesc)
+  if (hiddev == NULL || rdesc == NULL)
   {
-    // TODO log err
     return -1;
   }
 
+  if (rsize == 0 || rsize > HID_REPORT_DESCRIPTOR_SIZE)
+  {
+    USBH_UsrLog("report descriptor size error.");
+    return -1;
+  }
   memcpy(hiddev->dev_rdesc, rdesc, rsize);
   hiddev->dev_rsize = rsize;
-
   return 0;
 }
 
@@ -1121,111 +1087,78 @@ int hid_set_report_descriptor(struct hid_device *hiddev, uint8_t* rdesc, uint16_
  */
 int hid_open_report(struct hid_device *device)
 {
-	struct hid_parser *parser = 0;
-	struct hid_item item;
-	unsigned int size;
-	uint8_t *start;
-//	uint8_t *buf;
-	uint8_t *end;
-	int ret;
-	static int (*dispatch_type[])(struct hid_parser *parser,
-				      struct hid_item *item) = {
-		hid_parser_main,
-		hid_parser_global,
-		hid_parser_local,
-		hid_parser_reserved
-	};
+  static struct hid_parser hid_parser;
 
-//	if (WARN_ON(device->status & HID_STAT_PARSED))
-//		return -EBUSY;
+  struct hid_parser *parser = &hid_parser;
+  struct hid_item item;
+  unsigned int size;
+  uint8_t *start;
+  uint8_t *end;
+  int ret;
 
-	start = device->dev_rdesc;
-//	if (WARN_ON(!start))
-//		return -ENODEV;
-	size = device->dev_rsize;
+  static int (*dispatch_type[])(struct hid_parser *parser,
+      struct hid_item *item) =
+      {
+        hid_parser_main,
+        hid_parser_global,
+        hid_parser_local,
+        hid_parser_reserved
+      };
 
-	/**
-	 * bypass driver fix
-	 */
-//
-//	buf = kmemdup(start, size, GFP_KERNEL);
-//	if (buf == NULL)
-//		return -ENOMEM;
-//
-//	if (device->driver->report_fixup)
-//		start = device->driver->report_fixup(device, buf, &size);
-//	else
-//		start = buf;
-//
-//	start = kmemdup(start, size, GFP_KERNEL);
-//	kfree(buf);
-//	if (start == NULL)
-//		return -ENOMEM;
-//
-//	device->rdesc = start;
-//	device->rsize = size;
+  start = device->dev_rdesc;
+  size = device->dev_rsize;
 
-//	parser = vzalloc(sizeof(struct hid_parser));
+  memset(parser, 0, sizeof(struct hid_parser));
+  parser->device = device;
 
-    parser = malloc(sizeof(struct hid_parser));
-	if (!parser) {
-		ret = -ENOMEM;
-		goto err;
-	}
+  end = start + size;
 
-	memset(parser, 0, sizeof(struct hid_parser));
-	parser->device = device;
+  device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
 
-	end = start + size;
+  ret = -EINVAL;
+  while ((start = fetch_item(start, end, &item)) != NULL )
+  {
 
-//	device->collection = kcalloc(HID_DEFAULT_NUM_COLLECTIONS,
-//				     sizeof(struct hid_collection), GFP_KERNEL);
-//	device->collection = malloc(HID_DEFAULT_NUM_COLLECTIONS * sizeof(struct hid_collection));
-//	if (!device->collection) {
-//		ret = -ENOMEM;
-//		goto err;
-//	}
-	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
+    if (item.format != HID_ITEM_FORMAT_SHORT)
+    {
+      hid_err(device, "unexpected long global item\n");
+      goto err;
+    }
 
-	ret = -EINVAL;
-	while ((start = fetch_item(start, end, &item)) != NULL) {
+    if (dispatch_type[item.type](parser, &item))
+    {
+      hid_err(device, "item %u %u %u %u parsing failed\n",
+          item.format, (unsigned)item.size,
+          (unsigned)item.type, (unsigned)item.tag);
+      goto err;
+    }
 
-		if (item.format != HID_ITEM_FORMAT_SHORT) {
-			hid_err(device, "unexpected long global item\n");
-			goto err;
-		}
+    if (start == end)
+    {
+      if (parser->collection_stack_ptr)
+      {
+        hid_err(device, "unbalanced collection at end of report description\n");
+        goto err;
+      }
+      if (parser->local.delimiter_depth)
+      {
+        hid_err(device, "unbalanced delimiter at end of report description\n");
+        goto err;
+      }
 
-		if (dispatch_type[item.type](parser, &item)) {
-			hid_err(device, "item %u %u %u %u parsing failed\n",
-				item.format, (unsigned)item.size,
-				(unsigned)item.type, (unsigned)item.tag);
-			goto err;
-		}
+      device->status |= HID_STAT_PARSED;
+      return 0;
+    }
+  }
 
-		if (start == end) {
-			if (parser->collection_stack_ptr) {
-				hid_err(device, "unbalanced collection at end of report description\n");
-				goto err;
-			}
-			if (parser->local.delimiter_depth) {
-				hid_err(device, "unbalanced delimiter at end of report description\n");
-				goto err;
-			}
-			// vfree(parser);
-			free(parser);
-			device->status |= HID_STAT_PARSED;
-			return 0;
-		}
-	}
+  hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
 
-	hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
-err:
-	// vfree(parser);
-    free(parser);
-	hid_close_report(device);
-	return ret;
+  err:
+
+  hid_close_report(device);
+  return ret;
 }
-// EXPORT_SYMBOL_GPL(hid_open_report);
+
 
 
 
@@ -2947,59 +2880,13 @@ EXPORT_SYMBOL_GPL(hid_add_device);
 struct hid_device *hid_allocate_device(void)
 {
   struct hid_device *hdev;
-//  int ret = -ENOMEM;
-
-//  hdev = kzalloc(sizeof(*hdev), GFP_KERNEL);
-//  if (hdev == NULL)
-//    return ERR_PTR(ret);
-//  hdev = malloc(sizeof(*hdev));
-//  if (hdev == NULL)
-//    return NULL;
-
   hdev = &hid_device1;
   memset(hdev, 0, sizeof(*hdev));
 
-  /*
-   * The following functions are commented out, but keep in mind there are two steps
-   * to destruct the hid_device: bus removal and device release.
-   */
-//  device_initialize(&hdev->dev);
-//  hdev->dev.release = hid_device_release;
-//  hdev->dev.bus = &hid_bus_type;
-
-  /*
-   * init
-   */
   hid_close_report(hdev);
 
-//  init_waitqueue_head(&hdev->debug_wait);
-//  INIT_LIST_HEAD(&hdev->debug_list);
-//  spin_lock_init(&hdev->debug_list_lock);
-//  sema_init(&hdev->driver_lock, 1);
-//  sema_init(&hdev->driver_input_lock, 1);
   return hdev;
 }
-// EXPORT_SYMBOL_GPL(hid_allocate_device);
-
-/*
- * This code are merged into hid_destroy_device
- *
- * NOTE: device_del removes devices out of kernel object system but do not destroy it.
- *       this function will trigger bus_type remove function, ie hid_device_remove.
- */
-//static void hid_remove_device(struct hid_device *hdev)
-//{
-//  if (hdev->status & HID_STAT_ADDED)
-//  {
-//    device_del(&hdev->dev);
-//    hid_debug_unregister(hdev);
-//    hdev->status &= ~HID_STAT_ADDED;
-//  }
-//  kfree(hdev->dev_rdesc);
-//  hdev->dev_rdesc = NULL;
-//  hdev->dev_rsize = 0;
-//}
-
 
 /**
  * hid_destroy_device - free previously allocated device
@@ -3011,28 +2898,10 @@ struct hid_device *hid_allocate_device(void)
  */
 void hid_destroy_device(struct hid_device *hdev)
 {
-  /*
-   * hid_remove_device(hdev)
-   *   device_del(dev)
-   *      bus_remove_device(dev)
-   *          hid_device_remove()
-   */
-  // hid_disconnect(hdev);       // hw_stop, destroy input_devs
-
-//  if (hdev->claimed & HID_CLAIMED_INPUT)
-//    hidinput_disconnect(hdev);
-
   USBH_UsrLog("%s", __func__);
   hid_close_report(hdev);
-
-  /*
-   * put_device(&hdev->dev);
-   *   hid_device_release
-   */
-  // close_report will free report descriptor
-  // free(hdev);
 }
-// EXPORT_SYMBOL_GPL(hid_destroy_device);
+
 
 #if 0
 
