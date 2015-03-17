@@ -2406,26 +2406,24 @@ static bool hidinput_has_been_populated(struct hid_input *hidinput)
 	return !!r;
 }
 
-
+/*
+ * since hidinput cannot be freed in our modification, this clean-up
+ * only clean references inside report field.
+ */
 static void hidinput_cleanup_hidinput(struct hid_device *hid, struct hid_input *hidinput)
 {
   struct hid_report *report;
-  struct input_dev *test;
   int i, j, k;
 
-  //list_del(&hidinput->list);
-
-
-  // TODO may be problematic
-  // input_free_device(hidinput->input);
-  // free(hidinput->input);
+// list_del(&hidinput->list);
+// input_free_device(hidinput->input);
+// free(hidinput->input);
 
   for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++)
   {
     if (k == HID_OUTPUT_REPORT && (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS))
       continue;
 
-    // TODO
 //    list_for_each_entry(report, &hid->report_enum[k].report_list, list)
 //    {
 //
@@ -2435,12 +2433,20 @@ static void hidinput_cleanup_hidinput(struct hid_device *hid, struct hid_input *
 //    }
 
     for (j = 0; j < hid->report_enum[k].report_array_size; j++) {
-      // TODO
+
+      report = &hid->report_enum[k].report_array[j];
+
+      /** remove all reference inside report_field to this hidinput **/
+      for (i = 0; i < report->maxfield; i++) {
+        if (report->field[i]->hidinput == hidinput)
+          report->field[i]->hidinput = NULL;
+      }
     }
   }
 
   // kfree(hidinput);
-  free(hidinput);
+  // free(hidinput);
+  hid->hidinput_list_size--;
 }
 
 /*
@@ -2455,8 +2461,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
   int i, j, k, x;
 
 //  INIT_LIST_HEAD(&hid->inputs);
-  // INIT_WORK(&hid->led_work, hidinput_led_worker);
-  // EQUIVALENT
+//  INIT_WORK(&hid->led_work, hidinput_led_worker);
+
   hid->hidinput_list_size = 0;
 
   if (!force)
@@ -2481,52 +2487,6 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
     if (k == HID_OUTPUT_REPORT && (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORTS))
       continue;
 
-#if 0
-
-    list_for_each_entry(report, &hid->report_enum[k].report_list, list)
-    {
-
-      if (!report->maxfield)
-        continue;
-
-      if (!hidinput)
-      {
-        hidinput = hidinput_allocate(hid);
-        if (!hidinput)
-          goto out_unwind;
-      }
-
-      for (i = 0; i < report->maxfield; i++)
-      {
-        for (j = 0; j < report->field[i]->maxusage; j++)
-        {
-          hidinput_configure_usage(hidinput, report->field[i],
-              report->field[i]->usage + j);
-        }
-      }
-
-      if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
-          !hidinput_has_been_populated(hidinput))
-          continue;
-
-//          if (hid->quirks & HID_QUIRK_MULTI_INPUT) {
-//              /* This will leave hidinput NULL, so that it
-//               * allocates another one if we have more inputs on
-//               * the same interface. Some devices (e.g. Happ's
-//               * UGCI) cram a lot of unrelated inputs into the
-//               * same interface. */
-//              hidinput->report = report;
-//              if (drv->input_configured)
-//                  drv->input_configured(hid, hidinput);
-//              if (input_register_device(hidinput->input))
-//                  goto out_cleanup;
-//              hidinput = NULL;
-//          }
-    }
-
-#endif
-
-    // list_for_each_entry(report, &hid->report_enum[k].report_list, list)
     for (x = 0; x < hid->report_enum[k].report_array_size; x++)
     {
       report = &hid->report_enum[k].report_array[x];
@@ -2575,7 +2535,7 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
   {
     /* no need to register an input device not populated */
     hidinput_cleanup_hidinput(hid, hidinput);
-    hidinput = NULL;
+    // hidinput = NULL;
   }
 
 //  if (list_empty(&hid->inputs))
@@ -2602,7 +2562,7 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 
   return 0;
 
-  out_cleanup:
+//  out_cleanup:
     // list_del(&hidinput->list);
     // input_free_device(hidinput->input);
     // kfree(hidinput);
@@ -2619,9 +2579,9 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 
 void hidinput_disconnect(struct hid_device *hid)
 {
-  struct hid_input *hidinput, *next;
-  int i;
-  // hidinput_cleanup_battery(hid);
+//  struct hid_input *hidinput, *next;
+//  int i;
+//  hidinput_cleanup_battery(hid);
 
 //  list_for_each_entry_safe(hidinput, next, &hid->inputs, list)
 //  {
@@ -2637,6 +2597,7 @@ void hidinput_disconnect(struct hid_device *hid)
 //    }
 //  }
 
+  USBH_UsrLog("%s", __func__);
   hid->hidinput_list_size = 0;
 
   /* led_work is spawned by input_dev callbacks, but doesn't access the

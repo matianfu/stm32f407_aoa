@@ -645,7 +645,6 @@ struct hid_device
 
   /** this is the list of hidinput, not input_dev **/
   // struct list_head inputs;					/* The list of inputs */
-
   struct hid_input hidinput_list[16];
   unsigned int hidinput_list_size;
 };
