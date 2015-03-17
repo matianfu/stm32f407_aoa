@@ -468,6 +468,16 @@ struct hid_field
   uint16_t dpad; /* dpad input code */
 };
 
+/*
+ * This struct is used for request hid field from pool
+ */
+struct hid_field_request
+{
+  struct hid_field  *field;
+  struct hid_usage  *usage;
+  int32_t           *value;
+};
+
 #define HID_MAX_FIELDS 256
 
 struct hid_report
@@ -622,6 +632,10 @@ struct hid_device {                         /* device report descriptor */
 };
 #endif
 
+#define HID_FIELD_POOL_SIZE                 8
+#define HID_USAGE_POOL_SIZE                 512
+#define HID_VALUE_POOL_SIZE                 512
+
 /**
  * simplified version of linux struct hid_device
  */
@@ -631,7 +645,10 @@ struct hid_device
   uint8_t* dev_rdesc;
   unsigned dev_rsize;
 
-  struct hid_collection *collection; /* List of HID collections */
+  /* use fixed size array, no dynamic resize */
+  // struct hid_collection *collection; /* List of HID collections */
+  struct hid_collection collection[HID_DEFAULT_NUM_COLLECTIONS];
+
   unsigned collection_size; /* Number of allocated hid_collections */
   unsigned maxcollection; /* Number of parsed collections */
   unsigned maxapplication; /* Number of applications */
@@ -647,6 +664,18 @@ struct hid_device
   // struct list_head inputs;					/* The list of inputs */
   struct hid_input hidinput_list[16];
   unsigned int hidinput_list_size;
+
+  /** memory pool **/
+  struct hid_field field_pool[HID_FIELD_POOL_SIZE];
+  unsigned int field_pool_position;
+
+  /** usage pool **/
+  struct hid_usage usage_pool[HID_USAGE_POOL_SIZE];
+  unsigned int usage_pool_position;
+
+  /** hid value pool **/
+  int32_t value_pool[HID_VALUE_POOL_SIZE];
+  unsigned int value_pool_position;
 };
 
 //static inline void *hid_get_drvdata(struct hid_device *hdev)

@@ -5,7 +5,7 @@
  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
  *  Copyright (c) 2006-2012 Jiri Kosina
- *  Copyright (c) 2015 matianfu@gmail.com
+ *  Copyright (c) 2015 Tianfu Ma <matianfu@gmail.com>
  */
 
 /*
@@ -21,6 +21,12 @@
 #include "usbh_conf.h"
 
 #define dbg_hid(...)    USBH_UsrLog(__VA_ARGS__)
+
+
+
+struct hid_device hid_device1;
+
+
 
 
 /** from linux kernel tree linux/kernel.h **/
@@ -134,7 +140,37 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
 }
 // EXPORT_SYMBOL_GPL(hid_register_report);
 
+/*
+ * 0 for success
+ */
+static int hid_request_field(struct hid_device* dev, unsigned usages, unsigned values,
+    struct hid_field_request* req)
+{
+  if ((!dev) || (!req)) {
+    return -1;  // ERROR
+  }
 
+  if (dev->field_pool_position >= HID_FIELD_POOL_SIZE ||
+      dev->usage_pool_position + usages >= HID_USAGE_POOL_SIZE ||
+      dev->value_pool_position + values >= HID_VALUE_POOL_SIZE)
+  {
+    return -1;  // ERROR
+  }
+
+  req->field = &dev->field_pool[dev->field_pool_position];
+  req->usage = &dev->usage_pool[dev->usage_pool_position];
+  req->value = &dev->value_pool[dev->value_pool_position];
+
+  memset(req->field, 0, sizeof(struct hid_field));
+  memset(req->usage, 0, usages * sizeof(struct hid_usage));
+  memset(req->value, 0, values * sizeof(unsigned int));
+
+  dev->field_pool_position += 1;
+  dev->usage_pool_position += usages;
+  dev->value_pool_position += values;
+
+  return 0;
+}
 
 /*
  * Register a new field for this report.
@@ -143,6 +179,7 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
 static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
 {
 	struct hid_field *field;
+	struct hid_field_request request;
 	size_t size;
 
 	static unsigned int total_field_size = 0;
@@ -159,9 +196,13 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned 
 	size = (sizeof(struct hid_field) +
         usages * sizeof(struct hid_usage) +
         values * sizeof(unsigned));
-  field = malloc(size);
-	if (!field)
-		return NULL;
+//  field = malloc(size);
+//	if (!field)
+//		return NULL;
+
+	if (0 != hid_request_field(report->device, usages, values, &request)) {
+	  return NULL;
+	}
 
 	total_field_size += size;
 	USBH_UsrLog("total field size: %d", total_field_size);
@@ -169,13 +210,15 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned 
 	USBH_UsrLog("  usages: %d, size of struct hid_usage %d", usages, sizeof(struct hid_usage));
 	USBH_UsrLog("  values: %d, size of unsigned %d", values, sizeof(unsigned));
 
-	memset(field, 0, size);
+	// memset(field, 0, size);
 
+	field = request.field;
 	field->index = report->maxfield++;
 	report->field[field->index] = field;
-	field->usage = (struct hid_usage *)(field + 1);
-	// field->value = (s32 *)(field->usage + usages);
-	field->value = (int32_t *)(field->usage + usages);
+//	field->usage = (struct hid_usage *)(field + 1);
+//	field->value = (int32_t *)(field->usage + usages);
+	field->usage = request.usage;
+	field->value = request.value;
 	field->report = report;
 
 	return field;
@@ -200,6 +243,12 @@ static int open_collection(struct hid_parser *parser, unsigned type)
     return -EINVAL;
   }
 
+  if (parser->device->maxcollection == parser->device->collection_size)
+  {
+    return -ENOMEM;
+  }
+
+#if 0
   /** this code try to re-allocate collect pointer array, double **/
   if (parser->device->maxcollection == parser->device->collection_size)
   {
@@ -207,6 +256,8 @@ static int open_collection(struct hid_parser *parser, unsigned type)
     //		parser->device->collection_size * 2, GFP_KERNEL);
     collection = malloc(
         sizeof(struct hid_collection) * parser->device->collection_size * 2);
+
+    printf("\r\nmalloc for collection...\r\n\r\n");
 
     if (collection == NULL)
     {
@@ -221,6 +272,7 @@ static int open_collection(struct hid_parser *parser, unsigned type)
     parser->device->collection = collection;
     parser->device->collection_size *= 2;
   }
+#endif
 
   parser->collection_stack[parser->collection_stack_ptr++] =
       parser->device->maxcollection;
@@ -671,14 +723,14 @@ static int hid_parser_reserved(struct hid_parser *parser, struct hid_item *item)
  * only to free(field) itself.
  */
 
-static void hid_free_report(struct hid_report *report)
-{
-	unsigned n;
-
-	for (n = 0; n < report->maxfield; n++)
-		free(report->field[n]);
-	free(report);
-}
+//static void hid_free_report(struct hid_report *report)
+//{
+//	unsigned n;
+//
+//	for (n = 0; n < report->maxfield; n++)
+//		free(report->field[n]);
+//	free(report);
+//}
 
 
 /*
@@ -693,15 +745,15 @@ void hid_close_report(struct hid_device *device)
   {
     struct hid_report_enum *report_enum = device->report_enum + i;
 
-    for (j = 0; j < HID_MAX_IDS; j++)
-    {
-      struct hid_report *report = report_enum->report_id_hash[j];
-      if (report)
-        hid_free_report(report);
-    }
+//    for (j = 0; j < HID_MAX_IDS; j++)
+//    {
+//      struct hid_report *report = report_enum->report_id_hash[j];
+//      if (report)
+//        hid_free_report(report);
+//    }
     memset(report_enum, 0, sizeof(*report_enum));
     // INIT_LIST_HEAD(&report_enum->report_list);
-    report_enum->report_array_size = 0;
+//    report_enum->report_array_size = 0;
   }
 
   /**
@@ -722,10 +774,10 @@ void hid_close_report(struct hid_device *device)
   device->dev_rsize = 0;
 
   // kfree(device->collection);
-  if (device->collection)
-    free(device->collection);
+  // if (device->collection)
+  //   free(device->collection);
 
-  device->collection = NULL;
+  // device->collection = NULL;
   device->collection_size = 0;
   device->maxcollection = 0;
   device->maxapplication = 0;
@@ -1128,11 +1180,11 @@ int hid_open_report(struct hid_device *device)
 
 //	device->collection = kcalloc(HID_DEFAULT_NUM_COLLECTIONS,
 //				     sizeof(struct hid_collection), GFP_KERNEL);
-	device->collection = malloc(HID_DEFAULT_NUM_COLLECTIONS * sizeof(struct hid_collection));
-	if (!device->collection) {
-		ret = -ENOMEM;
-		goto err;
-	}
+//	device->collection = malloc(HID_DEFAULT_NUM_COLLECTIONS * sizeof(struct hid_collection));
+//	if (!device->collection) {
+//		ret = -ENOMEM;
+//		goto err;
+//	}
 	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
 
 	ret = -EINVAL;
@@ -2900,10 +2952,11 @@ struct hid_device *hid_allocate_device(void)
 //  hdev = kzalloc(sizeof(*hdev), GFP_KERNEL);
 //  if (hdev == NULL)
 //    return ERR_PTR(ret);
-  hdev = malloc(sizeof(*hdev));
-  if (hdev == NULL)
-    return NULL;
+//  hdev = malloc(sizeof(*hdev));
+//  if (hdev == NULL)
+//    return NULL;
 
+  hdev = &hid_device1;
   memset(hdev, 0, sizeof(*hdev));
 
   /*
@@ -2969,6 +3022,7 @@ void hid_destroy_device(struct hid_device *hdev)
 //  if (hdev->claimed & HID_CLAIMED_INPUT)
 //    hidinput_disconnect(hdev);
 
+  USBH_UsrLog("%s", __func__);
   hid_close_report(hdev);
 
   /*
@@ -2976,7 +3030,7 @@ void hid_destroy_device(struct hid_device *hdev)
    *   hid_device_release
    */
   // close_report will free report descriptor
-  free(hdev);
+  // free(hdev);
 }
 // EXPORT_SYMBOL_GPL(hid_destroy_device);
 

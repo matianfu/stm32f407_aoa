@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "kinput.h"
 
@@ -13,6 +14,9 @@ void input_alloc_absinfo(struct input_dev *dev)
   if (!dev->absinfo)
   {
     // dev->absinfo = kcalloc(ABS_CNT, sizeof(struct input_absinfo), GFP_KERNEL);
+
+    printf("%s", __func__);
+
     dev->absinfo = malloc(ABS_CNT * sizeof(struct input_absinfo));
   }
 
