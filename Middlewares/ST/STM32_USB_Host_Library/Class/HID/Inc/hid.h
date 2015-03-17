@@ -28,7 +28,7 @@
 #include <stdint.h>
 
 #include "non-atomic.h"
-#include "list.h"
+// #include "list.h"
 
 
 /*
@@ -365,7 +365,7 @@ struct hid_global
  * This is the local environment. It is persistent up the next main-item.
  */
 
-#define HID_MAX_USAGES			    512    //12288
+#define HID_MAX_USAGES			        512    //12288
 #define HID_DEFAULT_NUM_COLLECTIONS	16
 
 struct hid_local
@@ -472,7 +472,7 @@ struct hid_field
 
 struct hid_report
 {
-  struct list_head list;
+ // struct list_head list;
   unsigned id; /* id of this report */
   unsigned type; /* report type */
   struct hid_field *field[HID_MAX_FIELDS]; /* fields of the report */
@@ -481,12 +481,18 @@ struct hid_report
   struct hid_device *device; /* associated device */
 };
 
-#define HID_MAX_IDS 256
+#define HID_MAX_IDS                 256
+#define HID_MAX_REPORTS_PER_TYPE    2
 
 struct hid_report_enum
 {
   unsigned numbered;
-  struct list_head report_list;
+
+  /** this list holds reports **/
+  //  struct list_head report_list;
+  struct hid_report report_array[HID_MAX_REPORTS_PER_TYPE];
+  unsigned report_array_size;
+
   struct hid_report *report_id_hash[HID_MAX_IDS];
 };
 
@@ -517,7 +523,8 @@ struct hid_output_fifo
 
 struct hid_input
 {
-  struct list_head list;
+  /** hid_input list **/
+  // struct list_head list;
   struct hid_report *report;
   struct input_dev *input;
 };

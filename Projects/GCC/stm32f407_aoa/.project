@@ -590,11 +590,6 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/kinput.h</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/list.h</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/list.h</locationURI>
-		</link>
-		<link>
 			<name>Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/non-atomic.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Class/HID/Inc/non-atomic.h</locationURI>

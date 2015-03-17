@@ -93,15 +93,21 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
   // USBH_UsrLog("hid_register_report, type: %d, id: %d", type, id);
 
   if (id >= HID_MAX_IDS)
-    return NULL ;
+    return NULL;
   if (report_enum->report_id_hash[id])
     return report_enum->report_id_hash[id];
 
-  // report = kzalloc(sizeof(struct hid_report), GFP_KERNEL);
-  report = malloc(sizeof(struct hid_report));
-  if (!report)
-    return NULL ;
+  if (report_enum->report_array_size == HID_MAX_REPORTS_PER_TYPE)
+  {
+    USBH_UsrLog("HID error: Max reports per type (%d) reached.", HID_MAX_REPORTS_PER_TYPE);
+    return NULL;
+  }
 
+//  report = malloc(sizeof(struct hid_report));
+//  if (!report)
+//    return NULL ;
+
+  report = &report_enum->report_array[report_enum->report_array_size];
   memset(report, 0, sizeof(struct hid_report));
 
   if (id != 0)
@@ -113,9 +119,18 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
   report->device = device;
   report_enum->report_id_hash[id] = report;
 
-  list_add_tail(&report->list, &report_enum->report_list);
+  // list_add_tail(&report->list, &report_enum->report_list);
+//  memcpy(&report_enum->report_array[report_enum->report_array_size],
+//      report, sizeof(struct hid_report));
+
+//  free(report);
+//  report = &report_enum->report_array[report_enum->report_array_size];
+  report_enum->report_id_hash[id] = report;
+
+  report_enum->report_array_size++;
 
   return report;
+
 }
 // EXPORT_SYMBOL_GPL(hid_register_report);
 
@@ -676,7 +691,8 @@ void hid_close_report(struct hid_device *device)
         hid_free_report(report);
     }
     memset(report_enum, 0, sizeof(*report_enum));
-    INIT_LIST_HEAD(&report_enum->report_list);
+    // INIT_LIST_HEAD(&report_enum->report_list);
+    report_enum->report_array_size = 0;
   }
 
   /**
