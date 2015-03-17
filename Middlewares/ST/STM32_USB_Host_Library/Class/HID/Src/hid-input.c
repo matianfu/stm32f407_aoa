@@ -494,8 +494,8 @@ void input_event(struct input_dev * dev, unsigned int type, unsigned int code, i
     keycode[code] = value;
   }
   else if (type == EV_SYN) {
-//    USBH_UsrLog("        input_event, type: %d/%s", type, event_type_str[type]);
-//    USBH_UsrLog("        pressed key:");
+    USBH_UsrLog("        input_event, type: %d/%s", type, event_type_str[type]);
+    USBH_UsrLog("        pressed key:");
 
     int keypressed = 0;
     for (i = 0; i < 256; i++) {
@@ -2115,14 +2115,21 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field,
  */
 void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
 {
+  int i;
   struct hid_input *hidinput;
+
+  USBH_UsrLog("%s", __func__);
 
   if (hid->quirks & HID_QUIRK_NO_INPUT_SYNC)
     return;
 
-  list_for_each_entry(hidinput, &hid->inputs, list)
-    // input_sync(hidinput->input);
-    input_event(hidinput->input, EV_SYN, SYN_REPORT, 0);
+//  list_for_each_entry(hidinput, &hid->inputs, list)
+//    // input_sync(hidinput->input);
+//    input_event(hidinput->input, EV_SYN, SYN_REPORT, 0);
+
+  for (i = 0; i < hid->hidinput_list_size; i++) {
+    input_event(hid->hidinput_list[i].input, EV_SYN, SYN_REPORT, 0);
+  }
 }
 
 
@@ -2312,13 +2319,16 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
 //		return NULL;
 //	}
 
-    struct hid_input *hidinput = malloc(sizeof(struct hid_input));
-    if (hidinput == NULL)
-      return NULL;
+    USBH_UsrLog("!!! %s", __func__);
+
+//    struct hid_input *hidinput = malloc(sizeof(struct hid_input));
+//    if (hidinput == NULL)
+//      return NULL;
+    struct hid_input *hidinput = &hid->hidinput_list[hid->hidinput_list_size];
 
     struct input_dev *input_dev = malloc(sizeof(struct input_dev));
     if (input_dev == NULL) {
-      free(hidinput);
+      // free(hidinput);
       return NULL;
     }
 
@@ -2348,7 +2358,10 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
 //	input_dev->id.version = hid->version;
 //	input_dev->dev.parent = hid->dev.parent;
 	hidinput->input = input_dev;
-	list_add_tail(&hidinput->list, &hid->inputs);
+//	list_add_tail(&hidinput->list, &hid->inputs);
+
+//	memcpy(&hid->hidinput_list[hid->hidinput_list_size], hidinput, sizeof(struct hid_input));
+	hid->hidinput_list_size++;
 
 	return hidinput;
 }
@@ -2430,8 +2443,10 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
   struct hid_input *hidinput = NULL;
   int i, j, k;
 
-  INIT_LIST_HEAD(&hid->inputs);
+//  INIT_LIST_HEAD(&hid->inputs);
   // INIT_WORK(&hid->led_work, hidinput_led_worker);
+  // EQUIVALENT
+  hid->hidinput_list_size = 0;
 
   if (!force)
   {
@@ -2505,11 +2520,20 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
     hidinput = NULL;
   }
 
-  if (list_empty(&hid->inputs))
+//  if (list_empty(&hid->inputs))
+//  {
+//    hid_err(hid, "No inputs registered, leaving\n");
+//    goto out_unwind;
+//  }
+
+  // EQUIVALENT
+  if (hid->hidinput_list_size == 0)
   {
     hid_err(hid, "No inputs registered, leaving\n");
     goto out_unwind;
   }
+
+
 
 //	if (hidinput) {
 //		if (drv->input_configured)
@@ -2538,16 +2562,24 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
 void hidinput_disconnect(struct hid_device *hid)
 {
   struct hid_input *hidinput, *next;
-
+  int i;
   // hidinput_cleanup_battery(hid);
 
-  list_for_each_entry_safe(hidinput, next, &hid->inputs, list)
-  {
-    list_del(&hidinput->list);
-    // input_unregister_device(hidinput->input);
-    // kfree(hidinput);
-    free(hidinput);
+//  list_for_each_entry_safe(hidinput, next, &hid->inputs, list)
+//  {
+//    list_del(&hidinput->list);
+//    // input_unregister_device(hidinput->input);
+//    // kfree(hidinput);
+//    free(hidinput);
+//  }
+
+  for (i = 0; i < hid->hidinput_list_size; i++) {
+    if (hid->hidinput_list[i].input) {
+      free(hid->hidinput_list[i].input);
+    }
   }
+
+  hid->hidinput_list_size = 0;
 
   /* led_work is spawned by input_dev callbacks, but doesn't access the
    * parent input_dev at all. Once all input devices are removed, we

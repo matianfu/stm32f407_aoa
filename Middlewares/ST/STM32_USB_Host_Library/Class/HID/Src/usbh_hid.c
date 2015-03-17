@@ -490,7 +490,7 @@ static USBH_StatusTypeDef USBH_HID_Process(USBH_HandleTypeDef *phost)
           // hid_input_report(&device, HID_INPUT_REPORT, HID_Handle->pData, xfer_count, 1);
           // hid_report_raw_event(&device, 0 /* HID_INPUT_REPORT */ , HID_Handle->pData, xfer_count);
           // TODO temporarily disable report processing
-          // hid_report_raw_event(HID_Handle->hiddev, HID_INPUT_REPORT, HID_Handle->pData, xfer_count);
+          hid_report_raw_event(HID_Handle->hiddev, HID_INPUT_REPORT, HID_Handle->pData, xfer_count);
         }
 
         // fifo_write(&HID_Handle->fifo, HID_Handle->pData, HID_Handle->length);
@@ -941,9 +941,10 @@ static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
   if (ret)
     goto fail;
 
-  hidinput_disconnect(hiddev);
+  // TODO This code is suprisingly here, figure it out.
+  // hidinput_disconnect(hiddev);
 
-//  hiddev->claimed |= HID_CLAIMED_INPUT;
+  hiddev->claimed |= HID_CLAIMED_INPUT;
 
   HID_Handle->hiddev = hiddev;
   return USBH_OK;

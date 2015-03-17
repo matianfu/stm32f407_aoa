@@ -632,7 +632,11 @@ struct hid_device
   unsigned claimed; /* Claimed by hidinput, hiddev? */
   unsigned quirks;
 
-  struct list_head inputs;					/* The list of inputs */
+  /** this is the list of hidinput, not input_dev **/
+  // struct list_head inputs;					/* The list of inputs */
+
+  struct hid_input hidinput_list[16];
+  unsigned int hidinput_list_size;
 };
 
 //static inline void *hid_get_drvdata(struct hid_device *hdev)

@@ -1680,7 +1680,7 @@ int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int si
   uint8_t *cdata = data;
   int ret = 0;
 
-//  USBH_UsrLog("%s", __func__);
+  USBH_UsrLog("%s", __func__);
 
   /** these validations are copied from original hid_input_report() **/
   if ((!hid) || (!data) || (!size)) {
