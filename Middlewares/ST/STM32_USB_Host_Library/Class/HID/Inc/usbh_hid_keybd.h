@@ -32,6 +32,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbh_hid.h"
 #include "usbh_hid_keybd.h"
+#include "kinput.h"
 
 /** @addtogroup USBH_LIB
   * @{
@@ -54,6 +55,7 @@
 /** @defgroup USBH_HID_KEYBD_Exported_Types
   * @{
   */ 
+#if 0
 #define KEY_NONE                               0x00
 #define KEY_ERRORROLLOVER                      0x01
 #define KEY_POSTFAIL                           0x02
@@ -273,6 +275,8 @@
 #define KEY_RIGHTSHIFT                         0xE5
 #define KEY_RIGHTALT                           0xE6
 #define KEY_RIGHT_GUI                          0xE7
+
+#endif
 
 typedef struct 
 {

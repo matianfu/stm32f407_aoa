@@ -11,7 +11,6 @@ struct hid_device;
  */
 struct input_dev
 {
-
   unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
   unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
   unsigned long relbit[BITS_TO_LONGS(REL_CNT)];

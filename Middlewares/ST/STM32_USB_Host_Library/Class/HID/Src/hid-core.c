@@ -2882,9 +2882,7 @@ struct hid_device *hid_allocate_device(void)
   struct hid_device *hdev;
   hdev = &hid_device1;
   memset(hdev, 0, sizeof(*hdev));
-
   hid_close_report(hdev);
-
   return hdev;
 }
 
@@ -2903,102 +2901,5 @@ void hid_destroy_device(struct hid_device *hdev)
 }
 
 
-#if 0
-
-int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
-		const char *mod_name)
-{
-	int ret;
-
-	hdrv->driver.name = hdrv->name;
-	hdrv->driver.bus = &hid_bus_type;
-	hdrv->driver.owner = owner;
-	hdrv->driver.mod_name = mod_name;
-
-	INIT_LIST_HEAD(&hdrv->dyn_list);
-	spin_lock_init(&hdrv->dyn_lock);
-
-	ret = driver_register(&hdrv->driver);
-	if (ret)
-		return ret;
-
-	ret = driver_create_file(&hdrv->driver, &driver_attr_new_id);
-	if (ret)
-		driver_unregister(&hdrv->driver);
-
-	return ret;
-}
-EXPORT_SYMBOL_GPL(__hid_register_driver);
-
-void hid_unregister_driver(struct hid_driver *hdrv)
-{
-	driver_remove_file(&hdrv->driver, &driver_attr_new_id);
-	driver_unregister(&hdrv->driver);
-	hid_free_dynids(hdrv);
-}
-EXPORT_SYMBOL_GPL(hid_unregister_driver);
-
-int hid_check_keys_pressed(struct hid_device *hid)
-{
-	struct hid_input *hidinput;
-	int i;
-
-	if (!(hid->claimed & HID_CLAIMED_INPUT))
-		return 0;
-
-	list_for_each_entry(hidinput, &hid->inputs, list) {
-		for (i = 0; i < BITS_TO_LONGS(KEY_MAX); i++)
-			if (hidinput->input->key[i])
-				return 1;
-	}
-
-	return 0;
-}
-
-EXPORT_SYMBOL_GPL(hid_check_keys_pressed);
-
-static int __init hid_init(void)
-{
-	int ret;
-
-	if (hid_debug)
-		pr_warn("hid_debug is now used solely for parser and driver debugging.\n"
-			"debugfs is now used for inspecting the device (report descriptor, reports)\n");
-
-	ret = bus_register(&hid_bus_type);
-	if (ret) {
-		pr_err("can't register hid bus\n");
-		goto err;
-	}
-
-	ret = hidraw_init();
-	if (ret)
-		goto err_bus;
-
-	hid_debug_init();
-
-	return 0;
-err_bus:
-	bus_unregister(&hid_bus_type);
-err:
-	return ret;
-}
-
-static void __exit hid_exit(void)
-{
-	hid_debug_exit();
-	hidraw_exit();
-	bus_unregister(&hid_bus_type);
-}
-
-module_init(hid_init);
-module_exit(hid_exit);
-
-MODULE_AUTHOR("Andreas Gal");
-MODULE_AUTHOR("Vojtech Pavlik");
-MODULE_AUTHOR("Jiri Kosina");
-MODULE_LICENSE(DRIVER_LICENSE);
-
-#endif
 
 

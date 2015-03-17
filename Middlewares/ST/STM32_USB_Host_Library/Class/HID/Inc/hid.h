@@ -508,8 +508,8 @@ struct hid_report_enum
 
 #define HID_MIN_BUFFER_SIZE	    64		/* make sure there is at least a packet size of space */
 #define HID_MAX_BUFFER_SIZE	    4096	/* 4kb */
-#define HID_CONTROL_FIFO_SIZE	256		/* to init devices with >100 reports */
-#define HID_OUTPUT_FIFO_SIZE	64
+#define HID_CONTROL_FIFO_SIZE	  256		/* to init devices with >100 reports */
+#define HID_OUTPUT_FIFO_SIZE	  64
 
 struct hid_control_fifo
 {
@@ -533,14 +533,8 @@ struct hid_output_fifo
 
 struct hid_input
 {
-  /** hid_input list **/
-  // struct list_head list;
   struct hid_report *report;
-
-
   struct input_dev input;
-
-  // struct input_dev idev;
 };
 
 enum hid_type
@@ -644,7 +638,7 @@ struct hid_device {                         /* device report descriptor */
 struct hid_device
 {
   /* device report descriptor */
-  uint8_t  dev_rdesc[HID_REPORT_DESCRIPTOR_SIZE];
+  uint8_t dev_rdesc[HID_REPORT_DESCRIPTOR_SIZE];
   unsigned dev_rsize;
 
   /* use fixed size array, no dynamic resize */
