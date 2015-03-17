@@ -529,7 +529,7 @@ static inline void hid_map_usage(struct hid_input *hidinput,
     struct hid_usage *usage, unsigned long **bit, int *max,
     uint8_t type, uint16_t c) // __u8 type, __u16 c)
 {
-  struct input_dev *input = hidinput->input;
+  struct input_dev *input = &hidinput->input;
 
   usage->type = type;
   usage->code = c;
@@ -1008,7 +1008,7 @@ static void hidinput_cleanup_battery(struct hid_device *dev)
 static void hidinput_configure_usage(struct hid_input *hidinput,
     struct hid_field *field, struct hid_usage *usage)
 {
-  struct input_dev *input = hidinput->input;
+  struct input_dev *input = &hidinput->input;
   // struct hid_device *device = input_get_drvdata(input);
   struct hid_device *device = input->hiddev;
 
@@ -2003,7 +2003,7 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field,
     return;
   }
 
-  input = field->hidinput->input;
+  input = &(field->hidinput->input);
 
   if (!usage->type)
   {
@@ -2128,7 +2128,7 @@ void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
 //    input_event(hidinput->input, EV_SYN, SYN_REPORT, 0);
 
   for (i = 0; i < hid->hidinput_list_size; i++) {
-    input_event(hid->hidinput_list[i].input, EV_SYN, SYN_REPORT, 0);
+    input_event(&hid->hidinput_list[i].input, EV_SYN, SYN_REPORT, 0);
   }
 }
 
@@ -2326,19 +2326,20 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
 //      return NULL;
     struct hid_input *hidinput = &hid->hidinput_list[hid->hidinput_list_size];
 
-    struct input_dev *input_dev = malloc(sizeof(struct input_dev));
-    if (input_dev == NULL) {
-      // free(hidinput);
-      return NULL;
-    }
+//    struct input_dev *input_dev = malloc(sizeof(struct input_dev));
+//    if (input_dev == NULL) {
+//      // free(hidinput);
+//      return NULL;
+//    }
 
-    memset(input_dev, 0, sizeof(struct input_dev));
-    input_dev->hiddev = hid;
+//    memset(input_dev, 0, sizeof(struct input_dev));
+//    input_dev->hiddev = hid;
 
     memset(hidinput, 0, sizeof(struct hid_input));
 
 //	input_set_drvdata(input_dev, hid);
-    input_dev->hiddev = hid;
+//  input_dev->hiddev = hid;
+    hidinput->input.hiddev = hid;
 
 //	if (hid->ll_driver->hidinput_input_event)
 //		input_dev->event = hid->ll_driver->hidinput_input_event;
@@ -2357,7 +2358,11 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
 //	input_dev->id.product = hid->product;
 //	input_dev->id.version = hid->version;
 //	input_dev->dev.parent = hid->dev.parent;
-	hidinput->input = input_dev;
+
+//  hidinput->input = input_dev;
+
+
+
 //	list_add_tail(&hidinput->list, &hid->inputs);
 
 //	memcpy(&hid->hidinput_list[hid->hidinput_list_size], hidinput, sizeof(struct hid_input));
@@ -2372,31 +2377,31 @@ static bool hidinput_has_been_populated(struct hid_input *hidinput)
 	unsigned long r = 0;
 
 	for (i = 0; i < BITS_TO_LONGS(EV_CNT); i++)
-		r |= hidinput->input->evbit[i];
+		r |= hidinput->input.evbit[i];
 
 	for (i = 0; i < BITS_TO_LONGS(KEY_CNT); i++)
-		r |= hidinput->input->keybit[i];
+		r |= hidinput->input.keybit[i];
 
 	for (i = 0; i < BITS_TO_LONGS(REL_CNT); i++)
-		r |= hidinput->input->relbit[i];
+		r |= hidinput->input.relbit[i];
 
 	for (i = 0; i < BITS_TO_LONGS(ABS_CNT); i++)
-		r |= hidinput->input->absbit[i];
+		r |= hidinput->input.absbit[i];
 
 	for (i = 0; i < BITS_TO_LONGS(MSC_CNT); i++)
-		r |= hidinput->input->mscbit[i];
+		r |= hidinput->input.mscbit[i];
 
 	for (i = 0; i < BITS_TO_LONGS(LED_CNT); i++)
-		r |= hidinput->input->ledbit[i];
+		r |= hidinput->input.ledbit[i];
 
 	for (i = 0; i < BITS_TO_LONGS(SND_CNT); i++)
-		r |= hidinput->input->sndbit[i];
+		r |= hidinput->input.sndbit[i];
 
 	for (i = 0; i < BITS_TO_LONGS(FF_CNT); i++)
-		r |= hidinput->input->ffbit[i];
+		r |= hidinput->input.ffbit[i];
 
 	for (i = 0; i < BITS_TO_LONGS(SW_CNT); i++)
-		r |= hidinput->input->swbit[i];
+		r |= hidinput->input.swbit[i];
 
 	return !!r;
 }
@@ -2405,6 +2410,7 @@ static bool hidinput_has_been_populated(struct hid_input *hidinput)
 static void hidinput_cleanup_hidinput(struct hid_device *hid, struct hid_input *hidinput)
 {
   struct hid_report *report;
+  struct input_dev *test;
   int i, j, k;
 
   //list_del(&hidinput->list);
@@ -2412,7 +2418,7 @@ static void hidinput_cleanup_hidinput(struct hid_device *hid, struct hid_input *
 
   // TODO may be problematic
   // input_free_device(hidinput->input);
-  free(hidinput->input);
+  // free(hidinput->input);
 
   for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++)
   {
@@ -2625,11 +2631,11 @@ void hidinput_disconnect(struct hid_device *hid)
 //    free(hidinput);
 //  }
 
-  for (i = 0; i < hid->hidinput_list_size; i++) {
-    if (hid->hidinput_list[i].input) {
-      free(hid->hidinput_list[i].input);
-    }
-  }
+//  for (i = 0; i < hid->hidinput_list_size; i++) {
+//    if (hid->hidinput_list[i].input) {
+//      free(hid->hidinput_list[i].input);
+//    }
+//  }
 
   hid->hidinput_list_size = 0;
 

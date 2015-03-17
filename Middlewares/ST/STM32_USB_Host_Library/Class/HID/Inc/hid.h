@@ -26,7 +26,7 @@
 #define __HID_H
 
 #include <stdint.h>
-
+#include "kinput.h"
 #include "non-atomic.h"
 // #include "list.h"
 
@@ -526,7 +526,11 @@ struct hid_input
   /** hid_input list **/
   // struct list_head list;
   struct hid_report *report;
-  struct input_dev *input;
+
+
+  struct input_dev input;
+
+  // struct input_dev idev;
 };
 
 enum hid_type
