@@ -1,4 +1,6 @@
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 #include "stm32f4xx_hal.h"
 
 #define PRINT_BUFFER_SIZE			65536
@@ -96,5 +98,69 @@ void uart_print_tx_complete_cb() {
 
 	uart_ll_print();
 }
+
+/*********************************************************/
+
+#define RX_BUF_SIZE               (256) // must be 256
+#define LINE_BUF_SIZE             (1024)
+static uint8_t rx_buf[RX_BUF_SIZE];
+static uint8_t rx_get = 0;
+
+static uint8_t line_buf[LINE_BUF_SIZE];
+static int line_buf_pos = 0;
+
+
+/*
+ * Do it anyway, considering we cannot know what is the previously set buffer size, dont make assumptios,
+ * leave the POLICY to the caller
+ */
+void Command_Init(void)
+{
+  rx_get = 0;
+  HAL_UART_Receive_DMA(&huart2, rx_buf, RX_BUF_SIZE);
+}
+
+void Process_Command(void)
+{
+  uint32_t ntdr;
+  UART_HandleTypeDef* h = &huart2;
+  uint8_t rx_put, ch;
+  ntdr = __HAL_DMA_GET_COUNTER(h->hdmarx);
+
+  rx_put = (uint8_t)(RX_BUF_SIZE - ntdr);
+  while (rx_get != rx_put)
+  {
+    ch = rx_buf[rx_get];
+
+    if (ch == '\r') {
+      putchar('\r');
+      putchar('\n');
+
+      printf("print line: %s\r\n", line_buf);
+
+      memset(line_buf, 0, LINE_BUF_SIZE);
+      line_buf_pos = 0;
+    }
+    else if (ch == '\b') {
+      if (line_buf_pos) {
+        line_buf_pos--;
+        line_buf[line_buf_pos] = '\0';
+        printf("\b \b");
+      }
+    }
+    else {
+      line_buf[line_buf_pos++] = ch;
+      putchar(ch);
+    }
+
+    rx_get++;
+  }
+}
+
+
+
+
+
+
 
 

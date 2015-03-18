@@ -38,6 +38,8 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_usart2_tx;
+extern DMA_HandleTypeDef hdma_usart2_rx;
+
 extern  TIM_HandleTypeDef htim2;
 
 extern HCD_HandleTypeDef hhcd_USB_OTG_FS;
@@ -84,13 +86,13 @@ void SysTick_Handler(void)
 */
 void DMA1_Stream6_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA1_Stream6_IRQn 0 */
-
-  /* USER CODE END DMA1_Stream6_IRQn 0 */
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream6_IRQn);
   HAL_DMA_IRQHandler(&hdma_usart2_tx);
-  /* USER CODE BEGIN DMA1_Stream6_IRQn 1 */
+}
 
-  /* USER CODE END DMA1_Stream6_IRQn 1 */
+void DMA1_Stream5_IRQHandler(void) {
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream5_IRQn);
+  HAL_DMA_IRQHandler(&hdma_usart2_rx);
 }
 
 /**

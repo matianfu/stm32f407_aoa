@@ -48,6 +48,8 @@
 /* USER CODE BEGIN 0 */
 extern void uart_hl_print(void);
 extern void HAL_HCD_URB_Monitor(void);
+extern void Command_Init(void);
+extern void Process_Command(void);
 /* USER CODE END 0 */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -91,7 +93,10 @@ int main(void)
   MX_UART4_Init();
   MX_USART2_UART_Init();
 
+  setbuf(stdout, NULL);
+  Command_Init();
   printf("%s", hello);
+
 
 //  printf("size of input_dev: %d\r\n", sizeof(struct input_dev));
 //  printf("size of hid_device: %d\r\n", sizeof(struct hid_device));
@@ -110,6 +115,7 @@ int main(void)
   while (1)
   {
     uart_hl_print();
+    Process_Command();
     MX_USB_HOST_Process();
     HAL_HCD_URB_Monitor();
   }
