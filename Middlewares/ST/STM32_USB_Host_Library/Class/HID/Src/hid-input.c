@@ -2366,6 +2366,7 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
 //	list_add_tail(&hidinput->list, &hid->inputs);
 
 //	memcpy(&hid->hidinput_list[hid->hidinput_list_size], hidinput, sizeof(struct hid_input));
+  // TODO set limit
 	hid->hidinput_list_size++;
 
 	return hidinput;
