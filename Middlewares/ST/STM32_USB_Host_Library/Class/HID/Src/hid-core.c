@@ -22,13 +22,8 @@
 
 #define dbg_hid(...)    USBH_UsrLog(__VA_ARGS__)
 
-
-
-struct hid_device hid_device1;
-
-
-
-
+static struct hid_device hid_device1;
+static unsigned hid_device1_requested = 0;
 
 /** from linux kernel tree linux/kernel.h **/
 /*
@@ -76,14 +71,6 @@ static inline uint64_t get_unaligned_le64(const void *p)
 
 int32_t hid_snto32(uint32_t value, unsigned n);
 
-/*
- * Version Information
- */
-
-#define DRIVER_DESC         "HID core driver"
-#define DRIVER_LICENSE      "GPL"
-
-
 static const char *hid_gpd_strings[] =
 { "Undefined", "Pointer", "Mouse", "Reserved", "Joystick", "Gamepad", "Keyboard",
     "Keypad", "Multi-Axis Controller" };
@@ -110,10 +97,6 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
     return NULL;
   }
 
-//  report = malloc(sizeof(struct hid_report));
-//  if (!report)
-//    return NULL ;
-
   report = &report_enum->report_array[report_enum->report_array_size];
   memset(report, 0, sizeof(struct hid_report));
 
@@ -126,23 +109,15 @@ struct hid_report *hid_register_report(struct hid_device *device, unsigned type,
   report->device = device;
   report_enum->report_id_hash[id] = report;
 
-//  list_add_tail(&report->list, &report_enum->report_list);
-//  memcpy(&report_enum->report_array[report_enum->report_array_size],
-//      report, sizeof(struct hid_report));
-
-//  free(report);
-//  report = &report_enum->report_array[report_enum->report_array_size];
-//  report_enum->report_id_hash[id] = report;
-
   report_enum->report_array_size++;
 
   return report;
 
 }
-// EXPORT_SYMBOL_GPL(hid_register_report);
 
 /*
- * 0 for success
+ * Request field, usage and values memory from pool
+ * return 0 for success, others for error
  */
 static int hid_request_field(struct hid_device* dev, unsigned usages, unsigned values,
     struct hid_field_request* req)
@@ -176,7 +151,6 @@ static int hid_request_field(struct hid_device* dev, unsigned usages, unsigned v
 /*
  * Register a new field for this report.
  */
-
 static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
 {
 	struct hid_field *field;
@@ -190,16 +164,9 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned 
 		return NULL;
 	}
 
-//	field = kzalloc((sizeof(struct hid_field) +
-//			 usages * sizeof(struct hid_usage) +
-//			 values * sizeof(unsigned)), GFP_KERNEL);
-
 	size = (sizeof(struct hid_field) +
         usages * sizeof(struct hid_usage) +
         values * sizeof(unsigned));
-//  field = malloc(size);
-//	if (!field)
-//		return NULL;
 
 	if (0 != hid_request_field(report->device, usages, values, &request)) {
 	  return NULL;
@@ -210,8 +177,6 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned 
 	USBH_UsrLog("  size of struct hid_filed: %d", sizeof(struct hid_field));
 	USBH_UsrLog("  usages: %d, size of struct hid_usage %d", usages, sizeof(struct hid_usage));
 	USBH_UsrLog("  values: %d, size of unsigned %d", values, sizeof(unsigned));
-
-	// memset(field, 0, size);
 
 	field = request.field;
 	field->index = report->maxfield++;
@@ -325,7 +290,6 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
 /*
  * Add a usage to the temporary parser table.
  */
-
 static int hid_add_usage(struct hid_parser *parser, unsigned usage)
 {
   if (parser->local.usage_index >= HID_MAX_USAGES)
@@ -347,7 +311,6 @@ static int hid_add_usage(struct hid_parser *parser, unsigned usage)
 /*
  * Register a new field for this report.
  */
-
 static int hid_add_field(struct hid_parser *parser, unsigned report_type, unsigned flags)
 {
 	struct hid_report *report;
@@ -472,11 +435,10 @@ static int32_t item_sdata(struct hid_item *item)
 /*
  * Process a global item.
  */
-
 static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
 {
 	// __s32 raw_value;
-    int raw_value;
+  int raw_value;
 
     // USBH_UsrLog("hid_parser_global");
 
@@ -582,7 +544,6 @@ static int hid_parser_global(struct hid_parser *parser, struct hid_item *item)
 /*
  * Process a local item.
  */
-
 static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
 {
 	// __u32 data;
@@ -671,7 +632,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
 /*
  * Process a main item.
  */
-
 static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
 {
     uint32_t data;
@@ -710,7 +670,6 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
 /*
  * Process a reserved item.
  */
-
 static int hid_parser_reserved(struct hid_parser *parser, struct hid_item *item)
 {
 	dbg_hid("reserved item type, tag 0x%x\n", item->tag);
@@ -729,40 +688,10 @@ void hid_close_report(struct hid_device *device)
   for (i = 0; i < HID_REPORT_TYPES; i++)
   {
     struct hid_report_enum *report_enum = device->report_enum + i;
-
-//    for (j = 0; j < HID_MAX_IDS; j++)
-//    {
-//      struct hid_report *report = report_enum->report_id_hash[j];
-//      if (report)
-//        hid_free_report(report);
-//    }
     memset(report_enum, 0, sizeof(*report_enum));
-    // INIT_LIST_HEAD(&report_enum->report_list);
-//    report_enum->report_array_size = 0;
   }
 
-  /**
-   * see open report
-   *
-   * linux hid use rdesc and dev_rdesc fields. we use only dev_rdesc.
-   */
-// kfree(device->rdesc);
-//  if (device->rdesc)
-//    free(device->rdesc);
-//  device->rdesc = NULL;
-//  device->rsize = 0;
-
-//  if (device->dev_rdesc) {
-//    free(device->dev_rdesc);
-//    device->dev_rdesc = NULL;
-//  }
   device->dev_rsize = 0;
-
-  // kfree(device->collection);
-  // if (device->collection)
-  //   free(device->collection);
-
-  // device->collection = NULL;
   device->collection_size = 0;
   device->maxcollection = 0;
   device->maxapplication = 0;
@@ -774,7 +703,6 @@ void hid_close_report(struct hid_device *device)
  * Fetch a report description item from the data stream. We support long
  * items, though they are not used yet.
  */
-
 // static u8 *fetch_item(__u8 *start, __u8 *end, struct hid_item *item)
 static uint8_t *fetch_item(uint8_t *start, uint8_t *end, struct hid_item *item)
 {
@@ -974,7 +902,6 @@ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size)
 	hid->dev_rsize = size;
 	return 0;
 }
-EXPORT_SYMBOL_GPL(hid_parse_report);
 
 static const char * const hid_report_names[] = {
 	"HID_INPUT_REPORT",
@@ -1042,7 +969,6 @@ struct hid_report *hid_validate_values(struct hid_device *hid,
 	}
 	return report;
 }
-EXPORT_SYMBOL_GPL(hid_validate_values);
 
 #endif
 
@@ -1082,7 +1008,6 @@ int hid_set_report_descriptor(struct hid_device *hiddev, uint8_t* rdesc,
  * called from probe() in drivers, before starting the device.
  *
  * This function allocate a parser then destroy it.
- *
  *
  */
 int hid_open_report(struct hid_device *device)
@@ -1177,7 +1102,6 @@ int hid_open_report(struct hid_device *device)
 //	}
 //	return value & (1 << (n - 1)) ? value | (-1 << n) : value;
 //}
-
 static int32_t snto32(uint32_t value, unsigned n)
 {
     switch (n) {
@@ -1202,7 +1126,6 @@ int32_t hid_snto32(uint32_t value, unsigned n)
 /*
  * Convert a signed 32-bit integer to a signed n-bit integer.
  */
-
 //static u32 s32ton(__s32 value, unsigned n)
 //{
 //	s32 a = value >> (n - 1);
@@ -1557,8 +1480,8 @@ static void hid_input_field(struct hid_device *hid, struct hid_field *field, uin
   }
 
   memcpy(field->value, value, count * sizeof(int32_t));
+
 exit:
-  // kfree(value);
   free(value);
 }
 
@@ -1602,7 +1525,6 @@ void hid_output_report(struct hid_report *report, __u8 *data)
 	for (n = 0; n < report->maxfield; n++)
 		hid_output_field(report->device, report->field[n], data);
 }
-EXPORT_SYMBOL_GPL(hid_output_report);
 
 /*
  * Allocator for buffer that is going to be passed to hid_output_report()
@@ -1618,7 +1540,6 @@ u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags)
 
 	return kmalloc(len, flags);
 }
-EXPORT_SYMBOL_GPL(hid_alloc_report_buf);
 
 /*
  * Set a field value. The report this field belongs to has to be
@@ -1658,22 +1579,23 @@ EXPORT_SYMBOL_GPL(hid_set_field);
 //static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
 //		const u8 *data)
 static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
-        const uint8_t *data)
+    const uint8_t *data)
 {
-	struct hid_report *report;
-	unsigned int n = 0;	/* Normally report number is 0 */
+  struct hid_report *report;
+  unsigned int n = 0; /* Normally report number is 0 */
 
-	/* Device uses numbered reports, data[0] is report number */
-	if (report_enum->numbered)
-		n = *data;
+  /* Device uses numbered reports, data[0] is report number */
+  if (report_enum->numbered)
+    n = *data;
 
-	report = report_enum->report_id_hash[n];
-	if (report == NULL) {
-		// dbg_hid("undefined report_id %u received\n", n);
-	  USBH_UsrLog("undefined report_id %u received", n);
-	}
+  report = report_enum->report_id_hash[n];
+  if (report == NULL)
+  {
+    // dbg_hid("undefined report_id %u received\n", n);
+    USBH_UsrLog("undefined report_id %u received", n);
+  }
 
-	return report;
+  return report;
 }
 
 /*
@@ -1684,7 +1606,6 @@ int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int si
 {
   struct hid_report_enum *report_enum = hid->report_enum + type;
   struct hid_report *report;
-//	struct hid_driver *hdrv;
   unsigned int a;
   int rsize, csize = size;
   uint8_t *cdata = data;
@@ -1968,7 +1889,6 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
 
     return 0;
 }
-EXPORT_SYMBOL_GPL(hid_connect);
 
 void hid_disconnect(struct hid_device *hdev)
 {
@@ -1980,7 +1900,6 @@ void hid_disconnect(struct hid_device *hdev)
     if (hdev->claimed & HID_CLAIMED_HIDRAW)
         hidraw_disconnect(hdev);
 }
-EXPORT_SYMBOL_GPL(hid_disconnect);
 
 /*
  * A list of devices for which there is a specialized driver on HID bus.
@@ -2816,7 +2735,6 @@ bool hid_ignore(struct hid_device *hdev)
 
 	return !!hid_match_id(hdev, hid_ignore_list);
 }
-EXPORT_SYMBOL_GPL(hid_ignore);
 
 int hid_add_device(struct hid_device *hdev)
 {
@@ -2865,8 +2783,8 @@ int hid_add_device(struct hid_device *hdev)
 
 	return ret;
 }
-EXPORT_SYMBOL_GPL(hid_add_device);
 #endif
+
 
 /**
  * hid_allocate_device - allocate new hid device descriptor
@@ -2877,13 +2795,15 @@ EXPORT_SYMBOL_GPL(hid_add_device);
  * New hid_device pointer is returned on success, otherwise ERR_PTR encoded
  * error value.
  */
-struct hid_device *hid_allocate_device(void)
+struct hid_device *hid_request_device(void)
 {
-  struct hid_device *hdev;
-  hdev = &hid_device1;
-  memset(hdev, 0, sizeof(*hdev));
-  hid_close_report(hdev);
-  return hdev;
+  if (hid_device1_requested) {
+    return NULL;
+  }
+
+  memset(&hid_device1, 0, sizeof(hid_device1));
+
+  return &hid_device1;
 }
 
 /**
@@ -2894,10 +2814,21 @@ struct hid_device *hid_allocate_device(void)
  * If you allocate hid_device through hid_allocate_device, you should ever
  * free by this function.
  */
-void hid_destroy_device(struct hid_device *hdev)
+void hid_release_device(struct hid_device *hdev)
 {
-  USBH_UsrLog("%s", __func__);
-  hid_close_report(hdev);
+  if (hdev == 0) {
+    USBH_UsrLog("hid: invalid params");
+    return;
+  }
+
+  if (hdev == &hid_device1) {
+    if (hid_device1_requested) {
+      hid_device1_requested = 0;
+    }
+    else {
+      USBH_UsrLog("hid: release a device that is not requested");
+    }
+  }
 }
 
 

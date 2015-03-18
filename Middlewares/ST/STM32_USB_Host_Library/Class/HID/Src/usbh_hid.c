@@ -892,6 +892,26 @@ __weak void USBH_HID_EventCallback(USBH_HandleTypeDef *phost)
 
 /************************ Custom Functions ************************************/
 
+static void USBH_Print_Report_Descriptor(uint8_t* buf, uint16_t size)
+{
+  unsigned i;
+
+  /* print raw data of report descriptor */
+  USBH_UsrLog("HID: Print raw data of HID report descriptor.");
+
+  // TODO print thru option
+  for (i = 0; i < size; i++)
+  {
+    USBH_UsrLog(" - 0x%02x", buf[i]);
+  }
+}
+
+static void USBH_Print_HID_Object_Size(void) {
+
+  USBH_UsrLog("HID: size of hid_device is %d", sizeof(struct hid_device));
+  USBH_UsrLog("HID: size of hid_parser is %d", sizeof(struct hid_parser));
+}
+
 /**
  * @brief   HID Device Probe
  *          Assuming the report descriptor is available in phost->device.Data
@@ -910,18 +930,10 @@ static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
   uint8_t *rdesc = phost->device.Data;
   uint16_t rsize = HID_Handle->HID_Desc.wItemLength;
 
-  /* print raw data of report descriptor */
-//  USBH_UsrLog("HID: Print raw data of HID report descriptor.");
-//
-//  // TODO print thru option
-//  for (i = 0; i < HID_Handle->HID_Desc.wItemLength; i++)
-//  {
-//    USBH_UsrLog(" - 0x%02x", phost->device.Data[i]);
-//  }
+  USBH_Print_Report_Descriptor(rdesc, rsize);
+  USBH_Print_HID_Object_Size();
 
-  USBH_UsrLog("size of hid_device is %d", sizeof(struct hid_device));
-
-  hiddev = hid_allocate_device();
+  hiddev = hid_request_device();
 
   if (hiddev == NULL)
     goto fail;
@@ -934,24 +946,17 @@ static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
   if (ret)
     goto fail;
 
-//  HID_Handle->hiddev = hiddev;
-//
-//  return USBH_OK;   // DEBUG
-
   /* ret = hid_connect(hiddev, HID_CONNECT_DEFAULT); */
   ret = hidinput_connect(hiddev, 0);    // force?
   if (ret)
     goto fail;
-
-  // TODO This code is suprisingly here, figure it out.
-  // hidinput_disconnect(hiddev);
 
   hiddev->claimed |= HID_CLAIMED_INPUT;
 
   HID_Handle->hiddev = hiddev;
   return USBH_OK;
 
-fail: hid_destroy_device(hiddev);
+fail: hid_release_device(hiddev);
 
   USBH_UsrLog("Hid probe fail");
   return USBH_FAIL;
@@ -963,7 +968,7 @@ static USBH_StatusTypeDef USBH_USBHID_Disconnect(USBH_HandleTypeDef *phost) {
   struct hid_device *hiddev = HID_Handle->hiddev;
 
   if (hiddev) {
-    hid_destroy_device(hiddev);
+    hid_release_device(hiddev);
     hiddev = NULL;
   }
 
