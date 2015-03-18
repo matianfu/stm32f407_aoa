@@ -210,7 +210,10 @@ typedef struct
                                            This parameter can be any value of @ref USB_OTG_URBStateTypeDef */ 
   
   USB_OTG_HCStateTypeDef   state;     /*!< Host Channel state. 
-                                           This parameter can be any value of @ref USB_OTG_HCStateTypeDef  */ 
+                                           This parameter can be any value of @ref USB_OTG_HCStateTypeDef  */
+
+  uint32_t  urb_timer;
+  uint32_t  urb_requested;
                                              
 }USB_OTG_HCTypeDef;
   

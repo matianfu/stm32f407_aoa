@@ -97,6 +97,39 @@ const static char * channel_state_string[] =
 { "HC_IDLE", "HC_XFRC", "HC_HALTED", "HC_NAK", "HC_NYET", "HC_STALL",
     "HC_XACTERR", "HC_BBLERR", "HC_DATATGLERR" };
 
+extern USBH_HandleTypeDef hUsbHostHS;
+
+void HAL_HCD_URB_Monitor(void)
+{
+  int idx;
+  USBH_HandleTypeDef* phost;
+  HCD_HandleTypeDef* hhcd;
+
+  phost = &hUsbHostHS;
+  hhcd = phost->pData;
+
+  if (hhcd == NULL)
+    return;
+
+  for (idx = 0 ; idx < 11 ; idx++)
+  {
+    if ((phost->Pipes[idx] & 0x8000) == 0)
+    {
+      continue;
+    }
+
+    if (hhcd->hc[idx].urb_requested == 1 &&
+        (HAL_GetTick() - hhcd->hc[idx].urb_timer) > 500) {
+      printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++ URB Time out, channel: %d, state: %s, urb_state: %s +++++++++++++\r\n",
+          idx,
+          channel_state_string[hhcd->hc[idx].state],
+          urb_state_string[hhcd->hc[idx].urb_state]);
+
+      hhcd->hc[idx].urb_requested = 0;
+    }
+  }
+}
+
 /*
  * local functions
  */

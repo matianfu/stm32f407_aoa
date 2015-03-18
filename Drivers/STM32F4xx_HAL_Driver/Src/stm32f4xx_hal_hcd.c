@@ -71,14 +71,13 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
 #include "debug.h"
 #include "stm32f4xx_hal.h"
 #include "usbh_core.h"
 
 /*
- *
  * Debug configuration
- *
  */
 #define DEBUG_HC_HAINT_ALL      ((uint32_t)0x0000FFFF)
 
@@ -940,6 +939,7 @@ static inline void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
     {
       USBx_HC(chnum)->HCCHAR |= USB_OTG_HCCHAR_ODDFRM;
       hhcd->hc[chnum].urb_state = URB_DONE; 
+      hhcd->hc[chnum].urb_requested = 0; // TODO?
       HAL_HCD_HC_NotifyURBChange_Callback(hhcd, chnum, hhcd->hc[chnum].urb_state);
     }
     hhcd->hc[chnum].toggle_in ^= 1;
@@ -951,12 +951,14 @@ static inline void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
     
     if(hhcd->hc[chnum].state == HC_XFRC)
     {
-      hhcd->hc[chnum].urb_state  = URB_DONE;      
+      hhcd->hc[chnum].urb_state  = URB_DONE;
+      hhcd->hc[chnum].urb_requested = 0;
     }
     
     else if (hhcd->hc[chnum].state == HC_STALL) 
     {
       hhcd->hc[chnum].urb_state  = URB_STALL;
+      hhcd->hc[chnum].urb_requested = 0;
     }   
     
     else if((hhcd->hc[chnum].state == HC_XACTERR) ||
@@ -977,6 +979,7 @@ static inline void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
         {
           hhcd->hc[chnum].ErrCnt = 0;
           hhcd->hc[chnum].urb_state = URB_ERROR;
+          hhcd->hc[chnum].urb_requested = 0;
         }
         else
         {
@@ -1012,6 +1015,7 @@ static inline void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
 //    else
 //    {
     if (hhcd->hc[chnum].state == HC_DATATGLERR) {
+      // TODO
       x = 1;
     }
     else {
@@ -1142,7 +1146,8 @@ static inline void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnu
       if (hhcd->hc[chnum].ep_type == EP_TYPE_BULK)
       {
         hhcd->hc[chnum].toggle_out ^= 1; 
-      }      
+      }
+      hhcd->hc[chnum].urb_requested = 0;
     }
     else if (hhcd->hc[chnum].state == HC_NAK) 
     {
@@ -1158,6 +1163,7 @@ static inline void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnu
     else if (hhcd->hc[chnum].state == HC_STALL) 
     {
       hhcd->hc[chnum].urb_state  = URB_STALL;
+      hhcd->hc[chnum].urb_requested = 0;
     } 
     
     else if((hhcd->hc[chnum].state == HC_XACTERR) ||
@@ -1167,6 +1173,7 @@ static inline void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnu
       {      
         hhcd->hc[chnum].ErrCnt = 0;
         hhcd->hc[chnum].urb_state = URB_ERROR;
+        hhcd->hc[chnum].urb_requested = 0;
       }
       else
       {
@@ -1322,6 +1329,8 @@ static inline void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
   USBx_HPRT0 = hprt0_dup;
 }
 
+/************************* custom code ***************************************/
+
 /*
  * a port is stale when:
  *
@@ -1339,6 +1348,43 @@ unsigned int HAL_HCD_PortStale(HCD_HandleTypeDef *hhcd)
 
   return 0;
 }
+
+
+//extern USBH_HandleTypeDef hUsbHostHS;
+//
+//void HAL_HCD_URB_Monitor(void)
+//{
+//  int idx;
+//  USBH_HandleTypeDef* phost;
+//  HCD_HandleTypeDef* hhcd;
+//
+//  phost = &hUsbHostHS;
+//  hhcd = phost->pData;
+//
+//  if (hhcd == NULL)
+//    return;
+//
+//  for (idx = 0 ; idx < 11 ; idx++)
+//  {
+//    if ((phost->Pipes[idx] & 0x8000) == 0)
+//    {
+//      continue;
+//    }
+//
+//    if (hhcd->hc[idx].urb_requested == 1 &&
+//        (HAL_GetTick() - hhcd->hc[idx].urb_timer) > 100) {
+//      printf("URB Time out, channel: %d\r\n", idx);
+//      printf("  state: %d", hhcd->hc[idx].state);
+//      printf("  urb_state: %d\r\n", hhcd->hc[idx].urb_state);
+//      hhcd->hc[idx].urb_requested = 0;
+//    }
+//  }
+//}
+
+
+/*
+ * for debug
+ */
 
 /**
   * @}

@@ -47,6 +47,7 @@
 
 /* USER CODE BEGIN 0 */
 extern void uart_hl_print(void);
+extern void HAL_HCD_URB_Monitor(void);
 /* USER CODE END 0 */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,9 +109,9 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
-	uart_hl_print();
+    uart_hl_print();
     MX_USB_HOST_Process();
-
+    HAL_HCD_URB_Monitor();
   }
   /* USER CODE END 3 */
 
