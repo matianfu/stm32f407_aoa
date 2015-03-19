@@ -7,7 +7,7 @@
 
 
 #define PRT_REGBITS(prefix, regname, bitname)           \
-printf(" " #bitname " %lu", ((reg & prefix##_##regname##_##bitname) >> bitmask_shift(prefix##_##regname##_##bitname)));
+printf(" " #bitname " %lX", ((reg & prefix##_##regname##_##bitname) >> bitmask_shift(prefix##_##regname##_##bitname)));
 
 #define PRT_REGBITS_NEWLINE()                           \
 printf(NEW_LINE "                  ");
@@ -1252,6 +1252,59 @@ static void print_usb_otg_global_registers(void) {
 DEFINE_PRTREG(USB_OTG, HCFG, FSLSS, FSLSPCS);
 
 #if 0
+/********************  Bit definition forUSB_OTG_HFIR register  ********************/
+#define USB_OTG_HFIR_FRIVL                   ((uint32_t)0x0000FFFF)            /*!< Frame interval */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HFIR, FRIVL);
+
+#if 0
+/********************  Bit definition forUSB_OTG_HFNUM register  ********************/
+#define USB_OTG_HFNUM_FRNUM                   ((uint32_t)0x0000FFFF)            /*!< Frame number */
+#define USB_OTG_HFNUM_FTREM                   ((uint32_t)0xFFFF0000)            /*!< Frame time remaining */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HFNUM, FTREM, FRNUM);
+
+#if 0
+/********************  Bit definition forUSB_OTG_HPTXSTS register  ********************/
+#define USB_OTG_HPTXSTS_PTXFSAVL                ((uint32_t)0x0000FFFF)            /*!< Periodic transmit data FIFO space available */
+
+#define USB_OTG_HPTXSTS_PTXQSAV                 ((uint32_t)0x00FF0000)            /*!< Periodic transmit request queue space available */
+#define USB_OTG_HPTXSTS_PTXQSAV_0               ((uint32_t)0x00010000)            /*!<Bit 0 */
+#define USB_OTG_HPTXSTS_PTXQSAV_1               ((uint32_t)0x00020000)            /*!<Bit 1 */
+#define USB_OTG_HPTXSTS_PTXQSAV_2               ((uint32_t)0x00040000)            /*!<Bit 2 */
+#define USB_OTG_HPTXSTS_PTXQSAV_3               ((uint32_t)0x00080000)            /*!<Bit 3 */
+#define USB_OTG_HPTXSTS_PTXQSAV_4               ((uint32_t)0x00100000)            /*!<Bit 4 */
+#define USB_OTG_HPTXSTS_PTXQSAV_5               ((uint32_t)0x00200000)            /*!<Bit 5 */
+#define USB_OTG_HPTXSTS_PTXQSAV_6               ((uint32_t)0x00400000)            /*!<Bit 6 */
+#define USB_OTG_HPTXSTS_PTXQSAV_7               ((uint32_t)0x00800000)            /*!<Bit 7 */
+
+#define USB_OTG_HPTXSTS_PTXQTOP                 ((uint32_t)0xFF000000)            /*!< Top of the periodic transmit request queue */
+#define USB_OTG_HPTXSTS_PTXQTOP_0               ((uint32_t)0x01000000)            /*!<Bit 0 */
+#define USB_OTG_HPTXSTS_PTXQTOP_1               ((uint32_t)0x02000000)            /*!<Bit 1 */
+#define USB_OTG_HPTXSTS_PTXQTOP_2               ((uint32_t)0x04000000)            /*!<Bit 2 */
+#define USB_OTG_HPTXSTS_PTXQTOP_3               ((uint32_t)0x08000000)            /*!<Bit 3 */
+#define USB_OTG_HPTXSTS_PTXQTOP_4               ((uint32_t)0x10000000)            /*!<Bit 4 */
+#define USB_OTG_HPTXSTS_PTXQTOP_5               ((uint32_t)0x20000000)            /*!<Bit 5 */
+#define USB_OTG_HPTXSTS_PTXQTOP_6               ((uint32_t)0x40000000)            /*!<Bit 6 */
+#define USB_OTG_HPTXSTS_PTXQTOP_7               ((uint32_t)0x80000000)            /*!<Bit 7 */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HPTXSTS, PTXQTOP, PTXQSAV, PTXFSAVL);
+
+#if 0
+/********************  Bit definition forUSB_OTG_HAINT register  ********************/
+#define USB_OTG_HAINT_HAINT                   ((uint32_t)0x0000FFFF)            /*!< Channel interrupts */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HAINT, HAINT);
+
+#define USB_OTG_HAINTMSK_HAINTMSK             ((uint32_t)0x0000FFFF)            /*!< Channel interrupts */
+
+DEFINE_PRTREG(USB_OTG, HAINTMSK, HAINTMSK);
+
+#if 0
 typedef struct
 {
   __IO uint32_t HCFG;             /* Host Configuration Register    400h*/
@@ -1271,12 +1324,215 @@ static void print_usb_host_registers(void) {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
 
   PRT_USB_OTG_HCFG(USBx_HOST->HCFG);
+  PRT_USB_OTG_HFIR(USBx_HOST->HFIR);
+  PRT_USB_OTG_HFNUM(USBx_HOST->HFNUM);
+  PRT_USB_OTG_HPTXSTS(USBx_HOST->HPTXSTS);
+  PRT_USB_OTG_HAINT(USBx_HOST->HAINT);
+  PRT_USB_OTG_HAINTMSK(USBx_HOST->HAINTMSK);
 }
+
+/*****************************************************************************/
+
+
+#if 0
+/********************  Bit definition forUSB_OTG_HPRT register  ********************/
+#define USB_OTG_HPRT_PCSTS                   ((uint32_t)0x00000001)            /*!< Port connect status */
+#define USB_OTG_HPRT_PCDET                   ((uint32_t)0x00000002)            /*!< Port connect detected */
+#define USB_OTG_HPRT_PENA                    ((uint32_t)0x00000004)            /*!< Port enable */
+#define USB_OTG_HPRT_PENCHNG                 ((uint32_t)0x00000008)            /*!< Port enable/disable change */
+#define USB_OTG_HPRT_POCA                    ((uint32_t)0x00000010)            /*!< Port overcurrent active */
+#define USB_OTG_HPRT_POCCHNG                 ((uint32_t)0x00000020)            /*!< Port overcurrent change */
+#define USB_OTG_HPRT_PRES                    ((uint32_t)0x00000040)            /*!< Port resume */
+#define USB_OTG_HPRT_PSUSP                   ((uint32_t)0x00000080)            /*!< Port suspend */
+#define USB_OTG_HPRT_PRST                    ((uint32_t)0x00000100)            /*!< Port reset */
+
+#define USB_OTG_HPRT_PLSTS                   ((uint32_t)0x00000C00)            /*!< Port line status */
+#define USB_OTG_HPRT_PLSTS_0                 ((uint32_t)0x00000400)            /*!<Bit 0 */
+#define USB_OTG_HPRT_PLSTS_1                 ((uint32_t)0x00000800)            /*!<Bit 1 */
+#define USB_OTG_HPRT_PPWR                    ((uint32_t)0x00001000)            /*!< Port power */
+
+#define USB_OTG_HPRT_PTCTL                   ((uint32_t)0x0001E000)            /*!< Port test control */
+#define USB_OTG_HPRT_PTCTL_0                 ((uint32_t)0x00002000)            /*!<Bit 0 */
+#define USB_OTG_HPRT_PTCTL_1                 ((uint32_t)0x00004000)            /*!<Bit 1 */
+#define USB_OTG_HPRT_PTCTL_2                 ((uint32_t)0x00008000)            /*!<Bit 2 */
+#define USB_OTG_HPRT_PTCTL_3                 ((uint32_t)0x00010000)            /*!<Bit 3 */
+
+#define USB_OTG_HPRT_PSPD                    ((uint32_t)0x00060000)            /*!< Port speed */
+#define USB_OTG_HPRT_PSPD_0                  ((uint32_t)0x00020000)            /*!<Bit 0 */
+#define USB_OTG_HPRT_PSPD_1                  ((uint32_t)0x00040000)            /*!<Bit 1 */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HPRT, PSPD, PTCTL, PLSTS, PRST, PSUSP, PRES, POCCHNG, POCA, PENCHNG, PENA, PCDET, PCSTS);
+
+static void print_usb_port_registers(void) {
+
+  HCD_HandleTypeDef *hhcd = &hhcd_USB_OTG_HS;
+  USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+
+  PRT_USB_OTG_HPRT(USBx_HPRT0);
+}
+
+/*****************************************************************************/
+
+#if 0
+/********************  Bit definition forUSB_OTG_HCCHAR register  ********************/
+#define USB_OTG_HCCHAR_MPSIZ                   ((uint32_t)0x000007FF)            /*!< Maximum packet size */
+
+#define USB_OTG_HCCHAR_EPNUM                   ((uint32_t)0x00007800)            /*!< Endpoint number */
+#define USB_OTG_HCCHAR_EPNUM_0                 ((uint32_t)0x00000800)            /*!<Bit 0 */
+#define USB_OTG_HCCHAR_EPNUM_1                 ((uint32_t)0x00001000)            /*!<Bit 1 */
+#define USB_OTG_HCCHAR_EPNUM_2                 ((uint32_t)0x00002000)            /*!<Bit 2 */
+#define USB_OTG_HCCHAR_EPNUM_3                 ((uint32_t)0x00004000)            /*!<Bit 3 */
+#define USB_OTG_HCCHAR_EPDIR                   ((uint32_t)0x00008000)            /*!< Endpoint direction */
+#define USB_OTG_HCCHAR_LSDEV                   ((uint32_t)0x00020000)            /*!< Low-speed device */
+
+#define USB_OTG_HCCHAR_EPTYP                   ((uint32_t)0x000C0000)            /*!< Endpoint type */
+#define USB_OTG_HCCHAR_EPTYP_0                 ((uint32_t)0x00040000)            /*!<Bit 0 */
+#define USB_OTG_HCCHAR_EPTYP_1                 ((uint32_t)0x00080000)            /*!<Bit 1 */
+
+#define USB_OTG_HCCHAR_MC                      ((uint32_t)0x00300000)            /*!< Multi Count (MC) / Error Count (EC) */
+#define USB_OTG_HCCHAR_MC_0                    ((uint32_t)0x00100000)            /*!<Bit 0 */
+#define USB_OTG_HCCHAR_MC_1                    ((uint32_t)0x00200000)            /*!<Bit 1 */
+
+#define USB_OTG_HCCHAR_DAD                     ((uint32_t)0x1FC00000)            /*!< Device address */
+#define USB_OTG_HCCHAR_DAD_0                   ((uint32_t)0x00400000)            /*!<Bit 0 */
+#define USB_OTG_HCCHAR_DAD_1                   ((uint32_t)0x00800000)            /*!<Bit 1 */
+#define USB_OTG_HCCHAR_DAD_2                   ((uint32_t)0x01000000)            /*!<Bit 2 */
+#define USB_OTG_HCCHAR_DAD_3                   ((uint32_t)0x02000000)            /*!<Bit 3 */
+#define USB_OTG_HCCHAR_DAD_4                   ((uint32_t)0x04000000)            /*!<Bit 4 */
+#define USB_OTG_HCCHAR_DAD_5                   ((uint32_t)0x08000000)            /*!<Bit 5 */
+#define USB_OTG_HCCHAR_DAD_6                   ((uint32_t)0x10000000)            /*!<Bit 6 */
+#define USB_OTG_HCCHAR_ODDFRM                  ((uint32_t)0x20000000)            /*!< Odd frame */
+#define USB_OTG_HCCHAR_CHDIS                   ((uint32_t)0x40000000)            /*!< Channel disable */
+#define USB_OTG_HCCHAR_CHENA                   ((uint32_t)0x80000000)            /*!< Channel enable */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HCCHAR, CHENA, CHDIS, ODDFRM, DAD, MC, EPTYP, LSDEV, EPDIR, EPNUM, MPSIZ);
+
+#if 0
+
+/********************  Bit definition forUSB_OTG_HCSPLT register  ********************/
+
+#define USB_OTG_HCSPLT_PRTADDR                 ((uint32_t)0x0000007F)            /*!< Port address */
+#define USB_OTG_HCSPLT_PRTADDR_0               ((uint32_t)0x00000001)            /*!<Bit 0 */
+#define USB_OTG_HCSPLT_PRTADDR_1               ((uint32_t)0x00000002)            /*!<Bit 1 */
+#define USB_OTG_HCSPLT_PRTADDR_2               ((uint32_t)0x00000004)            /*!<Bit 2 */
+#define USB_OTG_HCSPLT_PRTADDR_3               ((uint32_t)0x00000008)            /*!<Bit 3 */
+#define USB_OTG_HCSPLT_PRTADDR_4               ((uint32_t)0x00000010)            /*!<Bit 4 */
+#define USB_OTG_HCSPLT_PRTADDR_5               ((uint32_t)0x00000020)            /*!<Bit 5 */
+#define USB_OTG_HCSPLT_PRTADDR_6               ((uint32_t)0x00000040)            /*!<Bit 6 */
+
+#define USB_OTG_HCSPLT_HUBADDR                 ((uint32_t)0x00003F80)            /*!< Hub address */
+#define USB_OTG_HCSPLT_HUBADDR_0               ((uint32_t)0x00000080)            /*!<Bit 0 */
+#define USB_OTG_HCSPLT_HUBADDR_1               ((uint32_t)0x00000100)            /*!<Bit 1 */
+#define USB_OTG_HCSPLT_HUBADDR_2               ((uint32_t)0x00000200)            /*!<Bit 2 */
+#define USB_OTG_HCSPLT_HUBADDR_3               ((uint32_t)0x00000400)            /*!<Bit 3 */
+#define USB_OTG_HCSPLT_HUBADDR_4               ((uint32_t)0x00000800)            /*!<Bit 4 */
+#define USB_OTG_HCSPLT_HUBADDR_5               ((uint32_t)0x00001000)            /*!<Bit 5 */
+#define USB_OTG_HCSPLT_HUBADDR_6               ((uint32_t)0x00002000)            /*!<Bit 6 */
+
+#define USB_OTG_HCSPLT_XACTPOS                 ((uint32_t)0x0000C000)            /*!< XACTPOS */
+#define USB_OTG_HCSPLT_XACTPOS_0               ((uint32_t)0x00004000)            /*!<Bit 0 */
+#define USB_OTG_HCSPLT_XACTPOS_1               ((uint32_t)0x00008000)            /*!<Bit 1 */
+#define USB_OTG_HCSPLT_COMPLSPLT               ((uint32_t)0x00010000)            /*!< Do complete split */
+#define USB_OTG_HCSPLT_SPLITEN                 ((uint32_t)0x80000000)            /*!< Split enable */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HCSPLT, SPLITEN, COMPLSPLT, XACTPOS, HUBADDR, PRTADDR);
+
+#if 0
+/********************  Bit definition forUSB_OTG_HCINT register  ********************/
+#define USB_OTG_HCINT_XFRC                    ((uint32_t)0x00000001)            /*!< Transfer completed */
+#define USB_OTG_HCINT_CHH                     ((uint32_t)0x00000002)            /*!< Channel halted */
+#define USB_OTG_HCINT_AHBERR                  ((uint32_t)0x00000004)            /*!< AHB error */
+#define USB_OTG_HCINT_STALL                   ((uint32_t)0x00000008)            /*!< STALL response received interrupt */
+#define USB_OTG_HCINT_NAK                     ((uint32_t)0x00000010)            /*!< NAK response received interrupt */
+#define USB_OTG_HCINT_ACK                     ((uint32_t)0x00000020)            /*!< ACK response received/transmitted interrupt */
+#define USB_OTG_HCINT_NYET                    ((uint32_t)0x00000040)            /*!< Response received interrupt */
+#define USB_OTG_HCINT_TXERR                   ((uint32_t)0x00000080)            /*!< Transaction error */
+#define USB_OTG_HCINT_BBERR                   ((uint32_t)0x00000100)            /*!< Babble error */
+#define USB_OTG_HCINT_FRMOR                   ((uint32_t)0x00000200)            /*!< Frame overrun */
+#define USB_OTG_HCINT_DTERR                   ((uint32_t)0x00000400)            /*!< Data toggle error */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HCINT, DTERR, FRMOR, BBERR, TXERR, NYET, ACK, NAK, STALL, AHBERR, CHH, XFRC);
+
+#if 0
+/********************  Bit definition forUSB_OTG_HCINTMSK register  ********************/
+#define USB_OTG_HCINTMSK_XFRCM                   ((uint32_t)0x00000001)            /*!< Transfer completed mask */
+#define USB_OTG_HCINTMSK_CHHM                    ((uint32_t)0x00000002)            /*!< Channel halted mask */
+#define USB_OTG_HCINTMSK_AHBERR                  ((uint32_t)0x00000004)            /*!< AHB error */
+#define USB_OTG_HCINTMSK_STALLM                  ((uint32_t)0x00000008)            /*!< STALL response received interrupt mask */
+#define USB_OTG_HCINTMSK_NAKM                    ((uint32_t)0x00000010)            /*!< NAK response received interrupt mask */
+#define USB_OTG_HCINTMSK_ACKM                    ((uint32_t)0x00000020)            /*!< ACK response received/transmitted interrupt mask */
+#define USB_OTG_HCINTMSK_NYET                    ((uint32_t)0x00000040)            /*!< response received interrupt mask */
+#define USB_OTG_HCINTMSK_TXERRM                  ((uint32_t)0x00000080)            /*!< Transaction error mask */
+#define USB_OTG_HCINTMSK_BBERRM                  ((uint32_t)0x00000100)            /*!< Babble error mask */
+#define USB_OTG_HCINTMSK_FRMORM                  ((uint32_t)0x00000200)            /*!< Frame overrun mask */
+#define USB_OTG_HCINTMSK_DTERRM                  ((uint32_t)0x00000400)            /*!< Data toggle error mask */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HCINTMSK, DTERRM, FRMORM, BBERRM, TXERRM, NYET, ACKM, NAKM, STALLM, AHBERR, CHHM, XFRCM);
+
+#if 0
+/********************  Bit definition forUSB_OTG_HCTSIZ register  ********************/
+#define USB_OTG_HCTSIZ_XFRSIZ                    ((uint32_t)0x0007FFFF)            /*!< Transfer size */
+#define USB_OTG_HCTSIZ_PKTCNT                    ((uint32_t)0x1FF80000)            /*!< Packet count */
+#define USB_OTG_HCTSIZ_DOPING                    ((uint32_t)0x80000000)            /*!< Do PING */
+#define USB_OTG_HCTSIZ_DPID                      ((uint32_t)0x60000000)            /*!< Data PID */
+#define USB_OTG_HCTSIZ_DPID_0                    ((uint32_t)0x20000000)            /*!<Bit 0 */
+#define USB_OTG_HCTSIZ_DPID_1                    ((uint32_t)0x40000000)            /*!<Bit 1 */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HCTSIZ, DPID, DOPING, PKTCNT, XFRSIZ);
+
+#if 0
+/********************  Bit definition forUSB_OTG_HCDMA register  ********************/
+#define USB_OTG_HCDMA_DMAADDR                    ((uint32_t)0xFFFFFFFF)            /*!< DMA address */
+#endif
+
+DEFINE_PRTREG(USB_OTG, HCDMA, DMAADDR);
+
+#if 0
+typedef struct
+{
+  __IO uint32_t HCCHAR;
+  __IO uint32_t HCSPLT;
+  __IO uint32_t HCINT;
+  __IO uint32_t HCINTMSK;
+  __IO uint32_t HCTSIZ;
+  __IO uint32_t HCDMA;
+  uint32_t Reserved[2];
+}
+USB_OTG_HostChannelTypeDef;
+#endif
+
+void print_usb_channel_registers(int chnum)
+{
+  HCD_HandleTypeDef *hhcd = &hhcd_USB_OTG_HS;
+  USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+
+  PRT_USB_OTG_HCCHAR(USBx_HC(chnum)->HCCHAR);
+  PRT_USB_OTG_HCSPLT(USBx_HC(chnum)->HCSPLT);
+  PRT_USB_OTG_HCINT(USBx_HC(chnum)->HCINT);
+  PRT_USB_OTG_HCINTMSK(USBx_HC(chnum)->HCINTMSK);
+  PRT_USB_OTG_HCTSIZ(USBx_HC(chnum)->HCTSIZ);
+  PRT_USB_OTG_HCDMA(USBx_HC(chnum)->HCDMA);
+}
+
+/*****************************************************************************/
 
 void usb_host_log(void)
 {
+  int i;
   print_usb_otg_global_registers();
   print_usb_host_registers();
+  print_usb_port_registers();
+
+  for (i = 0; i < 4; i++) {
+    printf("  channel %d" NEW_LINE, i);
+    print_usb_channel_registers(i);
+  }
 }
 
 
