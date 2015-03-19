@@ -109,6 +109,7 @@ static uint8_t rx_get = 0;
 static uint8_t line_buf[LINE_BUF_SIZE];
 static int line_buf_pos = 0;
 
+extern void usb_host_log(void);
 
 /*
  * Do it anyway, considering we cannot know what is the previously set buffer size, dont make assumptios,
@@ -136,7 +137,12 @@ void Process_Command(void)
       putchar('\r');
       putchar('\n');
 
-      printf("print line: %s\r\n", line_buf);
+      if (0 == strcmp(line_buf, "p")) {
+        usb_host_log();
+      }
+      else {
+        printf("Unknown command: %s\r\n", line_buf);
+      }
 
       memset(line_buf, 0, LINE_BUF_SIZE);
       line_buf_pos = 0;
