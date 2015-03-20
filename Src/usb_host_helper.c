@@ -5,17 +5,28 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
 
+/*
+ * buffers for PRINT REG macros
+ */
+static char print_reg_buf[64];
 
+/*
+ * basic definitions
+ */
 #define PRT_REGBITS(prefix, regname, bitname)           \
-printf(" " #bitname " %lX", ((reg & prefix##_##regname##_##bitname) >> bitmask_shift(prefix##_##regname##_##bitname)));
+sprintf(print_reg_buf, " " #bitname " %lX", ((reg & prefix##_##regname##_##bitname) >> bitmask_shift(prefix##_##regname##_##bitname))); \
+width = strlen(print_reg_buf) < 14 ? 1 : 2;\
+if (count + width < 12) { count += width; } else { printf(NEW_LINE "%-20s:", ""); count = width; }\
+if (width == 1) { printf("%-15s", print_reg_buf); } else { printf("%-30s", print_reg_buf); }
 
-#define PRT_REGBITS_NEWLINE()                           \
-printf(NEW_LINE "                  ");
 
 #define PRTREG_BEGIN(prefix, regname)                   \
-static void PRT_##prefix##_##regname (uint32_t reg)     \
+void PRT_##prefix##_##regname (uint32_t reg)            \
 {                                                       \
-printf("  " #prefix "_" #regname ":");                  \
+int count = 0, width = 0;                               \
+sprintf(print_reg_buf, "  " #prefix "_" #regname);      \
+printf("%-20s:", print_reg_buf);
+
 
 #define PRTREG_END                                      \
 printf(NEW_LINE);                                       \
@@ -106,7 +117,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRTREG_END
 
@@ -121,7 +131,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRTREG_END
@@ -137,7 +146,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -154,7 +162,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -173,7 +180,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -193,7 +199,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -214,7 +219,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -236,7 +240,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -259,7 +262,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -268,7 +270,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRTREG_END
 
@@ -284,7 +285,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -293,7 +293,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRTREG_END
@@ -310,7 +309,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -319,7 +317,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -337,7 +334,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -346,7 +342,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -366,7 +361,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -375,7 +369,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -397,7 +390,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -406,7 +398,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -429,7 +420,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -438,7 +428,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -462,7 +451,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -471,7 +459,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -496,7 +483,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -505,7 +491,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -514,7 +499,6 @@ PRT_REGBITS(prefix, regname, bm21)                      \
 PRT_REGBITS(prefix, regname, bm22)                      \
 PRT_REGBITS(prefix, regname, bm23)                      \
 PRT_REGBITS(prefix, regname, bm24)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm25)                      \
 PRTREG_END
 
@@ -532,7 +516,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -541,7 +524,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -550,7 +532,6 @@ PRT_REGBITS(prefix, regname, bm21)                      \
 PRT_REGBITS(prefix, regname, bm22)                      \
 PRT_REGBITS(prefix, regname, bm23)                      \
 PRT_REGBITS(prefix, regname, bm24)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm25)                      \
 PRT_REGBITS(prefix, regname, bm26)                      \
 PRTREG_END
@@ -569,7 +550,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -578,7 +558,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -587,7 +566,6 @@ PRT_REGBITS(prefix, regname, bm21)                      \
 PRT_REGBITS(prefix, regname, bm22)                      \
 PRT_REGBITS(prefix, regname, bm23)                      \
 PRT_REGBITS(prefix, regname, bm24)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm25)                      \
 PRT_REGBITS(prefix, regname, bm26)                      \
 PRT_REGBITS(prefix, regname, bm27)                      \
@@ -607,7 +585,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -616,7 +593,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -625,7 +601,6 @@ PRT_REGBITS(prefix, regname, bm21)                      \
 PRT_REGBITS(prefix, regname, bm22)                      \
 PRT_REGBITS(prefix, regname, bm23)                      \
 PRT_REGBITS(prefix, regname, bm24)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm25)                      \
 PRT_REGBITS(prefix, regname, bm26)                      \
 PRT_REGBITS(prefix, regname, bm27)                      \
@@ -647,7 +622,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -656,7 +630,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -665,7 +638,6 @@ PRT_REGBITS(prefix, regname, bm21)                      \
 PRT_REGBITS(prefix, regname, bm22)                      \
 PRT_REGBITS(prefix, regname, bm23)                      \
 PRT_REGBITS(prefix, regname, bm24)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm25)                      \
 PRT_REGBITS(prefix, regname, bm26)                      \
 PRT_REGBITS(prefix, regname, bm27)                      \
@@ -688,7 +660,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -697,7 +668,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -706,7 +676,6 @@ PRT_REGBITS(prefix, regname, bm21)                      \
 PRT_REGBITS(prefix, regname, bm22)                      \
 PRT_REGBITS(prefix, regname, bm23)                      \
 PRT_REGBITS(prefix, regname, bm24)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm25)                      \
 PRT_REGBITS(prefix, regname, bm26)                      \
 PRT_REGBITS(prefix, regname, bm27)                      \
@@ -730,7 +699,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -739,7 +707,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -748,7 +715,6 @@ PRT_REGBITS(prefix, regname, bm21)                      \
 PRT_REGBITS(prefix, regname, bm22)                      \
 PRT_REGBITS(prefix, regname, bm23)                      \
 PRT_REGBITS(prefix, regname, bm24)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm25)                      \
 PRT_REGBITS(prefix, regname, bm26)                      \
 PRT_REGBITS(prefix, regname, bm27)                      \
@@ -773,7 +739,6 @@ PRT_REGBITS(prefix, regname, bm5)                       \
 PRT_REGBITS(prefix, regname, bm6)                       \
 PRT_REGBITS(prefix, regname, bm7)                       \
 PRT_REGBITS(prefix, regname, bm8)                       \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm9)                       \
 PRT_REGBITS(prefix, regname, bm10)                      \
 PRT_REGBITS(prefix, regname, bm11)                      \
@@ -782,7 +747,6 @@ PRT_REGBITS(prefix, regname, bm13)                      \
 PRT_REGBITS(prefix, regname, bm14)                      \
 PRT_REGBITS(prefix, regname, bm15)                      \
 PRT_REGBITS(prefix, regname, bm16)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm17)                      \
 PRT_REGBITS(prefix, regname, bm18)                      \
 PRT_REGBITS(prefix, regname, bm19)                      \
@@ -791,7 +755,6 @@ PRT_REGBITS(prefix, regname, bm21)                      \
 PRT_REGBITS(prefix, regname, bm22)                      \
 PRT_REGBITS(prefix, regname, bm23)                      \
 PRT_REGBITS(prefix, regname, bm24)                      \
-PRT_REGBITS_NEWLINE()                                   \
 PRT_REGBITS(prefix, regname, bm25)                      \
 PRT_REGBITS(prefix, regname, bm26)                      \
 PRT_REGBITS(prefix, regname, bm27)                      \
@@ -1525,12 +1488,15 @@ void print_usb_channel_registers(int chnum)
 void usb_host_log(void)
 {
   int i;
+  printf("<< GLOBAL >>" NEW_LINE);
   print_usb_otg_global_registers();
+  printf(NEW_LINE "<< HOST >>" NEW_LINE);
   print_usb_host_registers();
+  printf(NEW_LINE "<< PORT >>" NEW_LINE);
   print_usb_port_registers();
 
   for (i = 0; i < 4; i++) {
-    printf("  channel %d" NEW_LINE, i);
+    printf(NEW_LINE "<< CHANNEL %d >>" NEW_LINE, i);
     print_usb_channel_registers(i);
   }
 }
