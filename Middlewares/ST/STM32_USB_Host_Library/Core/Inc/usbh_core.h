@@ -101,6 +101,7 @@ typedef enum {
     USBH_EVT_PORTUP,
     USBH_EVT_PORTDOWN,
     USBH_EVT_OVERFLOW,
+    USBH_EVT_MESSAGE,
     USBH_EVT_HCINT
 } USBH_EventTypeTypeDef;
 
@@ -120,11 +121,16 @@ struct hcint_t {
   unsigned int uid;
 };
 
+struct message_t {
+
+  char buf[64];
+};
+
 typedef union {
 
   uint32_t init;
   struct hcint_t hcint;
-
+  struct message_t message;
 
 } USBH_LL_EventData;
 

@@ -443,7 +443,7 @@ static USBH_StatusTypeDef USBH_HID_Process(USBH_HandleTypeDef *phost)
         HID_Handle->length) == USBH_OK)
     {
       USBH_UsrLog("HID_GetReport return USBH_OK.")
-      fifo_write(&HID_Handle->fifo, HID_Handle->pData, HID_Handle->length);
+      // fifo_write(&HID_Handle->fifo, HID_Handle->pData, HID_Handle->length);
       HID_Handle->state = HID_SYNC;
     }
 

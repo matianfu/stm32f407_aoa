@@ -56,6 +56,7 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
 #include "stm32f4xx_hal.h"
 
 /** @addtogroup STM32F4xx_LL_USB_DRIVER
@@ -1646,6 +1647,9 @@ HAL_StatusTypeDef USB_DoPing(USB_OTG_GlobalTypeDef *USBx , uint8_t ch_num)
   return HAL_OK;  
 }
 
+extern void USBH_PutMessage(const char* buf);
+static char temp[64];
+
 /**
   * @brief  Stop Host Core
   * @param  USBx : Selected device
@@ -1689,6 +1693,8 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
     {
       if (++count > 1000) 
       {
+        snprintf(temp, 64, "++++++ channel %u error ++++++" NEW_LINE, (unsigned int)i);
+        USBH_PutMessage(temp);
         break;
       }
     } 

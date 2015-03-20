@@ -328,6 +328,15 @@ static void USBH_PutEvent(USBH_EventTypeDef e) {
 	put_event_index = next_event_index(put_event_index);
 }
 
+/** this can be safely called in interrupt context **/
+void USBH_PutMessage(const char* buf)
+{
+  USBH_Events[put_event_index].evt = USBH_EVT_OVERFLOW;
+  USBH_Events[put_event_index].timestamp = HAL_GetTick();
+  strncpy(USBH_Events[put_event_index].data.message.buf, buf, 64);
+  USBH_Events[put_event_index].data.message.buf[63] = '\0';
+}
+
 /** @defgroup USBH_CORE_Private_Functions
   * @{
   */ 
@@ -702,6 +711,13 @@ pop:
         e.data.hcint.in_err_count,
         e.data.hcint.out_err_count,
         (unsigned int)e.timestamp);
+
+    goto pop;
+  }
+  else if (e.evt == USBH_EVT_MESSAGE) {
+
+    e.data.message.buf[63] = '\0';
+    USBH_UsrLog("++++++++++++++++ %s", e.data.message.buf);
 
     goto pop;
   }
