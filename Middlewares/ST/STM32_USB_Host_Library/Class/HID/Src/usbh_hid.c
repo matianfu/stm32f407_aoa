@@ -930,8 +930,8 @@ static USBH_StatusTypeDef USBH_USBHID_Probe(USBH_HandleTypeDef *phost)
   uint8_t *rdesc = phost->device.Data;
   uint16_t rsize = HID_Handle->HID_Desc.wItemLength;
 
-  USBH_Print_Report_Descriptor(rdesc, rsize);
-  USBH_Print_HID_Object_Size();
+  // USBH_Print_Report_Descriptor(rdesc, rsize);
+  // USBH_Print_HID_Object_Size();
 
   hiddev = hid_request_device();
 

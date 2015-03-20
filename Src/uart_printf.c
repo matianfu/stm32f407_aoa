@@ -106,10 +106,10 @@ void uart_print_tx_complete_cb() {
 static uint8_t rx_buf[RX_BUF_SIZE];
 static uint8_t rx_get = 0;
 
-static uint8_t line_buf[LINE_BUF_SIZE];
+static char line_buf[LINE_BUF_SIZE];
 static int line_buf_pos = 0;
 
-extern void usb_host_log(void);
+extern int usb_host_cmd(const char* cmd);
 
 /*
  * Do it anyway, considering we cannot know what is the previously set buffer size, dont make assumptios,
@@ -137,8 +137,12 @@ void Process_Command(void)
       putchar('\r');
       putchar('\n');
 
-      if (0 == strcmp(line_buf, "p")) {
-        usb_host_log();
+      if (0 == strcmp("r", line_buf)){
+        HAL_Delay(500);
+        NVIC_SystemReset();
+      }
+      else if (0 == usb_host_cmd(line_buf)) {
+        // usb_host_log();
       }
       else {
         printf("Unknown command: %s\r\n", line_buf);

@@ -1485,20 +1485,60 @@ void print_usb_channel_registers(int chnum)
 
 /*****************************************************************************/
 
-void usb_host_log(void)
+/*
+ * pa - print all
+ * pg - print global
+ * ph - print host
+ * pt - print port
+ * pc - print channel
+ */
+int usb_host_cmd(const char* cmd)
 {
   int i;
-  printf("<< GLOBAL >>" NEW_LINE);
-  print_usb_otg_global_registers();
-  printf(NEW_LINE "<< HOST >>" NEW_LINE);
-  print_usb_host_registers();
-  printf(NEW_LINE "<< PORT >>" NEW_LINE);
-  print_usb_port_registers();
 
-  for (i = 0; i < 4; i++) {
-    printf(NEW_LINE "<< CHANNEL %d >>" NEW_LINE, i);
-    print_usb_channel_registers(i);
+  if (0 == strcmp(cmd, "pg"))
+  {
+    printf("<< USB GLOBAL >>" NEW_LINE);
+    print_usb_otg_global_registers();
   }
+  else if (0 == strcmp(cmd, "ph"))
+  {
+    printf(NEW_LINE "<< USB HOST >>" NEW_LINE);
+    print_usb_host_registers();
+  }
+  else if (0 == strcmp(cmd, "pp"))
+  {
+    printf(NEW_LINE "<< PORT >>" NEW_LINE);
+    print_usb_port_registers();
+  }
+  else if (0 == strcmp(cmd, "pc"))
+  {
+    for (i = 0; i < 4; i++)
+    {
+      printf(NEW_LINE "<< CHANNEL %d >>" NEW_LINE, i);
+      print_usb_channel_registers(i);
+    }
+  }
+  else if (0 == strcmp(cmd, "pa"))
+  {
+    printf("<< USB GLOBAL >>" NEW_LINE);
+    print_usb_otg_global_registers();
+    printf(NEW_LINE "<< USB HOST >>" NEW_LINE);
+    print_usb_host_registers();
+    printf(NEW_LINE "<< PORT >>" NEW_LINE);
+    print_usb_port_registers();
+    for (i = 0; i < 4; i++)
+    {
+      printf(NEW_LINE "<< CHANNEL %d >>" NEW_LINE, i);
+      print_usb_channel_registers(i);
+    }
+  }
+  else
+  {
+    return -1;
+  }
+
+  return 0;
 }
 
 
