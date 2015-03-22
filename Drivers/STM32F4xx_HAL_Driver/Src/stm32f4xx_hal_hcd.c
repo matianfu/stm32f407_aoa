@@ -527,7 +527,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
        
       /* Handle Host Port Interrupts */
       HAL_HCD_Disconnect_Callback(hhcd);
-      USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
+      // USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
 
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
     }

@@ -172,11 +172,11 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned 
 	  return NULL;
 	}
 
-	total_field_size += size;
-	USBH_UsrLog("total field size: %d", total_field_size);
-	USBH_UsrLog("  size of struct hid_filed: %d", sizeof(struct hid_field));
-	USBH_UsrLog("  usages: %d, size of struct hid_usage %d", usages, sizeof(struct hid_usage));
-	USBH_UsrLog("  values: %d, size of unsigned %d", values, sizeof(unsigned));
+//	total_field_size += size;
+//	USBH_UsrLog("total field size: %d", total_field_size);
+//	USBH_UsrLog("  size of struct hid_filed: %d", sizeof(struct hid_field));
+//	USBH_UsrLog("  usages: %d, size of struct hid_usage %d", usages, sizeof(struct hid_usage));
+//	USBH_UsrLog("  values: %d, size of unsigned %d", values, sizeof(unsigned));
 
 	field = request.field;
 	field->index = report->maxfield++;

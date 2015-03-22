@@ -120,7 +120,7 @@ void HAL_HCD_URB_Monitor(void)
 
     if (hhcd->hc[idx].urb_requested == 1 &&
         (HAL_GetTick() - hhcd->hc[idx].urb_timer) > 500) {
-      printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++ URB Time out, channel: %d, state: %s, urb_state: %s +++++++++++++\r\n",
+      printf("+++++ URB Time out, channel: %d, state: %s, urb_state: %s +++++\r\n",
           idx,
           channel_state_string[hhcd->hc[idx].state],
           urb_state_string[hhcd->hc[idx].urb_state]);
@@ -331,10 +331,12 @@ static void USBH_PutEvent(USBH_EventTypeDef e) {
 /** this can be safely called in interrupt context **/
 void USBH_PutMessage(const char* buf)
 {
-  USBH_Events[put_event_index].evt = USBH_EVT_OVERFLOW;
+  USBH_Events[put_event_index].evt = USBH_EVT_MESSAGE;
   USBH_Events[put_event_index].timestamp = HAL_GetTick();
   strncpy(USBH_Events[put_event_index].data.message.buf, buf, 64);
   USBH_Events[put_event_index].data.message.buf[63] = '\0';
+
+  put_event_index = next_event_index(put_event_index);
 }
 
 /** @defgroup USBH_CORE_Private_Functions
@@ -1096,7 +1098,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       /* The function shall return USBH_OK when full enumeration is complete */
       USBH_UsrLog("Enumeration done.");
 
-      USBH_Print_DeviceDescriptor(phost);
+      // USBH_Print_DeviceDescriptor(phost);
 
       phost->device.current_interface = 0;
       if (phost->device.DevDesc.bNumConfigurations == 1)

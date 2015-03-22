@@ -320,7 +320,7 @@ static USBH_StatusTypeDef USBH_HID_ClassRequest(USBH_HandleTypeDef *phost)
     if (USBH_HID_GetHIDDescriptor(phost, USB_HID_DESC_SIZE) == USBH_OK)
     {
       USBH_HID_ParseHIDDesc(&HID_Handle->HID_Desc, phost->device.Data);
-      USBH_HID_PrintHIDDesc(&HID_Handle->HID_Desc);
+      // USBH_HID_PrintHIDDesc(&HID_Handle->HID_Desc);
       HID_Handle->ctl_state = HID_REQ_GET_REPORT_DESC;
     }
 
