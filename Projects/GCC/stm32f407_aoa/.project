@@ -305,6 +305,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_hcd.h</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_hcd_helper.h</name>
+			<type>1</type>
+			<locationURI>/home/ma/stm32/stm32f407_aoa/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_hcd_helper.h</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h</locationURI>
@@ -388,6 +393,11 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd_helper.c</name>
+			<type>1</type>
+			<locationURI>/home/ma/stm32/stm32f407_aoa/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd_helper.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c</name>

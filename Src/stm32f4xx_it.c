@@ -70,6 +70,7 @@ void OTG_FS_IRQHandler(void)
 }
 
 extern void uart_ll_print(void);
+extern void debouncer(void);
 
 /**
 * @brief This function handles System tick timer.
@@ -79,6 +80,7 @@ void SysTick_Handler(void)
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
   uart_ll_print();
+  // debouncer();
 }
 
 /**
