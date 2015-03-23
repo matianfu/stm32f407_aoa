@@ -9,9 +9,22 @@ const static char* event_string[] =
     "USBH_EVT_PORTUP", "USBH_EVT_PORTDOWN", "USBH_EVT_OVERFLOW",
     "USBH_EVT_HCINT" };
 
+#if 0
+typedef enum
+{
+  PORT_IDLE = 0,            /** system reset init state, or disconnect wait timeout, stable **/
+  PORT_CONNECT_DELAY,       /** after connect, debouncing, timed **/
+  PORT_WAIT_PORT_UP,        /** after reset, wait for port up, timed **/
+  PORT_UP_WAIT,             /** port up event received, delay a few of milliseconds **/
+  PORT_UP,                  /** port is up, host start working, stable **/
+  PORT_DOWN,                /** port is down, oc or other reason, stable **/
+                            /** since port is up only after reset, apps must trigger port reset
+                             * to leave this state
+                             */
+}PORT_StateTypeDef;
+#endif
 const static char* pstate_string[] =
-{ "PORT_IDLE", "PORT_DEBOUNCE", "PORT_RESET", "PORT_WAIT_ATTACHMENT",
-    "PORT_UP_WAIT", "PORT_UP", "PORT_DOWN", "PORT_DISCONNECT_DELAY" };
+{ "PORT_IDLE", "PORT_WAIT_PORT_UP", "PORT_UP", "PORT_DOWN" };
 
 const static char* gstate_string[] =
 { "HOST_IDLE", "HOST_DEV_WAIT_FOR_ATTACHMENT", "HOST_DEV_ATTACHED",
@@ -52,7 +65,7 @@ const static char * channel_state_string[] =
 { "HC_IDLE", "HC_XFRC", "HC_HALTED", "HC_NAK", "HC_NYET", "HC_STALL",
     "HC_XACTERR", "HC_BBLERR", "HC_DATATGLERR" };
 
-static void USBH_Print_DeviceDescriptor(USBH_HandleTypeDef *phost)
+void USBH_Print_DeviceDescriptor(USBH_HandleTypeDef *phost)
 {
   int i;
 
@@ -234,7 +247,7 @@ void hcint2string(char* buf, uint32_t hcint)
  *
  * TODO these data should be changed to struct, since each USB (HS, FS) need an instance
  */
-#define USBH_EVENT_RING_SIZE        (64)
+
 static USBH_EventTypeDef USBH_Events[USBH_EVENT_RING_SIZE] = { {0, 0, {0}} };
 static int get_event_index = 0;
 static int put_event_index = 0;
@@ -293,10 +306,11 @@ void USBH_SendSimpleEvent(USBH_EventTypeTypeDef type)
   }
 }
 
-static void USBH_PutEvent(USBH_EventTypeDef e) {
-
+void USBH_PutEvent(USBH_EventTypeDef e)
+{
   int i;
-  if (next_event_index(put_event_index) == get_event_index) {
+  if (next_event_index(put_event_index) == get_event_index)
+  {
 
     for (i = 0; i < USBH_EVENT_RING_SIZE; i++)
       USBH_Events[i].evt = USBH_EVT_OVERFLOW;

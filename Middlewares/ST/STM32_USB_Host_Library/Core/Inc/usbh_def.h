@@ -317,24 +317,28 @@ typedef enum
 }USBH_SpeedTypeDef;
 
 /*
+ * state mapping
+ * PORT IDLE -> HOST_IDLE
+ *
+ * PORT_WAIT_PORT_UP -> HOST_WAIT_FOR_ATTACHMENT
+ * PORT_UP_WAIT -> HOST_DEV_ATTACHED
+ * PORT_UP -> HOST_ENUMERATION
+ * PORT_DOWN -> DISCONNECTED
+ */
+
+/*
  * Port State Definition
  */
 typedef enum
 {
   PORT_IDLE = 0,            /** system reset init state, or disconnect wait timeout, stable **/
-  PORT_DEBOUNCE,            /** after connect, debouncing, timed **/
-  PORT_RESET,               /** resetting, timed **/
-  PORT_WAIT_ATTACHMENT,     /** after reset, wait for port up, timed **/
-  PORT_UP_WAIT,             /** port up event received, delay a few of milliseconds **/
+  PORT_WAIT_PORT_UP,        /** after reset, wait for port up, timed **/
   PORT_UP,                  /** port is up, host start working, stable **/
   PORT_DOWN,                /** port is down, oc or other reason, stable **/
                             /** since port is up only after reset, apps must trigger port reset
                              * to leave this state
                              */
-  PORT_DISCONNECT_DELAY,     /** after disconnect, delay some time to switch to idle
-                               making sure it is a true unplug, not device mode switch
-                             **/
-}PORT_StateTypeDef;
+} PORT_StateTypeDef;
 
 /* Following states are used for gState */
 typedef enum 

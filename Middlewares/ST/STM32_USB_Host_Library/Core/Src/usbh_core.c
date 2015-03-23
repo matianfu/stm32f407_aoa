@@ -34,7 +34,6 @@
 
 extern char* usbh_helper_gstate_string(HOST_StateTypeDef gstate);
 extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
-extern USBH_EventTypeDef USBH_GetFilteredEvent(USBH_HandleTypeDef * phost);
 
 /** @addtogroup USBH_LIB
   * @{
@@ -75,17 +74,6 @@ extern USBH_EventTypeDef USBH_GetFilteredEvent(USBH_HandleTypeDef * phost);
 /**
   * @}
   */
-
-
-
-
-
-
-
-
-
-
-
 
 /** @defgroup USBH_CORE_Private_Functions
   * @{
