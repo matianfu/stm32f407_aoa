@@ -56,9 +56,7 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdio.h>
 #include "stm32f4xx_hal.h"
-#include "usbh_conf.h"
 
 /** @addtogroup STM32F4xx_LL_USB_DRIVER
   * @{
@@ -1241,30 +1239,6 @@ HAL_StatusTypeDef USB_ResetPort(USB_OTG_GlobalTypeDef *USBx)
   return HAL_OK;
 }
 
-HAL_StatusTypeDef USB_ResetAssert(USB_OTG_GlobalTypeDef *USBx)
-{
-  __IO uint32_t hprt0;
-
-  hprt0 = USBx_HPRT0;
-
-  hprt0 &= ~(USB_OTG_HPRT_PENA    | USB_OTG_HPRT_PCDET |\
-    USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
-
-  USBx_HPRT0 = (USB_OTG_HPRT_PRST | hprt0);
-
-  return HAL_OK;
-}
-
-HAL_StatusTypeDef USB_ResetDeassert(USB_OTG_GlobalTypeDef *USBx)
-{
-  __IO uint32_t hprt0;
-
-  hprt0 = USBx_HPRT0;
-
-  USBx_HPRT0 = ((~USB_OTG_HPRT_PRST) & hprt0);
-  return HAL_OK;
-}
-
 /**
   * @brief  USB_DriveVbus : activate or de-activate vbus
   * @param  state : VBUS state
@@ -1432,8 +1406,6 @@ HAL_StatusTypeDef USB_HC_Init(USB_OTG_GlobalTypeDef *USBx,
   return HAL_OK; 
 }
 
-extern void PRT_USB_OTG_HCCHAR(uint32_t reg);
-
 /**
   * @brief  Start a transfer over a host channel
   * @param  USBx : Selected device
@@ -1455,9 +1427,6 @@ HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDe
   uint16_t len_words = 0;   
   uint16_t num_packets = 0;
   uint16_t max_hc_pkt_count = 256;
-  
-  hc->urb_requested = 1;
-  hc->urb_timer = HAL_GetTick();
 
   if((USBx != USB_OTG_FS) && (hc->speed == USB_OTG_SPEED_HIGH))
   {
@@ -1513,9 +1482,6 @@ HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDe
   /* Set host channel enable */
   USBx_HC(hc->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
   USBx_HC(hc->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
-  
-  // printf("%s, ch_num %d", __func__, hc->ch_num);
-  // PRT_USB_OTG_HCCHAR(USBx_HC(hc->ch_num)->HCCHAR);
 
   if (dma == 0) /* Slave mode */
   {  
@@ -1653,9 +1619,6 @@ HAL_StatusTypeDef USB_DoPing(USB_OTG_GlobalTypeDef *USBx , uint8_t ch_num)
   return HAL_OK;  
 }
 
-extern void USBH_PutMessage(const char* buf);
-static char temp[64];
-
 /**
   * @brief  Stop Host Core
   * @param  USBx : Selected device
@@ -1666,92 +1629,36 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
   uint8_t i;
   uint32_t count = 0;
   uint32_t value;
-  __IO uint32_t reg;
-  uint32_t hcint[16];
-  uint32_t hcchar[16];
-  uint32_t error_channel = 0;
-  uint32_t zero;
-  
-//  do {
-//    zero = 0;
-//
-//    for (i = 0; i <= 15; i++) {
-//      if (USBx_HC(i)->HCCHAR & USB_OTG_HCCHAR_CHENA)
-//        zero++;
-//    }
-//  } while (zero);
-  // save a copy for print
-  for (i = 0; i <= 15; i++)
-  {
-    hcint[i] = USBx_HC(i)->HCINT;
-    hcchar[i] = USBx_HC(i)->HCCHAR;
-
-    __HAL_HCD_UNMASK_HALT_HC_INT(i);
-    USB_HC_Halt(USBx , i);
-  }
-
-  HAL_Delay(100);
 
   USB_DisableGlobalInt(USBx);
     /* Flush FIFO */
   USB_FlushTxFifo(USBx, 0x10);
   USB_FlushRxFifo(USBx);
-  
-  HAL_Delay(20);
 
   /* Flush out any leftover queued requests. */
   for (i = 0; i <= 15; i++)
   {   
-
     value = USBx_HC(i)->HCCHAR ;
     value |=  USB_OTG_HCCHAR_CHDIS;
     value &= ~USB_OTG_HCCHAR_CHENA;  
     value &= ~USB_OTG_HCCHAR_EPDIR;
     USBx_HC(i)->HCCHAR = value;
   }
-  
-  HAL_Delay(20);
-
-  /** clear interrupts if any **/
-  for (i = 0; i<= 15; i++)
-  {
-    USBx_HC(i)->HCINT = 0;
-    USBx_HC(i)->HCINTMSK = 0;
-  }
 
   /* Halt all channels to put them into a known state. */  
   for (i = 0; i <= 15; i++)
   {   
-
     value = USBx_HC(i)->HCCHAR ;
     
     value |= USB_OTG_HCCHAR_CHDIS;
     value |= USB_OTG_HCCHAR_CHENA;  
-    // value &= ~USB_OTG_HCCHAR_EPDIR;
+    value &= ~USB_OTG_HCCHAR_EPDIR;
     
     USBx_HC(i)->HCCHAR = value;
     do 
     {
-      if (++count > 100)
+      if (++count > 1000)
       {
-        snprintf(temp, 64, "channel %u error", (unsigned int)i);
-        USBH_PutMessage(temp);
-
-        snprintf(temp, 64, "HCINT %08x", USBx_HC(i)->HCINT);
-        USBH_PutMessage(temp);
-
-        snprintf(temp, 64, "HCINT %08x", USBx_HC(i)->HCINT);
-        USBH_PutMessage(temp);
-
-        snprintf(temp, 64, "ORIG HCINT %08x", hcint[i]);
-        USBH_PutMessage(temp);
-
-        snprintf(temp, 64, "ORIG HCCHAR %08x", hcchar[i]);
-        USBH_PutMessage(temp);
-
-        count = 0;
-
-        error_channel = 1;
         break;
       }
     } 
@@ -1763,15 +1670,39 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
   USBx->GINTSTS = 0xFFFFFFFF;
   // USB_EnableGlobalInt(USBx);
 
-//  if (error_channel) {
-//    USB_CoreInit(USBx, );
-//  }
-
   return HAL_OK;  
 }
 /**
   * @}
   */
+
+/*
+ * custom functions
+ */
+
+HAL_StatusTypeDef USB_ResetAssert(USB_OTG_GlobalTypeDef *USBx)
+{
+  __IO uint32_t hprt0;
+
+  hprt0 = USBx_HPRT0;
+
+  hprt0 &= ~(USB_OTG_HPRT_PENA    | USB_OTG_HPRT_PCDET |\
+    USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
+
+  USBx_HPRT0 = (USB_OTG_HPRT_PRST | hprt0);
+
+  return HAL_OK;
+}
+
+HAL_StatusTypeDef USB_ResetDeassert(USB_OTG_GlobalTypeDef *USBx)
+{
+  __IO uint32_t hprt0;
+
+  hprt0 = USBx_HPRT0;
+
+  USBx_HPRT0 = ((~USB_OTG_HPRT_PRST) & hprt0);
+  return HAL_OK;
+}
 
 #endif /* defined (HAL_PCD_MODULE_ENABLED) || defined (HAL_HCD_MODULE_ENABLED) */
 
