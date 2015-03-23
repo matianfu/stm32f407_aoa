@@ -100,6 +100,17 @@ void hc_helper_report_channel_out(uint32_t i)
   }
 }
 
+USBH_StatusTypeDef usbh_ll_hcint(USBH_HandleTypeDef *phost, struct hcint_t * hcint) {
+
+  USBH_EventTypeDef* e = USBH_AllocEvent();
+  if (e) {
+    e->evt = USBH_EVT_DISCONNECT;
+    e->data.hcint = *hcint;
+    USBH_SendEvent(e);
+  }
+  return USBH_OK;
+}
+
 void hc_helper_send_reports(void)
 {
   uint32_t i;
@@ -117,7 +128,7 @@ void hc_helper_send_reports(void)
           hcint[i].out_err_count == hcint_last.out_err_count) {
       }
       else {
-        USBH_LL_HCINT(hhcd->pData, &hcint[i]);
+        usbh_ll_hcint(hhcd->pData, &hcint[i]);
       }
 
       memcpy(&hcint_last, &hcint[i], sizeof(hcint_last));
@@ -162,7 +173,8 @@ void hcd_debounce(HCD_HandleTypeDef *hhcd)
       if (hhcd->debounce > 2 * USBH_CONNECT_DEBOUNCING_TICK)
       {
         hhcd->debounce = 0;
-        HAL_HCD_Connect_Callback(hhcd);
+        // HAL_HCD_Connect_Callback(hhcd);
+        USBH_SendSimpleEvent(USBH_EVT_CONNECT);
       }
     }
     else

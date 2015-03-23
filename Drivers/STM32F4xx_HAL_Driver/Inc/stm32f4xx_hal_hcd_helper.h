@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "stm32f4xx_hal.h"
+#include "usbh_core_helper.h"
 
 #define USBH_CONNECT_DEBOUNCING_TICK          (3)
 

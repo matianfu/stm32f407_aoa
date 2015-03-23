@@ -498,7 +498,8 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
 
       if (!is_debouncing(hhcd)) {
         /* Handle Host Port Interrupts */
-        HAL_HCD_Disconnect_Callback(hhcd);
+        // HAL_HCD_Disconnect_Callback(hhcd);
+        USBH_SendSimpleEvent(USBH_EVT_DISCONNECT);
         USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
       }
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
@@ -1161,7 +1162,7 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
         }
       }
       // HAL_HCD_Connect_Callback(hhcd);
-      HAL_HCD_PortUp_Callback(hhcd);
+      USBH_SendSimpleEvent(USBH_EVT_PORTUP);
 
       if (hhcd->Init.speed == HCD_SPEED_HIGH)
       {
@@ -1175,7 +1176,7 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
           USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG);
 
       // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
-      HAL_HCD_PortDown_Callback(hhcd);
+      USBH_SendSimpleEvent(USBH_EVT_PORTDOWN);
     }
   }
 
