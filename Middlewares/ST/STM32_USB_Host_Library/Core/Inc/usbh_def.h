@@ -468,7 +468,7 @@ typedef struct
 /* USB Host handle structure */
 typedef struct _USBH_HandleTypeDef
 {
-  __IO PORT_StateTypeDef    pState;         /*  Port State machine */
+//  __IO PORT_StateTypeDef    pState;         /*  Port State machine */
   uint32_t                  pStateTimer;
 
   __IO HOST_StateTypeDef     gState;       	/*  Host State Machine Value */

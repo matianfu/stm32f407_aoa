@@ -56,6 +56,8 @@ extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
 #define USBH_ADDRESS_DEFAULT                    0
 #define USBH_ADDRESS_ASSIGNED                   1
 #define USBH_MPS_DEFAULT                        0x40
+
+#define USBH_CONNECT_DELAY                      200
 /**
   * @}
   */
@@ -199,7 +201,7 @@ USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost)
 static USBH_StatusTypeDef  DeInitPStateMachine(USBH_HandleTypeDef *phost)
 {
   DeInitGStateMachine(phost);
-  phost->pState = PORT_IDLE;
+  // phost->pState = PORT_IDLE;
 
   return USBH_OK;
 }
@@ -417,6 +419,20 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   switch (phost->gState)
   {
   case HOST_IDLE:
+    if (phost->device.is_connected)
+    {
+      /* Wait for 200 ms after connection */
+      phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
+      phost->pStateTimer = HAL_GetTick();
+      USBH_UsrLog("Connected, delay %dms before port reset", USBH_CONNECT_DELAY);
+      USBH_Delay(USBH_CONNECT_DELAY);
+      USBH_UsrLog("USB port reset");
+      USBH_LL_ResetPort(phost);
+      USBH_UsrLog("USB port reset done");
+#if (USBH_USE_OS == 1)
+      osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
+#endif
+    }
     break;
 
 //  case HOST_DEV_WAIT_FOR_ATTACHMENT:

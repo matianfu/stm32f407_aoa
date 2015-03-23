@@ -11,20 +11,6 @@ const static char* event_string[] =
     "USBH_EVT_PORTUP", "USBH_EVT_PORTDOWN", "USBH_EVT_OVERFLOW",
     "USBH_EVT_HCINT" };
 
-#if 0
-typedef enum
-{
-  PORT_IDLE = 0,            /** system reset init state, or disconnect wait timeout, stable **/
-  PORT_CONNECT_DELAY,       /** after connect, debouncing, timed **/
-  PORT_WAIT_PORT_UP,        /** after reset, wait for port up, timed **/
-  PORT_UP_WAIT,             /** port up event received, delay a few of milliseconds **/
-  PORT_UP,                  /** port is up, host start working, stable **/
-  PORT_DOWN,                /** port is down, oc or other reason, stable **/
-                            /** since port is up only after reset, apps must trigger port reset
-                             * to leave this state
-                             */
-}PORT_StateTypeDef;
-#endif
 const static char* pstate_string[] =
 { "PORT_IDLE", "PORT_WAIT_PORT_UP", "PORT_UP", "PORT_DOWN" };
 
@@ -187,7 +173,7 @@ void USBH_DebugOutput(USBH_HandleTypeDef* phost, USBH_EventTypeDef event, int fo
 
   if (!force) {
     /** print only once for successive state/event **/
-    if ((phost->pState == ps) &&
+    if ( /** (phost->pState == ps) && **/
         (phost->gState == gs) &&
         (phost->EnumState == es) &&
         (phost->RequestState == rs) &&
@@ -198,7 +184,8 @@ void USBH_DebugOutput(USBH_HandleTypeDef* phost, USBH_EventTypeDef event, int fo
     }
   }
 
-  ps = phost->pState;
+  // ps = phost->pState;
+  ps = mapped_port_state(phost);
   gs = phost->gState;
   es = phost->EnumState;
   rs = phost->RequestState;
