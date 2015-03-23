@@ -145,6 +145,7 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
   /* Init Host */
   USB_HostInit(hhcd->Instance, hhcd->Init);
 
+  hhcd->debounce = 0; /* disconnected */
   hhcd->State = HAL_HCD_STATE_READY;
 
   return HAL_OK;
@@ -480,6 +481,13 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
      /* incorrect mode, acknowledge the interrupt */
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_MMIS);
     }     
+
+    /** be sure port down is handled before disconnect **/
+    /* Handle Host Port Interrupts */
+    if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_HPRTINT))
+    {
+      HCD_Port_IRQHandler (hhcd);
+    }
     
     /* Handle Host Disconnect Interrupts */
     if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT))
@@ -487,18 +495,13 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
       /* Cleanup HPRT */
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
         USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
-       
-      /* Handle Host Port Interrupts */
-      HAL_HCD_Disconnect_Callback(hhcd);
-      USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
 
+      if (!is_debouncing(hhcd)) {
+        /* Handle Host Port Interrupts */
+        HAL_HCD_Disconnect_Callback(hhcd);
+        USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
+      }
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
-    }
-    
-    /* Handle Host Port Interrupts */
-    if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_HPRTINT))
-    {
-      HCD_Port_IRQHandler (hhcd);
     }
 
     /* Handle Host SOF Interrupts */
@@ -575,15 +578,6 @@ __weak void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
    */
 }
 
-__weak void HAL_HCD_PortUp_Callback(HCD_HandleTypeDef *hhcd)
-{
-
-}
-
-__weak void HAL_HCD_PortDown_Callback(HCD_HandleTypeDef *hhcd)
-{
-
-}
 /**
   * @brief  Disonnexion Event callback.
   * @param  hhcd: HCD handle
@@ -673,16 +667,6 @@ HAL_StatusTypeDef HAL_HCD_Stop(HCD_HandleTypeDef *hhcd)
 HAL_StatusTypeDef HAL_HCD_ResetPort(HCD_HandleTypeDef *hhcd)
 {
   return (USB_ResetPort(hhcd->Instance));
-}
-
-HAL_StatusTypeDef HAL_HCD_ResetAssert(HCD_HandleTypeDef *hhcd)
-{
-  return (USB_ResetAssert(hhcd->Instance));
-}
-
-HAL_StatusTypeDef HAL_HCD_ResetDeassert(HCD_HandleTypeDef *hhcd)
-{
-  return (USB_ResetDeassert(hhcd->Instance));
 }
 
 /**
@@ -891,7 +875,6 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
       {
         hhcd->hc[chnum].urb_state = URB_NOTREADY;
 
-        /** modification **/
         /* re-activate the channel  */
         USBx_HC(chnum)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
         USBx_HC(chnum)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
@@ -1060,7 +1043,6 @@ static void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
       {
         hhcd->hc[chnum].urb_state = URB_NOTREADY;
 
-        /** modification **/
         /* re-activate the channel  */
         USBx_HC(chnum)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
         USBx_HC(chnum)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
@@ -1142,11 +1124,13 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
   /* Check whether Port Connect Detected */
   if ((hprt0 & USB_OTG_HPRT_PCDET) == USB_OTG_HPRT_PCDET)
   {
-    // These code may prevent CONNECT/DISCONNECT events in pair, a guess
-    if ((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
-    {
-      //USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
-      HAL_HCD_Connect_Callback(hhcd);
+//    if ((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
+//    {
+//      USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
+//      HAL_HCD_Connect_Callback(hhcd);
+//    }
+    if (!is_debouncing(hhcd)) {
+      start_debouncing(hhcd);
     }
     hprt0_dup |= USB_OTG_HPRT_PCDET;
   }
@@ -1177,7 +1161,6 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
         }
       }
       // HAL_HCD_Connect_Callback(hhcd);
-      // USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
       HAL_HCD_PortUp_Callback(hhcd);
 
       if (hhcd->Init.speed == HCD_SPEED_HIGH)
@@ -1191,8 +1174,8 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
           USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG);
 
-      HAL_HCD_PortDown_Callback(hhcd);
       // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
+      HAL_HCD_PortDown_Callback(hhcd);
     }
   }
 
@@ -1206,13 +1189,35 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
   USBx_HPRT0 = hprt0_dup;
 }
 
-/************************* custom code ***************************************/
+/*
+ * custom code
+ */
+
+__weak void HAL_HCD_PortUp_Callback(HCD_HandleTypeDef *hhcd)
+{
+
+}
+
+__weak void HAL_HCD_PortDown_Callback(HCD_HandleTypeDef *hhcd)
+{
+
+}
+
+HAL_StatusTypeDef HAL_HCD_ResetAssert(HCD_HandleTypeDef *hhcd)
+{
+  return (USB_ResetAssert(hhcd->Instance));
+}
+
+HAL_StatusTypeDef HAL_HCD_ResetDeassert(HCD_HandleTypeDef *hhcd)
+{
+  return (USB_ResetDeassert(hhcd->Instance));
+}
 
 /*
+ * Not sure if this code is needed any more after commit @ 20140323
+ *
  * a port is stale when:
- *
  * PENA = 0, PENCHNG = 0, PCDET = 0, PCSTS = 1
- *
  * that is, it won't issue interrupts anymore, with port disabled and connected.
  */
 unsigned int HAL_HCD_PortStale(HCD_HandleTypeDef *hhcd)
@@ -1225,43 +1230,6 @@ unsigned int HAL_HCD_PortStale(HCD_HandleTypeDef *hhcd)
 
   return 0;
 }
-
-
-//extern USBH_HandleTypeDef hUsbHostHS;
-//
-//void HAL_HCD_URB_Monitor(void)
-//{
-//  int idx;
-//  USBH_HandleTypeDef* phost;
-//  HCD_HandleTypeDef* hhcd;
-//
-//  phost = &hUsbHostHS;
-//  hhcd = phost->pData;
-//
-//  if (hhcd == NULL)
-//    return;
-//
-//  for (idx = 0 ; idx < 11 ; idx++)
-//  {
-//    if ((phost->Pipes[idx] & 0x8000) == 0)
-//    {
-//      continue;
-//    }
-//
-//    if (hhcd->hc[idx].urb_requested == 1 &&
-//        (HAL_GetTick() - hhcd->hc[idx].urb_timer) > 100) {
-//      printf("URB Time out, channel: %d\r\n", idx);
-//      printf("  state: %d", hhcd->hc[idx].state);
-//      printf("  urb_state: %d\r\n", hhcd->hc[idx].urb_state);
-//      hhcd->hc[idx].urb_requested = 0;
-//    }
-//  }
-//}
-
-
-/*
- * for debug
- */
 
 /**
   * @}

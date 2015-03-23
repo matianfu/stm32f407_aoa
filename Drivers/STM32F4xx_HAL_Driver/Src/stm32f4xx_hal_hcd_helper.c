@@ -7,6 +7,10 @@
 #include "usbh_conf.h"
 #include "debug.h"
 #include "stm32f4xx_hal_hcd_helper.h"
+#include "stm32f4xx_ll_usb.h"
+
+// extern HCD_HandleTypeDef hhcd_USB_OTG_FS;
+// extern HCD_HandleTypeDef hhcd_USB_OTG_HS;
 
 /*
  * Debug configuration
@@ -132,7 +136,41 @@ void hc_helper_sumbit_request(void)
   }
 }
 
-bool is_debouncing(HCD_HandleTypeDef *hhcd) {
-
-  return true;
+void start_debouncing(HCD_HandleTypeDef* hhcd)
+{
+  hhcd->debounce = USBH_CONNECT_DEBOUNCING_TICK;
 }
+
+int is_debouncing(HCD_HandleTypeDef *hhcd)
+{
+  return hhcd->debounce;
+}
+
+/*
+ * This function debounces connect event only. Because only connect need debounce.
+ * For disconnect, after port down, it is sure the event is a true disconnect.
+ */
+void hcd_debounce(HCD_HandleTypeDef *hhcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+
+  if (hhcd->debounce)
+  {
+    if (USBx_HPRT0 & USB_OTG_HPRT_PCSTS)
+    {
+      hhcd->debounce++;
+      if (hhcd->debounce > 2 * USBH_CONNECT_DEBOUNCING_TICK)
+      {
+        hhcd->debounce = 0;
+        HAL_HCD_Connect_Callback(hhcd);
+      }
+    }
+    else
+    {
+      hhcd->debounce--;
+    }
+  }
+}
+
+
+

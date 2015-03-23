@@ -86,6 +86,8 @@ typedef struct
   __IO HCD_StateTypeDef     State;      /*!< HCD communication state  */
   void                      *pData;     /*!< Pointer Stack Handler    */    
   
+  /** custom field **/
+  uint32_t                  debounce;     /* count down */
 } HCD_HandleTypeDef;
   
 /* Exported constants --------------------------------------------------------*/
@@ -186,14 +188,14 @@ HAL_StatusTypeDef       HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
                                                  uint8_t do_ping);
 
  /* Non-Blocking mode: Interrupt */
-void                    HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd);
-void             HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd);
-void             HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd);
-void			 HAL_HCD_PortUp_Callback(HCD_HandleTypeDef *hhcd);
-void             HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd);
-void             HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, 
-                                                            uint8_t chnum, 
-                                                            HCD_URBStateTypeDef urb_state);
+void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd);
+void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd);
+void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd);
+void HAL_HCD_PortUp_Callback(HCD_HandleTypeDef *hhcd);
+void HAL_HCD_PortDown_Callback(HCD_HandleTypeDef *hhcd);
+void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd);
+void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
+    HCD_URBStateTypeDef urb_state);
 
 /* Peripheral Control functions  ************************************************/
 HAL_StatusTypeDef       HAL_HCD_ResetPort(HCD_HandleTypeDef *hhcd);

@@ -35,6 +35,7 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
 #include "usbh_core.h"
+#include "stm32f4xx_hal_hcd_helper.h"
 
 HCD_HandleTypeDef hhcd_USB_OTG_FS;
 HCD_HandleTypeDef hhcd_USB_OTG_HS;
@@ -511,5 +512,10 @@ uint8_t  USBH_LL_GetToggle   (USBH_HandleTypeDef *phost, uint8_t pipe)
 void  USBH_Delay (uint32_t Delay)
 {
   HAL_Delay(Delay);  
+}
+
+void USBH_HCD_Debounce()
+{
+  hcd_debounce(&hhcd_USB_OTG_HS);
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

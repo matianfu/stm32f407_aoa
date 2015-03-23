@@ -2319,7 +2319,7 @@ static struct hid_input *hidinput_allocate(struct hid_device *hid)
 //		return NULL;
 //	}
 
-    USBH_UsrLog("!!! %s", __func__);
+//    USBH_UsrLog("!!! %s", __func__);
 
 //    struct hid_input *hidinput = malloc(sizeof(struct hid_input));
 //    if (hidinput == NULL)
