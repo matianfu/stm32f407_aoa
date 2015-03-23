@@ -416,6 +416,13 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   __IO USBH_StatusTypeDef status = USBH_FAIL;
   uint8_t idx = 0, j;
 
+  if (mapped_port_state(phost) == PORT_UP) {
+    if (!phost->device.is_attached)
+    {
+      phost->gState = HOST_DEV_DETTACHED;
+    }
+  }
+
   switch (phost->gState)
   {
   case HOST_IDLE:
@@ -450,6 +457,10 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     break;
 
   case HOST_DEV_ATTACHED:
+    if (!phost->device.is_connected)
+    {
+      phost->gState = HOST_IDLE;
+    }
 
     USBH_UsrLog("USB Device Attached");
 
@@ -511,7 +522,6 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       {
         phost->gState = HOST_INPUT;
       }
-
     }
 
     break;
@@ -656,6 +666,37 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     {
       phost->pActiveClass->BgndProcess(phost);
     }
+    break;
+
+  case HOST_DEV_DETTACHED:
+
+    USBH_LL_Stop(phost);
+
+    /* Re-Initialize Host for new Enumeration */
+    if (phost->pActiveClass != NULL)
+    {
+      phost->pActiveClass->DeInit(phost);
+      phost->pActiveClass = NULL;
+    }
+
+    USBH_ClosePipe(phost, phost->Control.pipe_in);
+    USBH_ClosePipe(phost, phost->Control.pipe_out);
+
+    USBH_FreePipe(phost, phost->Control.pipe_in);
+    USBH_FreePipe(phost, phost->Control.pipe_out);
+
+    DeInitGStateMachine(phost);
+
+    if(phost->pUser != NULL)
+    {
+      phost->pUser(phost, HOST_USER_DISCONNECTION);
+    }
+
+    USBH_Delay(100);
+    USBH_LL_Start(phost);
+    restore_debug_defaults();
+
+    phost->gState = HOST_DEV_DISCONNECTED;
     break;
 
 //  case HOST_DEV_DISCONNECTED:
