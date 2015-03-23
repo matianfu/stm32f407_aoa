@@ -1,5 +1,7 @@
 #include "usbh_core_ex.h"
 
+
+
 /*
  * This function setup communication pipes and kick start host gstate machine.
  */
@@ -101,7 +103,8 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 
   e = USBH_GetFilteredEvent(phost);
 
-  switch (phost->pState) {
+  // switch (phost->pState) {
+  switch(mapped_port_state(phost)) {
   case PORT_IDLE:
     if (e.evt == USBH_EVT_NULL) {
     }
@@ -112,6 +115,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
       USBH_LL_ResetPort(phost);
       USBH_UsrLog("USB port reset done");
       phost->pState = PORT_WAIT_PORT_UP;
+      phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
       phost->pStateTimer = HAL_GetTick();
     }
     else
@@ -129,10 +133,12 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
     else if (e.evt == USBH_EVT_PORTUP) {
       USBH_Delay(100);
       phost->pState = PORT_UP;
+      phost->gState = HOST_ENUMERATION;
       USBH_HandlePortUp(phost);
     }
     else if (e.evt == USBH_EVT_DISCONNECT) {
       phost->pState = PORT_IDLE;
+      phost->gState = HOST_IDLE;
     }
     else {
       USBH_ERRORSTATE(phost, e);
@@ -146,6 +152,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
     else if (e.evt == USBH_EVT_PORTDOWN) {
       USBH_HandlePortDown(phost);
       phost->pState = PORT_DOWN;
+      phost->gState = HOST_DEV_DISCONNECTED;
     }
     else {
       USBH_ERRORSTATE(phost, e);
@@ -157,6 +164,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
     }
     else if (e.evt == USBH_EVT_DISCONNECT) {
       phost->pState = PORT_IDLE;
+      phost->gState = HOST_IDLE;
     }
     else {
       USBH_ERRORSTATE(phost, e);

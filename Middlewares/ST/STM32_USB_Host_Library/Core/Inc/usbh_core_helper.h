@@ -18,4 +18,6 @@ void USBH_PutEvent(USBH_EventTypeDef e);
 
 void USBH_Print_DeviceDescriptor(USBH_HandleTypeDef *phost);
 
+PORT_StateTypeDef mapped_port_state(USBH_HandleTypeDef *phost);
+
 #endif /* USBH_CORE_HELPER_H */

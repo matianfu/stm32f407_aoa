@@ -1,6 +1,8 @@
 #include "usbh_core.h"
 #include "usbh_core_helper.h"
 
+extern USBH_HandleTypeDef hUsbHostHS;
+
 /*
  * local constants
  */
@@ -118,8 +120,26 @@ for (i = 0; i < bNumInterfaces; i++) {
 
 }
 
-
-extern USBH_HandleTypeDef hUsbHostHS;
+/*
+ * state mapping
+ * PORT IDLE -> HOST_IDLE
+ * PORT_WAIT_PORT_UP -> HOST_WAIT_FOR_ATTACHMENT
+ * PORT_UP -> All other states
+ * PORT_DOWN -> DISCONNECTED
+ */
+PORT_StateTypeDef mapped_port_state(USBH_HandleTypeDef *phost)
+{
+  if (phost->gState == HOST_IDLE)
+    return PORT_IDLE;
+  else if (phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT)
+    return PORT_WAIT_PORT_UP;
+  else if (phost->gState == HOST_DEV_DISCONNECTED)
+    return PORT_DOWN;
+  else
+  {
+    return PORT_UP;
+  }
+}
 
 void HAL_HCD_URB_Monitor(void)
 {
