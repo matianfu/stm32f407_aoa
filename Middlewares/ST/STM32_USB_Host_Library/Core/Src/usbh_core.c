@@ -77,7 +77,6 @@ const static char* enum_state_string[] =
 const static char* request_state_string[] =
 { "CMD_IDLE", "CMD_SEND", "CMD_WAIT" };
 
-
 const static char* control_state_string[] =
 { "CTRL_IDLE", "CTRL_SETUP", "CTRL_SETUP_WAIT", "CTRL_DATA_IN",
     "CTRL_DATA_IN_WAIT", "CTRL_DATA_OUT", "CTRL_DATA_OUT_WAIT",
@@ -311,6 +310,33 @@ static USBH_EventTypeDef USBH_GetEvent(void) {
 	get_event_index = next_event_index(get_event_index);
 
 	return e;
+}
+
+USBH_EventTypeDef* USBH_AllocEvent(void)
+{
+  if (next_event_index(put_event_index) == get_event_index)
+    return NULL ;
+
+  return &USBH_Events[put_event_index];
+}
+
+void USBH_SendEvent(USBH_EventTypeDef* ep)
+{
+  if (ep != &USBH_Events[put_event_index])
+    return;
+
+  ep->timestamp = HAL_GetTick();
+  put_event_index = next_event_index(put_event_index);
+}
+
+void USBH_SendSimpleEvent(USBH_EventTypeTypeDef type)
+{
+  USBH_EventTypeDef* ep = USBH_AllocEvent();
+  if (ep)
+  {
+    ep->evt = type;
+    USBH_SendEvent(ep);
+  }
 }
 
 static void USBH_PutEvent(USBH_EventTypeDef e) {
@@ -1498,20 +1524,14 @@ void  USBH_HandleSof  (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 {
-	USBH_EventTypeDef e;
-	e.evt = USBH_EVT_CONNECT;
-	e.timestamp = HAL_GetTick();
-	USBH_PutEvent(e);
-	return USBH_OK;
+  USBH_SendSimpleEvent(USBH_EVT_CONNECT);
+  return USBH_OK;
 }
 
 USBH_StatusTypeDef USBH_LL_PortUp (USBH_HandleTypeDef *phost)
 {
-	USBH_EventTypeDef e;
-	e.evt = USBH_EVT_PORTUP;
-	e.timestamp = HAL_GetTick();
-	USBH_PutEvent(e);
-	return USBH_OK;
+  USBH_SendSimpleEvent(USBH_EVT_PORTUP);
+  return USBH_OK;
 }
 
 /**
@@ -1522,31 +1542,26 @@ USBH_StatusTypeDef USBH_LL_PortUp (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
 {
-	USBH_EventTypeDef e;
-	e.evt = USBH_EVT_DISCONNECT;
-	e.timestamp = HAL_GetTick();
-	USBH_PutEvent(e);
-	return USBH_OK;
+  USBH_SendSimpleEvent(USBH_EVT_DISCONNECT);
+  return USBH_OK;
 }
 
 USBH_StatusTypeDef USBH_LL_PortDown (USBH_HandleTypeDef *phost)
 {
-	USBH_EventTypeDef e;
-	e.evt = USBH_EVT_PORTDOWN;
-	e.timestamp = HAL_GetTick();
-	USBH_PutEvent(e);
-	return USBH_OK;
+  USBH_SendSimpleEvent(USBH_EVT_PORTDOWN);
+  return USBH_OK;
 }
 
 /*********************************************************************/
 
 USBH_StatusTypeDef USBH_LL_HCINT(USBH_HandleTypeDef *phost, struct hcint_t * hcint) {
 
-  USBH_EventTypeDef e;
-  e.evt = USBH_EVT_HCINT;
-  e.timestamp = HAL_GetTick();
-  e.data.hcint = *hcint;
-  USBH_PutEvent(e);
+  USBH_EventTypeDef* e = USBH_AllocEvent();
+  if (e) {
+    e->evt = USBH_EVT_DISCONNECT;
+    e->data.hcint = *hcint;
+    USBH_SendEvent(e);
+  }
   return USBH_OK;
 }
 
