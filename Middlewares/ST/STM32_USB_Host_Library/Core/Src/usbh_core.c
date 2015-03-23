@@ -699,17 +699,13 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     phost->gState = HOST_DEV_DISCONNECTED;
     break;
 
-//  case HOST_DEV_DISCONNECTED:
-//
-//    DeInitGStateMachine(phost);
-//
-//    /* Re-Initilaize Host for new Enumeration */
-//    if (phost->pActiveClass != NULL)
-//    {
-//      phost->pActiveClass->DeInit(phost);
-//      phost->pActiveClass = NULL;
-//    }
-//    break;
+  case HOST_DEV_DISCONNECTED:
+    if (phost->device.is_connected == 0)
+    {
+      phost->gState = HOST_IDLE;
+    }
+    break;
+
   case HOST_ABORT_STATE:
     break;
 

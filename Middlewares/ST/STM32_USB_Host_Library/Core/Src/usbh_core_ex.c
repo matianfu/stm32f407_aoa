@@ -1,7 +1,5 @@
 #include "usbh_core_ex.h"
 
-
-
 /**
  *  @brief  USBH_ProcessEvent
  *      Background process of the USB Core with asynchronous event processing.
@@ -16,7 +14,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
   e = USBH_GetFilteredEvent(phost);
 
   switch(mapped_port_state(phost)) {
-  case PORT_IDLE:
+  case PORT_IDLE: // GUARD: is_attached = 0;
     if (e.evt == USBH_EVT_NULL) {
     }
     else if (e.evt == USBH_EVT_CONNECT) {
@@ -30,7 +28,7 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
     };
     break;
 
-  case PORT_WAIT_PORT_UP:
+  case PORT_WAIT_PORT_UP: // notice there are two sub-states
     if (e.evt == USBH_EVT_NULL) {
       if (phost->device.is_attached == 1) {
         USBH_Process(phost);
@@ -69,7 +67,8 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
     if (e.evt == USBH_EVT_NULL) {
     }
     else if (e.evt == USBH_EVT_DISCONNECT) {
-      phost->gState = HOST_IDLE;
+      phost->device.is_connected = 0;
+      USBH_Process(phost);
     }
     else {
       USBH_ERRORSTATE(phost, e);
