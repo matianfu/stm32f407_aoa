@@ -443,7 +443,8 @@ typedef struct
   uint8_t                           Data[USBH_MAX_DATA_BUFFER];
   uint8_t                           address;
   uint8_t                           speed;
-  __IO uint8_t                      is_connected;    
+  __IO uint8_t                      is_connected;
+  __IO uint8_t                      is_attached;
   uint8_t                           current_interface;   
   USBH_DevDescTypeDef               DevDesc;
   USBH_CfgDescTypeDef               CfgDesc; 

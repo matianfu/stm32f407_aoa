@@ -117,7 +117,7 @@ PORT_StateTypeDef mapped_port_state(USBH_HandleTypeDef *phost)
 {
   if (phost->gState == HOST_IDLE)
     return PORT_IDLE;
-  else if (phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT)
+  else if (phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT || phost->gState == HOST_DEV_ATTACHED)
     return PORT_WAIT_PORT_UP;
   else if (phost->gState == HOST_DEV_DISCONNECTED)
     return PORT_DOWN;
