@@ -609,7 +609,7 @@ uint8_t  USBH_MSC_IsReady (USBH_HandleTypeDef *phost)
 {
     MSC_HandleTypeDef *MSC_Handle =  phost->pActiveClass->pData;  
     
-  if(phost->State == HOST_CLASS)
+  if(phost->gState == HOST_CLASS)
   {
     return (MSC_Handle->state == MSC_IDLE);
   }
@@ -629,7 +629,7 @@ int8_t  USBH_MSC_GetMaxLUN (USBH_HandleTypeDef *phost)
 {
   MSC_HandleTypeDef *MSC_Handle =  phost->pActiveClass->pData;    
   
-  if ((phost->State != HOST_CLASS) && (MSC_Handle->state == MSC_IDLE))
+  if ((phost->gState != HOST_CLASS) && (MSC_Handle->state == MSC_IDLE))
   {
     return  MSC_Handle->max_lun;
   }  
@@ -647,7 +647,7 @@ uint8_t  USBH_MSC_UnitIsReady (USBH_HandleTypeDef *phost, uint8_t lun)
 {
   MSC_HandleTypeDef *MSC_Handle =  phost->pActiveClass->pData;  
   
-  if(phost->State == HOST_CLASS)
+  if(phost->gState == HOST_CLASS)
   {
     return (MSC_Handle->unit[lun].error == MSC_OK);
   }
@@ -667,7 +667,7 @@ uint8_t  USBH_MSC_UnitIsReady (USBH_HandleTypeDef *phost, uint8_t lun)
 USBH_StatusTypeDef USBH_MSC_GetLUNInfo(USBH_HandleTypeDef *phost, uint8_t lun, MSC_LUNTypeDef *info)
 {
   MSC_HandleTypeDef *MSC_Handle =  phost->pActiveClass->pData;    
-  if(phost->State == HOST_CLASS)
+  if(phost->gState == HOST_CLASS)
   {
     USBH_memcpy(info,&MSC_Handle->unit[lun], sizeof(MSC_LUNTypeDef));
     return USBH_OK;
@@ -698,7 +698,7 @@ USBH_StatusTypeDef USBH_MSC_Read(USBH_HandleTypeDef *phost,
   MSC_HandleTypeDef *MSC_Handle =  phost->pActiveClass->pData;   
   
   if ((phost->device.is_connected == 0) || 
-      (phost->State != HOST_CLASS) || 
+      (phost->gState != HOST_CLASS) || 
       (MSC_Handle->unit[lun].state != MSC_IDLE))
   {
     return  USBH_FAIL;
@@ -745,7 +745,7 @@ USBH_StatusTypeDef USBH_MSC_Write(USBH_HandleTypeDef *phost,
   MSC_HandleTypeDef *MSC_Handle =  phost->pActiveClass->pData;   
   
   if ((phost->device.is_connected == 0) || 
-      (phost->State != HOST_CLASS) || 
+      (phost->gState != HOST_CLASS) || 
       (MSC_Handle->unit[lun].state != MSC_IDLE))
   {
     return  USBH_FAIL;

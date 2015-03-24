@@ -80,8 +80,12 @@ void MX_USB_HOST_Init(void)
    * @param  serial: serial number string (max 63 chars)
    * @retval None
    */
-  USBH_ADK_Init("Actnova", "Model T", "HID barcode scanner adapter", "1.0.0",
-      "http://www.actnova.com/aoa.apk", "1234567890");
+  USBH_ADK_Init((unsigned char*)"Actnova",
+                (unsigned char*)"Model T",
+                (unsigned char*)"HID barcode scanner adapter",
+                (unsigned char*)"1.0.0",
+                (unsigned char*)"http://www.actnova.com/aoa.apk",
+                (unsigned char*)"1234567890");
 
   /* Init Host Library,Add Supported Class and Start the library*/
   USBH_Init(&hUsbHostHS, USBH_UserProcess1, HOST_HS);

@@ -326,16 +326,6 @@ USBH_StatusTypeDef USBH_LL_ResetPort (USBH_HandleTypeDef *phost)
   return USBH_OK; 
 }
 
-USBH_StatusTypeDef 	 USBH_LL_ResetAssert  (USBH_HandleTypeDef *phost) {
-  HAL_HCD_ResetAssert(phost->pData);
-  return USBH_OK;
-}
-
-USBH_StatusTypeDef 	 USBH_LL_ResetDeassert(USBH_HandleTypeDef *phost) {
-  HAL_HCD_ResetDeassert(phost->pData);
-  return USBH_OK;
-}
-
 /**
   * @brief   
   * @param  
@@ -378,11 +368,6 @@ USBH_StatusTypeDef   USBH_LL_ClosePipe   (USBH_HandleTypeDef *phost, uint8_t pip
 {
   HAL_HCD_HC_Halt(phost->pData, pipe);
   return USBH_OK; 
-}
-
-unsigned int  USBH_LL_PortStale(USBH_HandleTypeDef *phost)
-{
-  return HAL_HCD_PortStale(phost->pData);
 }
 
 /**

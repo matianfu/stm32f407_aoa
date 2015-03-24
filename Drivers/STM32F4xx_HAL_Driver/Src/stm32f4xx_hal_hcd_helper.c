@@ -194,3 +194,24 @@ void HCD_DevState_Task(HCD_HandleTypeDef *hhcd)
   }
 }
 
+/*
+ * custom code
+ */
+
+/*
+ * Not sure if this code is needed any more after commit @ 20140323
+ *
+ * a port is stale when:
+ * PENA = 0, PENCHNG = 0, PCDET = 0, PCSTS = 1
+ * that is, it won't issue interrupts anymore, with port disabled and connected.
+ */
+unsigned int HAL_HCD_PortStale(HCD_HandleTypeDef *hhcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+
+  uint32_t hprt = USBx_HPRT0;
+  if ((hprt & 0x0000000F) == 0x00000001)
+    return 1;
+
+  return 0;
+}

@@ -71,7 +71,7 @@ static inline uint64_t get_unaligned_le64(const void *p)
 
 int32_t hid_snto32(uint32_t value, unsigned n);
 
-static const char *hid_gpd_strings[] =
+const char *hid_gpd_strings[] =
 { "Undefined", "Pointer", "Mouse", "Reserved", "Joystick", "Gamepad", "Keyboard",
     "Keypad", "Multi-Axis Controller" };
 
@@ -155,18 +155,18 @@ static struct hid_field *hid_register_field(struct hid_report *report, unsigned 
 {
 	struct hid_field *field;
 	struct hid_field_request request;
-	size_t size;
+//	size_t size;
 
-	static unsigned int total_field_size = 0;
+//	static unsigned int total_field_size = 0;
 
 	if (report->maxfield == HID_MAX_FIELDS) {
 		hid_err(report->device, "too many fields in report\n");
 		return NULL;
 	}
 
-	size = (sizeof(struct hid_field) +
-        usages * sizeof(struct hid_usage) +
-        values * sizeof(unsigned));
+//	size = (sizeof(struct hid_field) +
+//        usages * sizeof(struct hid_usage) +
+//        values * sizeof(unsigned));
 
 	if (0 != hid_request_field(report->device, usages, values, &request)) {
 	  return NULL;

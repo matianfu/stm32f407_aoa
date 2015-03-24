@@ -1166,7 +1166,6 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
       }
       // HAL_HCD_Connect_Callback(hhcd);
       hhcd->DevState.state.attached = 1;
-      USBH_SendSimpleEvent(USBH_EVT_PORTUP);
 
       if (hhcd->Init.speed == HCD_SPEED_HIGH)
       {
@@ -1183,7 +1182,6 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
 
       // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
       hhcd->DevState.state.attached = 0;
-      USBH_SendSimpleEvent(USBH_EVT_PORTDOWN);
     }
   }
 
@@ -1195,48 +1193,6 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
 
   /* Clear Port Interrupts */
   USBx_HPRT0 = hprt0_dup;
-}
-
-/*
- * custom code
- */
-
-__weak void HAL_HCD_PortUp_Callback(HCD_HandleTypeDef *hhcd)
-{
-
-}
-
-__weak void HAL_HCD_PortDown_Callback(HCD_HandleTypeDef *hhcd)
-{
-
-}
-
-HAL_StatusTypeDef HAL_HCD_ResetAssert(HCD_HandleTypeDef *hhcd)
-{
-  return (USB_ResetAssert(hhcd->Instance));
-}
-
-HAL_StatusTypeDef HAL_HCD_ResetDeassert(HCD_HandleTypeDef *hhcd)
-{
-  return (USB_ResetDeassert(hhcd->Instance));
-}
-
-/*
- * Not sure if this code is needed any more after commit @ 20140323
- *
- * a port is stale when:
- * PENA = 0, PENCHNG = 0, PCDET = 0, PCSTS = 1
- * that is, it won't issue interrupts anymore, with port disabled and connected.
- */
-unsigned int HAL_HCD_PortStale(HCD_HandleTypeDef *hhcd)
-{
-  USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
-
-  uint32_t hprt = USBx_HPRT0;
-  if ((hprt & 0x0000000F) == 0x00000001)
-    return 1;
-
-  return 0;
 }
 
 /**

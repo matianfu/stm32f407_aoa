@@ -333,6 +333,9 @@ uint16_t  fifo_write(FIFO_TypeDef * f, const void * buf, uint16_t  nbytes);
 /**
   * @}
   */ 
+void USBH_HID_PrintHIDDesc(HID_DescTypeDef* desc);
+void USBH_Print_HID_Object_Size(void);
+void USBH_Print_Report_Descriptor(uint8_t* buf, uint16_t size);
 
 
 #endif /* __USBH_HID_H */

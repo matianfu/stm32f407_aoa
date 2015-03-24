@@ -488,8 +488,8 @@ void input_event(struct input_dev * dev, unsigned int type, unsigned int code, i
       rmeta = value;
     }
     else {
-//      USBH_UsrLog("        input_event, type: %d/%s, code: %d/%s, value: %d, lcsam: %d %d %d %d, rcsam: %d %d %d %d",
-//          type, event_type_str[type], code, keycode_str[code], value, lctrl, lshift, lalt, lmeta, rctrl, rshift, ralt, rmeta);
+      USBH_UsrLog("        input_event, type: %d/%s, code: %d/%s, value: %d, lcsam: %d %d %d %d, rcsam: %d %d %d %d",
+          type, event_type_str[type], code, keycode_str[code], value, lctrl, lshift, lalt, lmeta, rctrl, rshift, ralt, rmeta);
     }
     keycode[code] = value;
   }
@@ -1911,7 +1911,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput,
     break;
   }
 
-  mapped:
+//  mapped:
 //	if (device->driver->input_mapped && device->driver->input_mapped(device,
 //				hidinput, field, usage, &bit, &max) < 0)
 //		goto ignore;
@@ -2116,7 +2116,7 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field,
 void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
 {
   int i;
-  struct hid_input *hidinput;
+//  struct hid_input *hidinput;
 
   USBH_UsrLog("%s", __func__);
 

@@ -176,8 +176,6 @@ USBH_StatusTypeDef   USBH_LL_PortDown     (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_Disconnect   (USBH_HandleTypeDef *phost);
 USBH_SpeedTypeDef    USBH_LL_GetSpeed     (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_ResetPort    (USBH_HandleTypeDef *phost);
-USBH_StatusTypeDef 	 USBH_LL_ResetAssert  (USBH_HandleTypeDef *phost);
-USBH_StatusTypeDef 	 USBH_LL_ResetDeassert(USBH_HandleTypeDef *phost);
 uint32_t             USBH_LL_GetLastXferSize   (USBH_HandleTypeDef *phost, uint8_t ); 
 USBH_StatusTypeDef   USBH_LL_DriverVBUS   (USBH_HandleTypeDef *phost, uint8_t );
 
@@ -204,7 +202,6 @@ void                 USBH_LL_IncTimer     (USBH_HandleTypeDef *phost);
   */ 
 
 USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost);
-unsigned int  USBH_LL_PortStale(USBH_HandleTypeDef *phost);
 
 void USBH_DevState_Reset(USBH_HandleTypeDef *phost);
 int USBH_DevState_IsConnected(USBH_HandleTypeDef *phost);

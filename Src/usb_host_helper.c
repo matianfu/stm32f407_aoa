@@ -818,33 +818,6 @@ PRTREG_END
     DEFINE_PRTREG2)(__VA_ARGS__)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-extern USBH_HandleTypeDef hUsbHostHS;
 extern HCD_HandleTypeDef hhcd_USB_OTG_HS;
 
 /*
@@ -1176,7 +1149,7 @@ USB_OTG_GlobalTypeDef;
 
 static void print_usb_otg_global_registers(void) {
 
-  int i;
+//  int i;
 
   HCD_HandleTypeDef *hhcd = &hhcd_USB_OTG_HS;
 

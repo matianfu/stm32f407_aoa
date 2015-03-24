@@ -12,7 +12,7 @@ void time2_init(void)
 {
 
 	  TIM_ClockConfigTypeDef sClockSourceConfig;
-	  GPIO_InitTypeDef GPIO_InitStruct;
+//	  GPIO_InitTypeDef GPIO_InitStruct;
 	
 	
 	  htim2.Instance = TIM2;

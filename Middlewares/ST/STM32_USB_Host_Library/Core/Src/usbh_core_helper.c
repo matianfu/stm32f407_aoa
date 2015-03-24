@@ -21,7 +21,7 @@ const static char* gstate_string[] =
     "HOST_SET_CONFIGURATION", "HOST_CHECK_CLASS", "HOST_HAND_SHAKE",
     "HOST_CLASS", "HOST_SUSPENDED", "HOST_ABORT_STATE" };
 
-char* usbh_helper_gstate_string(HOST_StateTypeDef gstate)
+const char* usbh_helper_gstate_string(HOST_StateTypeDef gstate)
 {
   return gstate_string[gstate];
 }
@@ -115,11 +115,11 @@ for (i = 0; i < bNumInterfaces; i++) {
  */
 PORT_StateTypeDef mapped_port_state(USBH_HandleTypeDef *phost)
 {
-  if (phost->State == HOST_IDLE)
+  if (phost->gState == HOST_IDLE)
     return PORT_IDLE;
-  else if (phost->State == HOST_DEV_WAIT_FOR_ATTACHMENT || phost->State == HOST_DEV_ATTACHED)
+  else if (phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT || phost->gState == HOST_DEV_ATTACHED)
     return PORT_WAIT_PORT_UP;
-  else if (phost->State == HOST_DEV_DISCONNECTED)
+  else if (phost->gState == HOST_DEV_DISCONNECTED)
     return PORT_DOWN;
   else
   {
@@ -174,7 +174,7 @@ void USBH_DebugOutput(USBH_HandleTypeDef* phost, USBH_EventTypeDef event, int fo
   if (!force) {
     /** print only once for successive state/event **/
     if ( /** (phost->pState == ps) && **/
-        (phost->State == gs) &&
+        (phost->gState == gs) &&
         (phost->EnumState == es) &&
         (phost->RequestState == rs) &&
         (phost->Control.state == cs) &&
@@ -186,7 +186,7 @@ void USBH_DebugOutput(USBH_HandleTypeDef* phost, USBH_EventTypeDef event, int fo
 
   // ps = phost->pState;
   ps = mapped_port_state(phost);
-  gs = phost->State;
+  gs = phost->gState;
   es = phost->EnumState;
   rs = phost->RequestState;
   cs = phost->Control.state;
@@ -380,6 +380,92 @@ pop:
   USBH_DebugOutput(phost, e, 0);
 
   return e;
+}
+
+/**
+ *  @brief  USBH_ProcessEvent
+ *      Background process of the USB Core with asynchronous event processing.
+ *      The original USBH_Process function should be considered as NULL_EVENT event handler.
+ *  @param  phost: Host Handle
+ *  @retval USBH Status
+ */
+USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
+{
+  USBH_EventTypeDef e;
+
+  do {
+    e = USBH_GetFilteredEvent(phost);
+  } while (e.evt != USBH_EVT_NULL);
+
+  USBH_Process(phost);
+  return USBH_OK;
+
+#if 0
+  switch(mapped_port_state(phost)) {
+  case PORT_IDLE: // GUARD: is_attached = 0;
+    if (e.evt == USBH_EVT_NULL) {
+    }
+    else if (e.evt == USBH_EVT_CONNECT) {
+      phost->device.is_attached = 0;
+      phost->device.is_connected = 1;
+      USBH_Process(phost);
+    }
+    else
+    {
+      USBH_ERRORSTATE(phost, e);
+    };
+    break;
+
+  case PORT_WAIT_PORT_UP: // notice there are two sub-states
+    if (e.evt == USBH_EVT_NULL) {
+      if (phost->device.is_attached == 1) {
+        USBH_Process(phost);
+      }
+      else if (HAL_GetTick() - phost->pStateTimer > USBH_ATTACH_DELAY) {
+        // TODO timeout processing
+      }
+    }
+    else if (e.evt == USBH_EVT_PORTUP) {
+      phost->device.is_attached = 1;
+      USBH_Process(phost);
+    }
+    else if (e.evt == USBH_EVT_DISCONNECT) {
+      phost->device.is_connected = 0;
+      USBH_Process(phost);
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+
+  case PORT_UP:
+    if (e.evt == USBH_EVT_NULL) {
+      USBH_Process(phost);
+    }
+    else if (e.evt == USBH_EVT_PORTDOWN) {
+      phost->device.is_attached = 0;
+      USBH_Process(phost);
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+
+  case PORT_DOWN:
+    if (e.evt == USBH_EVT_NULL) {
+    }
+    else if (e.evt == USBH_EVT_DISCONNECT) {
+      phost->device.is_connected = 0;
+      USBH_Process(phost);
+    }
+    else {
+      USBH_ERRORSTATE(phost, e);
+    }
+    break;
+  }
+
+  return USBH_OK;
+#endif
 }
 
 

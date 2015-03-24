@@ -282,7 +282,7 @@ USBH_StatusTypeDef USBH_HID_InterfaceDeInit(USBH_HandleTypeDef *phost)
   return USBH_OK;
 }
 
-static void USBH_HID_PrintHIDDesc(HID_DescTypeDef* desc) {
+void USBH_HID_PrintHIDDesc(HID_DescTypeDef* desc) {
 
   USBH_UsrLog("  HID Device Descriptor:");
   USBH_UsrLog("    bLength: %d", desc->bLength);
@@ -725,7 +725,7 @@ HID_TypeTypeDef USBH_HID_GetDeviceType(USBH_HandleTypeDef *phost)
 {
   HID_TypeTypeDef type = HID_UNKNOWN;
 
-  if (phost->State == HOST_CLASS)
+  if (phost->gState == HOST_CLASS)
   {
 
     if (phost->device.CfgDesc.Itf_Desc[phost->device.current_interface].bInterfaceProtocol
@@ -752,9 +752,9 @@ uint8_t USBH_HID_GetPollInterval(USBH_HandleTypeDef *phost)
 {
   HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
 
-  if ((phost->State == HOST_CLASS_REQUEST) || (phost->State == HOST_INPUT)
-      || (phost->State == HOST_SET_CONFIGURATION)
-      || (phost->State == HOST_CHECK_CLASS) || ((phost->State == HOST_CLASS)))
+  if ((phost->gState == HOST_CLASS_REQUEST) || (phost->gState == HOST_INPUT)
+      || (phost->gState == HOST_SET_CONFIGURATION)
+      || (phost->gState == HOST_CHECK_CLASS) || ((phost->gState == HOST_CLASS)))
   {
     return (HID_Handle->poll);
   }
@@ -892,7 +892,7 @@ __weak void USBH_HID_EventCallback(USBH_HandleTypeDef *phost)
 
 /************************ Custom Functions ************************************/
 
-static void USBH_Print_Report_Descriptor(uint8_t* buf, uint16_t size)
+void USBH_Print_Report_Descriptor(uint8_t* buf, uint16_t size)
 {
   unsigned i;
 
@@ -906,7 +906,7 @@ static void USBH_Print_Report_Descriptor(uint8_t* buf, uint16_t size)
   }
 }
 
-static void USBH_Print_HID_Object_Size(void) {
+void USBH_Print_HID_Object_Size(void) {
 
   USBH_UsrLog("HID: size of hid_device is %d", sizeof(struct hid_device));
   USBH_UsrLog("HID: size of hid_parser is %d", sizeof(struct hid_parser));

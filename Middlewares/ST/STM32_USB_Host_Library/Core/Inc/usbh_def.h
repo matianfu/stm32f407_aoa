@@ -346,7 +346,6 @@ typedef enum
   HOST_IDLE =0,
   HOST_DEV_WAIT_FOR_ATTACHMENT,  
   HOST_DEV_ATTACHED,
-  HOST_DEV_DETTACHED,
   HOST_DEV_DISCONNECTED,  
   HOST_DETECT_DEVICE_SPEED,
   HOST_ENUMERATION,
@@ -470,7 +469,7 @@ typedef struct
 /* USB Host handle structure */
 typedef struct _USBH_HandleTypeDef
 {
-  __IO HOST_StateTypeDef      State;       	/*  Host State Machine Value */
+  __IO HOST_StateTypeDef      gState;       	/*  Host State Machine Value */
   uint32_t                    StateTimer;
   ENUM_StateTypeDef     EnumState;          /* Enumeration state Machine */
   CMD_StateTypeDef      RequestState;
