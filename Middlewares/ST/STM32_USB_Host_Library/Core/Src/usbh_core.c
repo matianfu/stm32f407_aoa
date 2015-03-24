@@ -417,7 +417,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   uint8_t idx = 0, j;
 
   if (mapped_port_state(phost) == PORT_UP) {
-    if (!phost->device.is_attached)
+    if (!USBH_DevState_IsAttached(phost))
     {
       phost->gState = HOST_DEV_DETTACHED;
     }
@@ -426,7 +426,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   switch (phost->gState)
   {
   case HOST_IDLE:
-    if (phost->device.is_connected)
+    if (USBH_DevState_IsConnected(phost))
     {
       /* Wait for 200 ms after connection */
       phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
@@ -443,11 +443,11 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     break;
 
   case HOST_DEV_WAIT_FOR_ATTACHMENT:
-    if (!phost->device.is_connected)
+    if (!USBH_DevState_IsConnected(phost))
     {
       phost->gState = HOST_IDLE;
     }
-    else if (phost->device.is_attached)
+    else if (USBH_DevState_IsAttached(phost))
     {
       phost->gState = HOST_DEV_ATTACHED;
     }
@@ -457,7 +457,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     break;
 
   case HOST_DEV_ATTACHED:
-    if (!phost->device.is_connected)
+    if (!USBH_DevState_IsConnected(phost))
     {
       phost->gState = HOST_IDLE;
     }
@@ -700,7 +700,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     break;
 
   case HOST_DEV_DISCONNECTED:
-    if (phost->device.is_connected == 0)
+    if (USBH_DevState_IsConnected(phost) == 0)
     {
       phost->gState = HOST_IDLE;
     }

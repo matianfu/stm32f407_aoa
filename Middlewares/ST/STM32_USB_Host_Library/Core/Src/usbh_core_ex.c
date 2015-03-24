@@ -9,13 +9,12 @@
  */
 USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 {
-  static USBH_EventTypeDef e;
-
-  e = USBH_GetFilteredEvent(phost);
+  USBH_GetFilteredEvent(phost);
 
   USBH_Process(phost);
   return USBH_OK;
 
+#if 0
   switch(mapped_port_state(phost)) {
   case PORT_IDLE: // GUARD: is_attached = 0;
     if (e.evt == USBH_EVT_NULL) {
@@ -80,4 +79,5 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
   }
 
   return USBH_OK;
+#endif
 }

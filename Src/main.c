@@ -47,7 +47,6 @@
 
 /* USER CODE BEGIN 0 */
 extern void uart_hl_print(void);
-extern void HAL_HCD_URB_Monitor(void);
 extern void Command_Init(void);
 extern void Process_Command(void);
 /* USER CODE END 0 */

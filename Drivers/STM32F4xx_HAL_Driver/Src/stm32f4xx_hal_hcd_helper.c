@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "stm32f4xx_hal_hcd_helper.h"
 #include "stm32f4xx_ll_usb.h"
+#include "usbh_core_helper.h"
 
 // extern HCD_HandleTypeDef hhcd_USB_OTG_FS;
 // extern HCD_HandleTypeDef hhcd_USB_OTG_HS;
@@ -147,65 +148,51 @@ void hc_helper_sumbit_request(void)
   }
 }
 
-void start_debouncing(HCD_HandleTypeDef* hhcd)
+void HCD_DevState_Reset(HCD_HandleTypeDef *hhcd)
 {
-  __IO uint8_t * dev_is_connected = &(((USBH_HandleTypeDef*)(hhcd->pData))->device.is_connected);
-  USBH_PutMessage("USBH Start Debouncing");
-  hhcd->debounce = USBH_CONNECT_DEBOUNCING_TICK;
+  hhcd->DevState.value = 0;
 }
 
-int is_debouncing(HCD_HandleTypeDef *hhcd)
+int HCD_DevState_IsConnected(HCD_HandleTypeDef *hhcd)
 {
-  return hhcd->debounce;
+  return hhcd->DevState.state.connected ? 1 : 0;
 }
 
-/*
- * This function debounces connect event only. Because only connect need debounce.
- * For disconnect, after port down, it is sure the event is a true disconnect.
- */
-void hcd_debounce(HCD_HandleTypeDef *hhcd)
+int HCD_DevState_IsAttached(HCD_HandleTypeDef *hhcd)
+{
+  return hhcd->DevState.state.attached ? 1 : 0;
+}
+
+void HCD_DevState_Task(HCD_HandleTypeDef *hhcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
-  __IO uint8_t * dev_is_connected = &(((USBH_HandleTypeDef*)(hhcd->pData))->device.is_connected);
 
-  if (hhcd->debounce)
+  hhcd->DevState.state.debounce = (hhcd->DevState.state.debounce << 1);
+
+  if (USBx_HPRT0 & USB_OTG_HPRT_PCSTS)
   {
-    if (USBx_HPRT0 & USB_OTG_HPRT_PCSTS)
-    {
-      hhcd->debounce++;
-      if (hhcd->debounce > 2 * USBH_CONNECT_DEBOUNCING_TICK)
-      {
-        if (*dev_is_connected == 0) // disconnected
-        {
-          USBH_PutMessage("USBH Stop Debouncing, Dev Switch to Connected");
-          *dev_is_connected = 1;
-          USBH_SendSimpleEvent(USBH_EVT_CONNECT);
-        }
-        else {
-          USBH_PutMessage("USBH Stop Debouncing, Dev Stay Connected");
-        }
+    hhcd->DevState.state.debounce |= 0x0001;
+  }
+  else
+  {
+    hhcd->DevState.state.debounce &= ~(0x0001);
+  }
 
-        hhcd->debounce = 0;
-      }
-    }
-    else
+  if (hhcd->DevState.state.connected == 0)
+  {
+    if (hhcd->DevState.state.debounce == 0xFFFF)
     {
-      hhcd->debounce--;
-      if (hhcd->debounce == 0)
-      {
-        if (*dev_is_connected == 1) // connected
-        {
-          USBH_PutMessage("USBH Stop Debouncing, Dev Switch to Disconnected");
-          USBH_SendSimpleEvent(USBH_EVT_DISCONNECT);
-          *dev_is_connected = 0;
-        }
-        else {
-          USBH_PutMessage("USBH Stop Debouncing, Dev Stay Disconnected");
-        }
-      }
+      USBH_PutMessage("DevState: connected.");
+      hhcd->DevState.state.connected = 1;
+    }
+  }
+  else
+  {
+    if (hhcd->DevState.state.debounce == 0x0000)
+    {
+      USBH_PutMessage("DevState: disconnected.");
+      hhcd->DevState.state.connected = 0;
     }
   }
 }
-
-
 

@@ -74,6 +74,19 @@ typedef USB_OTG_HCTypeDef       HCD_HCTypeDef ;
 typedef USB_OTG_URBStateTypeDef HCD_URBStateTypeDef ;
 typedef USB_OTG_HCStateTypeDef  HCD_HCStateTypeDef ;
 
+__packed struct HCD_DevState
+{
+  uint8_t connected;
+  uint8_t attached;
+  uint16_t debounce;
+};
+
+typedef union
+{
+  struct HCD_DevState state;
+  uint32_t value;
+} HCD_DevStateTypeDef;
+
 /** 
   * @brief  HCD Handle Structure definition  
   */ 
@@ -87,7 +100,7 @@ typedef struct
   void                      *pData;     /*!< Pointer Stack Handler    */    
   
   /** custom field **/
-  uint32_t                  debounce;     /* count down */
+  HCD_DevStateTypeDef       DevState;
 } HCD_HandleTypeDef;
   
 /* Exported constants --------------------------------------------------------*/
@@ -171,7 +184,7 @@ HAL_StatusTypeDef      HAL_HCD_HC_Init(HCD_HandleTypeDef *hhcd,
                                   uint8_t ep_type,
                                   uint16_t mps);
 
-HAL_StatusTypeDef       HAL_HCD_HC_Halt(HCD_HandleTypeDef *hhcd,  
+HAL_StatusTypeDef      HAL_HCD_HC_Halt(HCD_HandleTypeDef *hhcd,
                                   uint8_t ch_num);
 
 void            HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd);

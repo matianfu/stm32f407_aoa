@@ -517,8 +517,25 @@ void  USBH_Delay (uint32_t Delay)
   HAL_Delay(Delay);  
 }
 
-void USBH_HCD_Debounce()
+void USBH_HCD_DevStateTask(void)
 {
-  hcd_debounce(&hhcd_USB_OTG_HS);
+  HCD_DevState_Task(&hhcd_USB_OTG_HS);
 }
+
+void USBH_DevState_Reset(USBH_HandleTypeDef *phost)
+{
+  HCD_DevState_Reset(phost->pData);
+}
+int USBH_DevState_IsConnected(USBH_HandleTypeDef *phost)
+{
+  return HCD_DevState_IsConnected(phost->pData);
+}
+int USBH_DevState_IsAttached(USBH_HandleTypeDef *phost)
+{
+  return HCD_DevState_IsAttached(phost->pData);
+}
+
+
+
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

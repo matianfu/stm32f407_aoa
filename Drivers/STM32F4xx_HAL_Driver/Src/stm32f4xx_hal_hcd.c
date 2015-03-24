@@ -73,6 +73,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_hcd_helper.h"
+#include "usbh_core.h"
+#include "usbh_core_helper.h"
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
   */
@@ -145,7 +147,7 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
   /* Init Host */
   USB_HostInit(hhcd->Instance, hhcd->Init);
 
-  hhcd->debounce = 0; /* disconnected */
+  hhcd->DevState.value = 0;
   hhcd->State = HAL_HCD_STATE_READY;
 
   return HAL_OK;
@@ -1124,17 +1126,13 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
   /* Check whether Port Connect Detected */
   if ((hprt0 & USB_OTG_HPRT_PCDET) == USB_OTG_HPRT_PCDET)
   {
+    USBH_PutMessage("CONNECT");
+
 //    if ((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
 //    {
 //      USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
 //      HAL_HCD_Connect_Callback(hhcd);
 //    }
-
-    USBH_PutMessage("CONNECT");
-    if (!is_debouncing(hhcd))
-    {
-      start_debouncing(hhcd);
-    }
 
     hprt0_dup |= USB_OTG_HPRT_PCDET;
   }
@@ -1167,7 +1165,7 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
         }
       }
       // HAL_HCD_Connect_Callback(hhcd);
-      HAL_HCD_Attach_Callback(hhcd);
+      hhcd->DevState.state.attached = 1;
       USBH_SendSimpleEvent(USBH_EVT_PORTUP);
 
       if (hhcd->Init.speed == HCD_SPEED_HIGH)
@@ -1184,9 +1182,8 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
           USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG);
 
       // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
-      HAL_HCD_Detach_Callback(hhcd);
+      hhcd->DevState.state.attached = 0;
       USBH_SendSimpleEvent(USBH_EVT_PORTDOWN);
-      start_debouncing(hhcd);
     }
   }
 

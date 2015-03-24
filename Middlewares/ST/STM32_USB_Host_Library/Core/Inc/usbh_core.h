@@ -206,6 +206,10 @@ void                 USBH_LL_IncTimer     (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost);
 unsigned int  USBH_LL_PortStale(USBH_HandleTypeDef *phost);
 
+void USBH_DevState_Reset(USBH_HandleTypeDef *phost);
+int USBH_DevState_IsConnected(USBH_HandleTypeDef *phost);
+int USBH_DevState_IsAttached(USBH_HandleTypeDef *phost);
+
 
 #endif /* __CORE_H */
 /**
