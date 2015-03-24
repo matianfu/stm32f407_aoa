@@ -560,7 +560,7 @@ USBH_StatusTypeDef USBH_ADK_send(USBH_HandleTypeDef *phost, uint8_t *buff,
   {
     USBH_BulkSendData(phost, buff, len, ADK_Machine.hc_num_out, 1);
 //		ADK_Machine.outSize = 0;
-    ADK_Machine.state = ADK_GET_DATA;	 //�޸�
+    ADK_Machine.state = ADK_GET_DATA;
   }
   return USBH_OK;
 }

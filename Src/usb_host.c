@@ -147,8 +147,8 @@ static void USBH_UserProcess1(USBH_HandleTypeDef *phost, uint8_t id)
 
     if (aoa_handshake_tried == 0)
     {
-      if (phost->AbortReason == ABORT_CLASSINIT_FAIL ||
-          phost->AbortReason == ABORT_NOCLASS_MATCH)
+      if (phost->AbortReason == ABORT_CLASSINIT_FAIL || /** interface with class code 0xff but subclass protocol not match **/
+          phost->AbortReason == ABORT_NOCLASS_MATCH)    /** no interface with class code 0xff but aoa may works **/
       {
         USBH_StatusTypeDef status = USBH_AOA_Handshake(phost);
 
