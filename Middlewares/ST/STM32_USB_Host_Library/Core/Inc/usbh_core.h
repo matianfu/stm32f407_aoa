@@ -203,7 +203,7 @@ void                 USBH_LL_IncTimer     (USBH_HandleTypeDef *phost);
   * @}
   */ 
 
-USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost);
+USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost);
 unsigned int  USBH_LL_PortStale(USBH_HandleTypeDef *phost);
 
 void USBH_DevState_Reset(USBH_HandleTypeDef *phost);

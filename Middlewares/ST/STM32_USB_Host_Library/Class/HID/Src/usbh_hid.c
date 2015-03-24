@@ -725,7 +725,7 @@ HID_TypeTypeDef USBH_HID_GetDeviceType(USBH_HandleTypeDef *phost)
 {
   HID_TypeTypeDef type = HID_UNKNOWN;
 
-  if (phost->gState == HOST_CLASS)
+  if (phost->State == HOST_CLASS)
   {
 
     if (phost->device.CfgDesc.Itf_Desc[phost->device.current_interface].bInterfaceProtocol
@@ -752,9 +752,9 @@ uint8_t USBH_HID_GetPollInterval(USBH_HandleTypeDef *phost)
 {
   HID_HandleTypeDef *HID_Handle = phost->pActiveClass->pData;
 
-  if ((phost->gState == HOST_CLASS_REQUEST) || (phost->gState == HOST_INPUT)
-      || (phost->gState == HOST_SET_CONFIGURATION)
-      || (phost->gState == HOST_CHECK_CLASS) || ((phost->gState == HOST_CLASS)))
+  if ((phost->State == HOST_CLASS_REQUEST) || (phost->State == HOST_INPUT)
+      || (phost->State == HOST_SET_CONFIGURATION)
+      || (phost->State == HOST_CHECK_CLASS) || ((phost->State == HOST_CLASS)))
   {
     return (HID_Handle->poll);
   }

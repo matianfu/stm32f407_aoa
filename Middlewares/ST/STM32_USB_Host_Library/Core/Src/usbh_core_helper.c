@@ -115,11 +115,11 @@ for (i = 0; i < bNumInterfaces; i++) {
  */
 PORT_StateTypeDef mapped_port_state(USBH_HandleTypeDef *phost)
 {
-  if (phost->gState == HOST_IDLE)
+  if (phost->State == HOST_IDLE)
     return PORT_IDLE;
-  else if (phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT || phost->gState == HOST_DEV_ATTACHED)
+  else if (phost->State == HOST_DEV_WAIT_FOR_ATTACHMENT || phost->State == HOST_DEV_ATTACHED)
     return PORT_WAIT_PORT_UP;
-  else if (phost->gState == HOST_DEV_DISCONNECTED)
+  else if (phost->State == HOST_DEV_DISCONNECTED)
     return PORT_DOWN;
   else
   {
@@ -174,7 +174,7 @@ void USBH_DebugOutput(USBH_HandleTypeDef* phost, USBH_EventTypeDef event, int fo
   if (!force) {
     /** print only once for successive state/event **/
     if ( /** (phost->pState == ps) && **/
-        (phost->gState == gs) &&
+        (phost->State == gs) &&
         (phost->EnumState == es) &&
         (phost->RequestState == rs) &&
         (phost->Control.state == cs) &&
@@ -186,7 +186,7 @@ void USBH_DebugOutput(USBH_HandleTypeDef* phost, USBH_EventTypeDef event, int fo
 
   // ps = phost->pState;
   ps = mapped_port_state(phost);
-  gs = phost->gState;
+  gs = phost->State;
   es = phost->EnumState;
   rs = phost->RequestState;
   cs = phost->Control.state;

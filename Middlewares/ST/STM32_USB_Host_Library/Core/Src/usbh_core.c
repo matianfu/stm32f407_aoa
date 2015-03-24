@@ -82,7 +82,6 @@ extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
   */ 
 static USBH_StatusTypeDef  USBH_HandleEnum    (USBH_HandleTypeDef *phost);
 static void                USBH_HandleSof     (USBH_HandleTypeDef *phost);
-static USBH_StatusTypeDef  DeInitPStateMachine(USBH_HandleTypeDef *phost);
 
 #if (USBH_USE_OS == 1)  
 static void USBH_Process_OS(void const * argument);
@@ -112,7 +111,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   phost->ClassNumber = 0;
   
   /* Restore default states and prepare EP0 */ 
-  DeInitPStateMachine(phost);
+  DeInitStateMachine(phost);
   
   /* Assign User process */
   if(pUsrFunc != NULL)
@@ -148,7 +147,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   */
 USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
 {
-  DeInitPStateMachine(phost);
+  DeInitStateMachine(phost);
   
   if(phost->pData != NULL)
   {
@@ -165,7 +164,7 @@ USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
   * @param  phost: Host Handle
   * @retval USBH Status
   */
-USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost)
+USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost)
 {
   uint32_t i = 0;
 
@@ -180,7 +179,7 @@ USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost)
     phost->device.Data[i] = 0;
   }
   
-  phost->gState = HOST_IDLE;
+  phost->State = HOST_IDLE;
   phost->EnumState = ENUM_IDLE;
   phost->RequestState = CMD_SEND;
   phost->Timer = 0;  
@@ -192,17 +191,6 @@ USBH_StatusTypeDef  DeInitGStateMachine(USBH_HandleTypeDef *phost)
   phost->device.address = USBH_ADDRESS_DEFAULT;
   phost->device.speed   = USBH_SPEED_FULL;
   
-  return USBH_OK;
-}
-
-/*
- * This function also reset port state
- */
-static USBH_StatusTypeDef  DeInitPStateMachine(USBH_HandleTypeDef *phost)
-{
-  DeInitGStateMachine(phost);
-  // phost->pState = PORT_IDLE;
-
   return USBH_OK;
 }
 
@@ -394,7 +382,7 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   USBH_Delay(200);
   
   /* Set State machines in default state */
-  DeInitGStateMachine(phost);
+  DeInitStateMachine(phost);
    
   /* Start again the host */
   USBH_Start(phost);
@@ -419,18 +407,18 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   if (mapped_port_state(phost) == PORT_UP) {
     if (!USBH_DevState_IsAttached(phost))
     {
-      phost->gState = HOST_DEV_DETTACHED;
+      phost->State = HOST_DEV_DETTACHED;
     }
   }
 
-  switch (phost->gState)
+  switch (phost->State)
   {
   case HOST_IDLE:
     if (USBH_DevState_IsConnected(phost))
     {
       /* Wait for 200 ms after connection */
-      phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
-      phost->pStateTimer = HAL_GetTick();
+      phost->State = HOST_DEV_WAIT_FOR_ATTACHMENT;
+      phost->StateTimer = HAL_GetTick();
       USBH_UsrLog("Connected, delay %dms before port reset", USBH_CONNECT_DELAY);
       USBH_Delay(USBH_CONNECT_DELAY);
       USBH_UsrLog("USB port reset");
@@ -445,13 +433,13 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   case HOST_DEV_WAIT_FOR_ATTACHMENT:
     if (!USBH_DevState_IsConnected(phost))
     {
-      phost->gState = HOST_IDLE;
+      phost->State = HOST_IDLE;
     }
     else if (USBH_DevState_IsAttached(phost))
     {
-      phost->gState = HOST_DEV_ATTACHED;
+      phost->State = HOST_DEV_ATTACHED;
     }
-    else if (HAL_GetTick() - phost->pStateTimer > 300) {
+    else if (HAL_GetTick() - phost->StateTimer > 300) {
       // TODO timeout
     }
     break;
@@ -459,7 +447,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   case HOST_DEV_ATTACHED:
     if (!USBH_DevState_IsConnected(phost))
     {
-      phost->gState = HOST_IDLE;
+      phost->State = HOST_IDLE;
     }
 
     USBH_UsrLog("USB Device Attached");
@@ -467,7 +455,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     /* Wait for 100 ms after Reset */
     USBH_Delay(100);
     phost->device.speed = USBH_LL_GetSpeed(phost);
-    phost->gState = HOST_ENUMERATION;
+    phost->State = HOST_ENUMERATION;
 
     phost->Control.pipe_out = USBH_AllocPipe(phost, 0x00);
     phost->Control.pipe_in = USBH_AllocPipe(phost, 0x80);
@@ -515,12 +503,12 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       if (phost->device.DevDesc.bNumConfigurations == 1)
       {
         USBH_UsrLog("This device has only 1 configuration.");
-        phost->gState = HOST_SET_CONFIGURATION;
+        phost->State = HOST_SET_CONFIGURATION;
 
       }
       else
       {
-        phost->gState = HOST_INPUT;
+        phost->State = HOST_INPUT;
       }
     }
 
@@ -532,7 +520,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     if (phost->pUser != NULL)
     {
       phost->pUser(phost, HOST_USER_SELECT_CONFIGURATION);
-      phost->gState = HOST_SET_CONFIGURATION;
+      phost->State = HOST_SET_CONFIGURATION;
 
 #if (USBH_USE_OS == 1)
       osMessagePut ( phost->os_event, USBH_STATE_CHANGED_EVENT, 0);
@@ -551,13 +539,13 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       {
 
         USBH_UsrLog("No Class has been registered.");
-        phost->gState = HOST_ABORT_STATE;
+        phost->State = HOST_ABORT_STATE;
       }
       else
       {
 
         USBH_UsrLog("Checking class.")
-        phost->gState = HOST_CHECK_CLASS;
+        phost->State = HOST_CHECK_CLASS;
         phost->pActiveClass = NULL;
       }
     }
@@ -591,7 +579,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     {
       if (phost->pActiveClass->Init(phost) == USBH_OK)
       {
-        phost->gState = HOST_CLASS_REQUEST;
+        phost->State = HOST_CLASS_REQUEST;
         USBH_UsrLog("%s class started.", phost->pActiveClass->Name);
 
         /* Inform user that a class has been activated */
@@ -599,7 +587,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       }
       else
       {
-        phost->gState = HOST_HAND_SHAKE;
+        phost->State = HOST_HAND_SHAKE;
         USBH_UsrLog("Device not supporting %s class, try handshake.",
             phost->pActiveClass->Name);
       }
@@ -609,7 +597,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       /** switch to abort state **/
       // phost->gState  = HOST_ABORT_STATE;
       // USBH_UsrLog ("No registered class for this device.");
-      phost->gState = HOST_HAND_SHAKE;
+      phost->State = HOST_HAND_SHAKE;
       USBH_UsrLog("No registered class for this device, try handshake.");
     }
 
@@ -624,7 +612,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
     if (status == USBH_FAIL || status == USBH_NOT_SUPPORTED)
     {
-      phost->gState = HOST_ABORT_STATE;
+      phost->State = HOST_ABORT_STATE;
       USBH_UsrLog("Handshake fail, abort.");
     }
 
@@ -640,18 +628,18 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
       if (status == USBH_OK)
       {
-        phost->gState = HOST_CLASS;
+        phost->State = HOST_CLASS;
       }
       else if (status == USBH_FAIL || status == USBH_NOT_SUPPORTED)
       {
 
-        phost->gState = HOST_ABORT_STATE;
+        phost->State = HOST_ABORT_STATE;
         USBH_ErrLog("Class Request fail.")
       }
     }
     else
     {
-      phost->gState = HOST_ABORT_STATE;
+      phost->State = HOST_ABORT_STATE;
       USBH_ErrLog("Invalid Class Driver.");
 
 #if (USBH_USE_OS == 1)
@@ -685,7 +673,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     USBH_FreePipe(phost, phost->Control.pipe_in);
     USBH_FreePipe(phost, phost->Control.pipe_out);
 
-    DeInitGStateMachine(phost);
+    DeInitStateMachine(phost);
 
     if(phost->pUser != NULL)
     {
@@ -696,13 +684,13 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     USBH_LL_Start(phost);
     restore_debug_defaults();
 
-    phost->gState = HOST_DEV_DISCONNECTED;
+    phost->State = HOST_DEV_DISCONNECTED;
     break;
 
   case HOST_DEV_DISCONNECTED:
     if (USBH_DevState_IsConnected(phost) == 0)
     {
-      phost->gState = HOST_IDLE;
+      phost->State = HOST_IDLE;
     }
     break;
 
@@ -711,7 +699,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
   default:
     // USBH_UsrLog("Unhandled host state: %s", gstate_string[phost->gState]);
-    USBH_UsrLog("Unhandled host state: %s", usbh_helper_gstate_string(phost->gState));
+    USBH_UsrLog("Unhandled host state: %s", usbh_helper_gstate_string(phost->State));
     break;
   }
 
@@ -931,7 +919,7 @@ void  USBH_LL_IncTimer  (USBH_HandleTypeDef *phost)
   */
 void  USBH_HandleSof  (USBH_HandleTypeDef *phost)
 {
-  if((phost->gState == HOST_CLASS)&&(phost->pActiveClass != NULL))
+  if((phost->State == HOST_CLASS)&&(phost->pActiveClass != NULL))
   {
     phost->pActiveClass->SOFProcess(phost);
   }
@@ -944,19 +932,19 @@ void  USBH_HandleSof  (USBH_HandleTypeDef *phost)
   */
 USBH_StatusTypeDef  USBH_LL_Connect  (USBH_HandleTypeDef *phost)
 {
-  if(phost->gState == HOST_IDLE )
+  if(phost->State == HOST_IDLE )
   {
     phost->device.is_connected = 1;
-    phost->gState = HOST_IDLE ;
+    phost->State = HOST_IDLE ;
 
     if(phost->pUser != NULL)
     {
       phost->pUser(phost, HOST_USER_CONNECTION);
     }
   }
-  else if(phost->gState == HOST_DEV_WAIT_FOR_ATTACHMENT )
+  else if(phost->State == HOST_DEV_WAIT_FOR_ATTACHMENT )
   {
-    phost->gState = HOST_DEV_ATTACHED ;
+    phost->State = HOST_DEV_ATTACHED ;
   }
 #if (USBH_USE_OS == 1)
   osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
@@ -991,7 +979,7 @@ USBH_StatusTypeDef  USBH_LL_Disconnect  (USBH_HandleTypeDef *phost)
   /* Start the low level driver  */
   USBH_LL_Start(phost);
 
-  phost->gState = HOST_DEV_DISCONNECTED;
+  phost->State = HOST_DEV_DISCONNECTED;
 
 #if (USBH_USE_OS == 1)
   osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);

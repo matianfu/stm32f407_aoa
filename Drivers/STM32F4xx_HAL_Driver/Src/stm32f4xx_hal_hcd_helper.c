@@ -10,9 +10,6 @@
 #include "stm32f4xx_ll_usb.h"
 #include "usbh_core_helper.h"
 
-// extern HCD_HandleTypeDef hhcd_USB_OTG_FS;
-// extern HCD_HandleTypeDef hhcd_USB_OTG_HS;
-
 /*
  * Debug configuration
  */
@@ -150,6 +147,7 @@ void hc_helper_sumbit_request(void)
 
 void HCD_DevState_Reset(HCD_HandleTypeDef *hhcd)
 {
+  USBH_PutMessage("DevState: reset");
   hhcd->DevState.value = 0;
 }
 
