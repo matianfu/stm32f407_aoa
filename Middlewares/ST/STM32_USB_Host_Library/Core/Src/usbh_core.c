@@ -418,10 +418,10 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     {
       /* Wait for 200 ms after connection */
       phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
-      phost->StateTimer = HAL_GetTick();
       USBH_UsrLog("Connected, delay %dms before port reset", USBH_CONNECT_DELAY);
       USBH_Delay(USBH_CONNECT_DELAY);
       USBH_LL_ResetPort(phost);
+      phost->StateTimer = HAL_GetTick();
 #if (USBH_USE_OS == 1)
       osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
 #endif
