@@ -149,6 +149,8 @@ void hc_helper_sumbit_request(void)
 
 void start_debouncing(HCD_HandleTypeDef* hhcd)
 {
+  __IO uint8_t * dev_is_connected = &(((USBH_HandleTypeDef*)(hhcd->pData))->device.is_connected);
+  USBH_PutMessage("USBH Start Debouncing");
   hhcd->debounce = USBH_CONNECT_DEBOUNCING_TICK;
 }
 
@@ -164,6 +166,7 @@ int is_debouncing(HCD_HandleTypeDef *hhcd)
 void hcd_debounce(HCD_HandleTypeDef *hhcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+  __IO uint8_t * dev_is_connected = &(((USBH_HandleTypeDef*)(hhcd->pData))->device.is_connected);
 
   if (hhcd->debounce)
   {
@@ -172,14 +175,34 @@ void hcd_debounce(HCD_HandleTypeDef *hhcd)
       hhcd->debounce++;
       if (hhcd->debounce > 2 * USBH_CONNECT_DEBOUNCING_TICK)
       {
+        if (*dev_is_connected == 0) // disconnected
+        {
+          USBH_PutMessage("USBH Stop Debouncing, Dev Switch to Connected");
+          *dev_is_connected = 1;
+          USBH_SendSimpleEvent(USBH_EVT_CONNECT);
+        }
+        else {
+          USBH_PutMessage("USBH Stop Debouncing, Dev Stay Connected");
+        }
+
         hhcd->debounce = 0;
-        // HAL_HCD_Connect_Callback(hhcd);
-        USBH_SendSimpleEvent(USBH_EVT_CONNECT);
       }
     }
     else
     {
       hhcd->debounce--;
+      if (hhcd->debounce == 0)
+      {
+        if (*dev_is_connected == 1) // connected
+        {
+          USBH_PutMessage("USBH Stop Debouncing, Dev Switch to Disconnected");
+          USBH_SendSimpleEvent(USBH_EVT_DISCONNECT);
+          *dev_is_connected = 0;
+        }
+        else {
+          USBH_PutMessage("USBH Stop Debouncing, Dev Stay Disconnected");
+        }
+      }
     }
   }
 }

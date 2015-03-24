@@ -347,7 +347,6 @@ USBH_EventTypeDef USBH_GetFilteredEvent(USBH_HandleTypeDef * phost)
 
 pop:
   e = USBH_GetEvent();
-
   if (e.evt == USBH_EVT_HCINT) {
 
     memset(buf, 0, 128);
@@ -373,7 +372,7 @@ pop:
   else if (e.evt == USBH_EVT_MESSAGE) {
 
     e.data.message.buf[63] = '\0';
-    USBH_UsrLog("++++++++++++++++ %s", e.data.message.buf);
+    USBH_UsrLog("+++ %s -  %08u", e.data.message.buf, (unsigned int)e.timestamp);
 
     goto pop;
   }

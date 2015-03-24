@@ -15,6 +15,7 @@ USBH_EventTypeDef* USBH_AllocEvent(void);
 void USBH_SendEvent(USBH_EventTypeDef* ep);
 void USBH_SendSimpleEvent(USBH_EventTypeTypeDef type);
 void USBH_PutEvent(USBH_EventTypeDef e);
+void USBH_PutMessage(const char* buf);
 
 void USBH_Print_DeviceDescriptor(USBH_HandleTypeDef *phost);
 

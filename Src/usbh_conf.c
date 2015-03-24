@@ -157,7 +157,8 @@ void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd)
   */
 void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
 {
-  USBH_LL_Connect(hhcd->pData);
+//  USBH_LL_Connect(hhcd->pData);
+  ((USBH_HandleTypeDef*)(hhcd->pData))->device.is_connected = 1;
 }
 
 /**
@@ -167,8 +168,20 @@ void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
   */
 void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd)
 {
-  USBH_LL_Disconnect(hhcd->pData);
-} 
+//  USBH_LL_Disconnect(hhcd->pData);
+  ((USBH_HandleTypeDef*)(hhcd->pData))->device.is_connected = 0;
+}
+
+void HAL_HCD_Attach_Callback(HCD_HandleTypeDef *hhcd)
+{
+  ((USBH_HandleTypeDef*)(hhcd->pData))->device.is_attached = 1;
+}
+
+void HAL_HCD_Detach_Callback(HCD_HandleTypeDef *hhcd)
+{
+  ((USBH_HandleTypeDef*)(hhcd->pData))->device.is_attached = 0;
+}
+
 
 /**
   * @brief  Notify URB state change callback.

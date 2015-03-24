@@ -192,6 +192,8 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd);
 void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd);
 void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd);
 void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd);
+void HAL_HCD_Attach_Callback(HCD_HandleTypeDef *hhcd);
+void HAL_HCD_Detach_Callback(HCD_HandleTypeDef *hhcd);
 void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
     HCD_URBStateTypeDef urb_state);
 

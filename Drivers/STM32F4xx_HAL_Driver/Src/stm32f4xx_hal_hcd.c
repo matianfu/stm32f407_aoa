@@ -481,28 +481,27 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
      /* incorrect mode, acknowledge the interrupt */
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_MMIS);
     }     
-
-    /** be sure port down is handled before disconnect **/
-    /* Handle Host Port Interrupts */
-    if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_HPRTINT))
-    {
-      HCD_Port_IRQHandler (hhcd);
-    }
     
     /* Handle Host Disconnect Interrupts */
     if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT))
     {
+      USBH_PutMessage("DISCONNECT");
+
       /* Cleanup HPRT */
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
         USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
 
-      if (!is_debouncing(hhcd)) {
-        /* Handle Host Port Interrupts */
-        // HAL_HCD_Disconnect_Callback(hhcd);
-        USBH_SendSimpleEvent(USBH_EVT_DISCONNECT);
-        USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
-      }
+      /* Handle Host Port Interrupts */
+      // HAL_HCD_Disconnect_Callback(hhcd);
+      // USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
+
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
+    }
+
+    /* Handle Host Port Interrupts */
+    if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_HPRTINT))
+    {
+      HCD_Port_IRQHandler (hhcd);
     }
 
     /* Handle Host SOF Interrupts */
@@ -1130,9 +1129,13 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
 //      USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
 //      HAL_HCD_Connect_Callback(hhcd);
 //    }
-    if (!is_debouncing(hhcd)) {
+
+    USBH_PutMessage("CONNECT");
+    if (!is_debouncing(hhcd))
+    {
       start_debouncing(hhcd);
     }
+
     hprt0_dup |= USB_OTG_HPRT_PCDET;
   }
 
@@ -1143,6 +1146,8 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
 
     if ((hprt0 & USB_OTG_HPRT_PENA) == USB_OTG_HPRT_PENA)
     {
+      USBH_PutMessage("PORTUP");
+
       if (hhcd->Init.phy_itface == USB_OTG_EMBEDDED_PHY)
       {
         if ((hprt0 & USB_OTG_HPRT_PSPD) == (HPRT0_PRTSPD_LOW_SPEED << 17))
@@ -1162,6 +1167,7 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
         }
       }
       // HAL_HCD_Connect_Callback(hhcd);
+      HAL_HCD_Attach_Callback(hhcd);
       USBH_SendSimpleEvent(USBH_EVT_PORTUP);
 
       if (hhcd->Init.speed == HCD_SPEED_HIGH)
@@ -1171,12 +1177,16 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
     }
     else
     {
+      USBH_PutMessage("PORTDOWN");
+
       /* Cleanup HPRT */
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
           USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG);
 
       // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
+      HAL_HCD_Detach_Callback(hhcd);
       USBH_SendSimpleEvent(USBH_EVT_PORTDOWN);
+      start_debouncing(hhcd);
     }
   }
 

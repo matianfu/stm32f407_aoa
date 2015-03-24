@@ -13,6 +13,9 @@ USBH_StatusTypeDef USBH_ProcessEvent(USBH_HandleTypeDef * phost)
 
   e = USBH_GetFilteredEvent(phost);
 
+  USBH_Process(phost);
+  return USBH_OK;
+
   switch(mapped_port_state(phost)) {
   case PORT_IDLE: // GUARD: is_attached = 0;
     if (e.evt == USBH_EVT_NULL) {
