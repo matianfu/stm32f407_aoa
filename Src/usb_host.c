@@ -45,6 +45,8 @@ USBH_HandleTypeDef hUsbHostHS;
 USBH_HandleTypeDef hUsbHostFS;
 ApplicationTypeDef Appli_state = APPLICATION_IDLE;
 
+extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
+
 /**
 * -- Insert your variables declaration here --
 */ 
@@ -117,29 +119,50 @@ void MX_USB_HOST_Process()
 /*
  * user callback definition
 */ 
-static void USBH_UserProcess1  (USBH_HandleTypeDef *phost, uint8_t id)
-{
 
+static int aoa_handshake_tried = 0;
+
+static void USBH_UserProcess1(USBH_HandleTypeDef *phost, uint8_t id)
+{
   /* USER CODE BEGIN 2 */
-  switch(id)
-  { 
+  switch (id)
+  {
   case HOST_USER_SELECT_CONFIGURATION:
-  break;
-    
+    break;
+
   case HOST_USER_DISCONNECTION:
-  Appli_state = APPLICATION_DISCONNECT;
-  break;
-    
+    Appli_state = APPLICATION_DISCONNECT;
+    break;
+
   case HOST_USER_CLASS_ACTIVE:
-  Appli_state = APPLICATION_READY;
-  break;
+    Appli_state = APPLICATION_READY;
+    break;
 
   case HOST_USER_CONNECTION:
-  Appli_state = APPLICATION_START;
-  break;
+    Appli_state = APPLICATION_START;
+    aoa_handshake_tried = 0;
+    break;
+
+  case HOST_USER_HANDLE_ABORT:
+
+    if (aoa_handshake_tried == 0)
+    {
+      if (phost->AbortReason == ABORT_CLASSINIT_FAIL ||
+          phost->AbortReason == ABORT_NOCLASS_MATCH)
+      {
+        USBH_StatusTypeDef status = USBH_AOA_Handshake(phost);
+
+        if (status == USBH_FAIL || status == USBH_NOT_SUPPORTED)
+        {
+          aoa_handshake_tried = 1;
+          USBH_UsrLog("AOA Handshake fail, abort");
+        }
+      }
+    }
+    break;
 
   default:
-  break; 
+    break;
   }
   /* USER CODE END 2 */
 }

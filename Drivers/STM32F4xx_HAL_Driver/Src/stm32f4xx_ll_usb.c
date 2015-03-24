@@ -70,7 +70,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-static HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx);
 
 /** @defgroup PCD_Private_Functions
   * @{
@@ -1075,7 +1074,7 @@ HAL_StatusTypeDef USB_EP0_OutStart(USB_OTG_GlobalTypeDef *USBx, uint8_t dma, uin
   * @param  USBx : Selected device
   * @retval HAL status
   */
-static HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx)
+HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx)
 {
   uint32_t count = 0;
 

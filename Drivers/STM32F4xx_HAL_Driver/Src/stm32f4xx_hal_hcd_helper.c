@@ -215,3 +215,12 @@ unsigned int HAL_HCD_PortStale(HCD_HandleTypeDef *hhcd)
 
   return 0;
 }
+
+HAL_StatusTypeDef HAL_HCD_RestoreFSClock(HCD_HandleTypeDef *hhcd)
+{
+  USB_InitFSLSPClkSel(hhcd->Instance,HCFG_48_MHZ );
+  return USB_CoreReset(hhcd->Instance);
+}
+
+
+

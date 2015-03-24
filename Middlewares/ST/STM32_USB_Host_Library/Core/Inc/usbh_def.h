@@ -328,6 +328,7 @@ typedef enum
 
 /*
  * Port State Definition
+ * Port state is super state of gState
  */
 typedef enum
 {
@@ -353,11 +354,10 @@ typedef enum
   HOST_INPUT,
   HOST_SET_CONFIGURATION,
   HOST_CHECK_CLASS,
-  HOST_HAND_SHAKE,
   HOST_CLASS,
   HOST_SUSPENDED,
   HOST_ABORT_STATE,  
-}HOST_StateTypeDef;  
+} HOST_StateTypeDef;
 
 /* Following states are used for EnumerationState */
 typedef enum 
@@ -389,8 +389,7 @@ typedef enum
   CTRL_ERROR,
   CTRL_STALLED,
   CTRL_COMPLETE    
-}CTRL_StateTypeDef;  
-
+} CTRL_StateTypeDef;
 
 /* Following states are used for RequestState */
 typedef enum 
@@ -407,7 +406,7 @@ typedef enum {
   USBH_URB_NYET,  
   USBH_URB_ERROR,
   USBH_URB_STALL
-}USBH_URBStateTypeDef;
+} USBH_URBStateTypeDef;
 
 typedef enum
 {
@@ -416,8 +415,7 @@ typedef enum
   USBH_CONTROL_EVENT,    
   USBH_CLASS_EVENT,     
   USBH_STATE_CHANGED_EVENT,   
-}
-USBH_OSEventTypeDef;
+} USBH_OSEventTypeDef;
 
 /* Control request structure */
 typedef struct 
@@ -431,7 +429,6 @@ typedef struct
   USB_Setup_TypeDef     setup;
   CTRL_StateTypeDef     state;  
   uint8_t               errorcount;  
-
 } USBH_CtrlTypeDef;
 
 /* Attached device structure */
@@ -466,12 +463,22 @@ typedef struct
   void*                pData;
 } USBH_ClassTypeDef;
 
+typedef enum
+{
+  ABORT_NOCLASS_REGISTERED = 0,
+  ABORT_NOCLASS_MATCH,
+  ABORT_CLASSINIT_FAIL,
+  ABORT_CLASSREQUEST_FAIL,
+  ABORT_UNKNOWN,
+} USBH_AbortReasonTypeDef;
+
 /* USB Host handle structure */
 typedef struct _USBH_HandleTypeDef
 {
   __IO HOST_StateTypeDef      gState;       	/*  Host State Machine Value */
-  uint32_t                    StateTimer;
-  ENUM_StateTypeDef     EnumState;          /* Enumeration state Machine */
+  uint32_t                    gStateTimer;
+  USBH_AbortReasonTypeDef     AbortReason;
+  ENUM_StateTypeDef     EnumState;            /* Enumeration state Machine */
   CMD_StateTypeDef      RequestState;
   USBH_CtrlTypeDef      Control;
   USBH_DeviceTypeDef    device;

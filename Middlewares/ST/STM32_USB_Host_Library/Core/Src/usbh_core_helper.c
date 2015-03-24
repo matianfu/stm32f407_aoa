@@ -18,10 +18,10 @@ const static char* gstate_string[] =
 { "HOST_IDLE", "HOST_DEV_WAIT_FOR_ATTACHMENT", "HOST_DEV_ATTACHED",
     "HOST_DEV_DETTACHED", "HOST_DEV_DISCONNECTED", "HOST_DETECT_DEVICE_SPEED",
     "HOST_ENUMERATION", "HOST_CLASS_REQUEST", "HOST_INPUT",
-    "HOST_SET_CONFIGURATION", "HOST_CHECK_CLASS", "HOST_HAND_SHAKE",
-    "HOST_CLASS", "HOST_SUSPENDED", "HOST_ABORT_STATE" };
+    "HOST_SET_CONFIGURATION", "HOST_CHECK_CLASS", "HOST_CLASS",
+    "HOST_SUSPENDED", "HOST_ABORT_STATE" };
 
-const char* usbh_helper_gstate_string(HOST_StateTypeDef gstate)
+const char* USBH_GStateString(HOST_StateTypeDef gstate)
 {
   return gstate_string[gstate];
 }
@@ -184,7 +184,6 @@ void USBH_DebugOutput(USBH_HandleTypeDef* phost, USBH_EventTypeDef event, int fo
     }
   }
 
-  // ps = phost->pState;
   ps = mapped_port_state(phost);
   gs = phost->gState;
   es = phost->EnumState;

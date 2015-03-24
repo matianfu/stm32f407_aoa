@@ -28,12 +28,8 @@
 /* Includes ------------------------------------------------------------------*/
 
 #include "debug.h"
-#include "usbh_conf.h"
 #include "usbh_core.h"
 #include "usbh_core_helper.h"
-
-extern const char* usbh_helper_gstate_string(HOST_StateTypeDef gstate);
-extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
 
 /** @addtogroup USBH_LIB
   * @{
@@ -82,6 +78,7 @@ extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
   */ 
 static USBH_StatusTypeDef  USBH_HandleEnum    (USBH_HandleTypeDef *phost);
 static void                USBH_HandleSof     (USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost);
 
 #if (USBH_USE_OS == 1)  
 static void USBH_Process_OS(void const * argument);
@@ -164,7 +161,7 @@ USBH_StatusTypeDef  USBH_DeInit(USBH_HandleTypeDef *phost)
   * @param  phost: Host Handle
   * @retval USBH Status
   */
-USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost)
+static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost)
 {
   uint32_t i = 0;
 
@@ -402,6 +399,7 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
 USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 {
   __IO USBH_StatusTypeDef status = USBH_FAIL;
+  int reset_core = 0;
   uint8_t idx = 0, j;
 
   if (mapped_port_state(phost) == PORT_UP) {
@@ -421,7 +419,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       USBH_UsrLog("Connected, delay %dms before port reset", USBH_CONNECT_DELAY);
       USBH_Delay(USBH_CONNECT_DELAY);
       USBH_LL_ResetPort(phost);
-      phost->StateTimer = HAL_GetTick();
+      phost->gStateTimer = HAL_GetTick();
 #if (USBH_USE_OS == 1)
       osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
 #endif
@@ -438,7 +436,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     {
       phost->gState = HOST_DEV_ATTACHED;
     }
-    else if (HAL_GetTick() - phost->StateTimer > 500) {
+    else if (HAL_GetTick() - phost->gStateTimer > 500) {
       USBH_DevState_Reset(phost);
       phost->gState = HOST_IDLE;
     }
@@ -534,72 +532,65 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     /* set configuration */
     if (USBH_SetCfg(phost, phost->device.CfgDesc.bConfigurationValue) == USBH_OK)
     {
+      phost->gState = HOST_CHECK_CLASS;
       USBH_UsrLog("Default configuration set.");
-
-      if (phost->ClassNumber == 0)
-      {
-
-        USBH_UsrLog("No Class has been registered.");
-        phost->gState = HOST_ABORT_STATE;
-      }
-      else
-      {
-
-        USBH_UsrLog("Checking class.")
-        phost->gState = HOST_CHECK_CLASS;
-        phost->pActiveClass = NULL;
-      }
     }
     break;
 
   case HOST_CHECK_CLASS:
-
-    // for (idx = 0; idx < USBH_MAX_NUM_SUPPORTED_CLASS ; idx ++)
-    for (idx = 0; idx < phost->ClassNumber; idx++)
+    if (phost->ClassNumber == 0)
     {
-      // search all interfaces, not only interface 0
-      for (j = 0; j < phost->device.CfgDesc.bNumInterfaces; j++)
-      {
-
-        if (phost->pClass[idx]->ClassCode
-            == phost->device.CfgDesc.Itf_Desc[j].bInterfaceClass)
-        {
-          phost->pActiveClass = phost->pClass[idx];
-          USBH_UsrLog(
-              "Registered %s class with code 0x%02x matches interface #%d",
-              phost->pClass[idx]->Name, phost->pClass[idx]->ClassCode, j);
-          break;
-        }
-      }
-
-      if (phost->pActiveClass != NULL)
-        break;
-    }
-
-    if (phost->pActiveClass != NULL)
-    {
-      if (phost->pActiveClass->Init(phost) == USBH_OK)
-      {
-        phost->gState = HOST_CLASS_REQUEST;
-        USBH_UsrLog("%s class started.", phost->pActiveClass->Name);
-
-        /* Inform user that a class has been activated */
-        phost->pUser(phost, HOST_USER_CLASS_SELECTED);
-      }
-      else
-      {
-        phost->gState = HOST_HAND_SHAKE;
-        USBH_UsrLog("Device not supporting %s class, try handshake.",
-            phost->pActiveClass->Name);
-      }
+      USBH_UsrLog("No Class has been registered.");
+      phost->AbortReason = ABORT_NOCLASS_REGISTERED;
+      phost->gState = HOST_ABORT_STATE;
     }
     else
     {
-      /** switch to abort state **/
-      // phost->gState  = HOST_ABORT_STATE;
-      // USBH_UsrLog ("No registered class for this device.");
-      phost->gState = HOST_HAND_SHAKE;
-      USBH_UsrLog("No registered class for this device, try handshake.");
+      phost->pActiveClass = NULL;
+      // for (idx = 0; idx < USBH_MAX_NUM_SUPPORTED_CLASS ; idx ++)
+      for (idx = 0; idx < phost->ClassNumber; idx++)
+      {
+        // search all interfaces, not only interface 0
+        for (j = 0; j < phost->device.CfgDesc.bNumInterfaces; j++)
+        {
+          if (phost->pClass[idx]->ClassCode
+              == phost->device.CfgDesc.Itf_Desc[j].bInterfaceClass)
+          {
+            phost->pActiveClass = phost->pClass[idx];
+            USBH_UsrLog(
+                "Registered %s class with code 0x%02x matches interface #%d",
+                phost->pClass[idx]->Name, phost->pClass[idx]->ClassCode, j);
+            break;
+          }
+        }
+        if (phost->pActiveClass != NULL)
+          break;
+      }
+
+      if (phost->pActiveClass != NULL)
+      {
+        if (phost->pActiveClass->Init(phost) == USBH_OK)
+        {
+          phost->gState = HOST_CLASS_REQUEST;
+          USBH_UsrLog("%s class started.", phost->pActiveClass->Name);
+
+          /* Inform user that a class has been activated */
+          phost->pUser(phost, HOST_USER_CLASS_SELECTED);
+        }
+        else
+        {
+          phost->pActiveClass = NULL;
+          phost->AbortReason = ABORT_CLASSINIT_FAIL;
+          phost->gState  = HOST_ABORT_STATE;
+          USBH_UsrLog ("Device not supporting %s class.", phost->pActiveClass->Name);
+        }
+      }
+      else
+      {
+        phost->AbortReason = ABORT_NOCLASS_MATCH;
+        phost->gState  = HOST_ABORT_STATE;
+        USBH_UsrLog ("No registered class for this device.");
+      }
     }
 
 #if (USBH_USE_OS == 1)
@@ -607,20 +598,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 #endif 
     break;
 
-  case HOST_HAND_SHAKE:
-
-    status = USBH_AOA_Handshake(phost);
-
-    if (status == USBH_FAIL || status == USBH_NOT_SUPPORTED)
-    {
-      phost->gState = HOST_ABORT_STATE;
-      USBH_UsrLog("Handshake fail, abort.");
-    }
-
-    break;
-
   case HOST_CLASS_REQUEST:
-
     /* process class standard control requests state machine */
     if (phost->pActiveClass != NULL)
     {
@@ -633,13 +611,17 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       }
       else if (status == USBH_FAIL || status == USBH_NOT_SUPPORTED)
       {
-
+        phost->pActiveClass->DeInit(phost);
+        phost->pActiveClass = NULL;
+        phost->AbortReason = ABORT_CLASSREQUEST_FAIL;
         phost->gState = HOST_ABORT_STATE;
         USBH_ErrLog("Class Request fail.")
       }
     }
     else
     {
+      // TODO why falls here?
+      phost->AbortReason = ABORT_UNKNOWN;
       phost->gState = HOST_ABORT_STATE;
       USBH_ErrLog("Invalid Class Driver.");
 
@@ -660,6 +642,11 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   case HOST_DEV_DISCONNECTED:
 
     USBH_LL_Stop(phost);
+
+    if (phost->device.speed != USBH_SPEED_FULL)
+    {
+      reset_core = 1;
+    }
 
     /* Re-Initialize Host for new Enumeration */
     if (phost->pActiveClass != NULL)
@@ -684,26 +671,27 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     USBH_Delay(100);
     USBH_LL_Start(phost);
 
-    USBH_DevState_Reset(phost);
-
     restore_debug_defaults();
 
+    if (reset_core) {
+      USBH_UsrLog("USBH Reset Core.");
+      USBH_LL_Init(phost);
+      USBH_LL_Start(phost);
+    }
+
+    USBH_DevState_Reset(phost);
     phost->gState = HOST_IDLE;
     break;
 
-//  case HOST_DEV_DISCONNECTED:
-//    if (USBH_DevState_IsConnected(phost) == 0)
-//    {
-//      phost->State = HOST_IDLE;
-//    }
-//    break;
-
   case HOST_ABORT_STATE:
+    if (phost->pUser)
+    {
+      phost->pUser(phost, HOST_USER_HANDLE_ABORT);
+    }
     break;
 
   default:
-    // USBH_UsrLog("Unhandled host state: %s", gstate_string[phost->gState]);
-    USBH_UsrLog("Unhandled host state: %s", usbh_helper_gstate_string(phost->gState));
+    USBH_UsrLog("Unhandled host state: %s", USBH_GStateString(phost->gState));
     break;
   }
 

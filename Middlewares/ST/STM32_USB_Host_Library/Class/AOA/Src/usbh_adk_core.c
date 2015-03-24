@@ -260,7 +260,6 @@ static USBH_StatusTypeDef USBH_AOA_InterfaceInit(USBH_HandleTypeDef * phost)
       return USBH_FAIL;
     }
 
-
     if (USBH_SelectInterface(phost, interface) == USBH_FAIL) {
       return USBH_FAIL;
     }

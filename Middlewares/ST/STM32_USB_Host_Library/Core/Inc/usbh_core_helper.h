@@ -17,6 +17,7 @@ void USBH_SendSimpleEvent(USBH_EventTypeTypeDef type);
 void USBH_PutEvent(USBH_EventTypeDef e);
 void USBH_PutMessage(const char* buf);
 
+const char* USBH_GStateString(HOST_StateTypeDef gstate);
 void USBH_Print_DeviceDescriptor(USBH_HandleTypeDef *phost);
 
 PORT_StateTypeDef mapped_port_state(USBH_HandleTypeDef *phost);

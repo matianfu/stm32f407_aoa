@@ -63,6 +63,7 @@
 #define HOST_USER_CONNECTION                    4
 #define HOST_USER_DISCONNECTION                 5
 #define HOST_USER_UNRECOVERED_ERROR             6
+#define HOST_USER_HANDLE_ABORT                  7
 
 
 /**
@@ -201,7 +202,6 @@ void                 USBH_LL_IncTimer     (USBH_HandleTypeDef *phost);
   * @}
   */ 
 
-USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost);
 
 void USBH_DevState_Reset(USBH_HandleTypeDef *phost);
 int USBH_DevState_IsConnected(USBH_HandleTypeDef *phost);
