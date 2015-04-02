@@ -102,7 +102,7 @@ USBH_StatusTypeDef usbh_ll_hcint(USBH_HandleTypeDef *phost, struct hcint_t * hci
 
   USBH_EventTypeDef* e = USBH_AllocEvent();
   if (e) {
-    e->evt = USBH_EVT_DISCONNECT;
+    e->evt = USBH_EVT_HCINT;
     e->data.hcint = *hcint;
     USBH_SendEvent(e);
   }

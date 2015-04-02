@@ -981,8 +981,8 @@ static void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
   else if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_NAK)
   {  
     hhcd->hc[chnum].ErrCnt = 0;  
-    __HAL_HCD_UNMASK_HALT_HC_INT(chnum); 
-    USB_HC_Halt(hhcd->Instance, chnum);   
+    __HAL_HCD_UNMASK_HALT_HC_INT(chnum);
+    USB_HC_Halt(hhcd->Instance, chnum);
     hhcd->hc[chnum].state = HC_NAK;
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_NAK);
   }

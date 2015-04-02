@@ -50,6 +50,10 @@ __ALIGN_BEGIN ADK_Machine_TypeDef ADK_Machine __ALIGN_END;
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
 __ALIGN_BEGIN USB_Setup_TypeDef ADK_Setup __ALIGN_END;
 
+uint8_t aoa_in_buf[64] __attribute__ ((aligned (16)));
+uint8_t aoa_out_buf[64] __attribute__ ((aligned (16)));
+
+
 /**
  * @}
  */
@@ -265,6 +269,7 @@ static USBH_StatusTypeDef USBH_AOA_InterfaceInit(USBH_HandleTypeDef * phost)
     }
 
     phost->pActiveClass->pData = &ADK_Machine;
+    ADK_Machine.state = ADK_IDLE;
     ADK_Machine.inSize = 0;
     ADK_Machine.outSize = 0;
     USBH_AOA_ConfigEndpoints(phost);    // this function configure in/out pipes.
@@ -363,47 +368,99 @@ static USBH_StatusTypeDef USBH_AOA_ClassRequest(USBH_HandleTypeDef *phost)
  */
 static USBH_StatusTypeDef USBH_ADK_Handle(USBH_HandleTypeDef *phost)
 {
-
-#if 0
   USBH_StatusTypeDef status = USBH_BUSY;
+  USBH_URBStateTypeDef URB_Status;
+  uint32_t size, i;
+  static char buf[65];
+  static char out[256];
+  char* p;
 
   switch (ADK_Machine.state)
   {
-    case ADK_IDLE:
-    ADK_Machine.state = ADK_SEND_DATA; //ADK_GET_DATA;//
+  case ADK_IDLE:
+
+    if (ADK_Machine.outSize > 0) {
+      ADK_Machine.state = ADK_SEND_DATA;
+    }
+    else {
+      ADK_Machine.state = ADK_GET_DATA;
+    }
     break;
 
-    case ADK_SEND_DATA:
+  case ADK_SEND_DATA:
 
-    if(ADK_Machine.outSize > 0)
+    USBH_BulkSendData(phost, aoa_out_buf, ADK_Machine.outSize,
+        ADK_Machine.hc_num_out, 0);
+    ADK_Machine.state = ADK_SEND_DATA_WAIT;
+    break;
+
+  case ADK_SEND_DATA_WAIT:
+
+    URB_Status = USBH_LL_GetURBState(phost, ADK_Machine.hc_num_out);
+    switch (URB_Status)
     {
-      USBH_BulkSendData(phost, ADK_Machine.outbuff, ADK_Machine.outSize, ADK_Machine.hc_num_out, 1);
+    case USBH_URB_DONE:
+      aoa_out_buf[ADK_Machine.outSize] = '\0';
+      USBH_UsrLog("AOA: %d bytes sent, %s", ADK_Machine.outSize, aoa_out_buf);
       ADK_Machine.outSize = 0;
-      //	ADK_Machine.state = ADK_GET_DATA;
+      ADK_Machine.state = ADK_GET_DATA;
+      break;
+    case USBH_URB_NOTREADY:
+
+      // dont clear outSize
+      ADK_Machine.state = ADK_SEND_DATA;
+      break;
+    case USBH_URB_STALL:
+      break;
+    case USBH_URB_ERROR:
+      break;
+    default:
+      break;
     }
 
-    ADK_Machine.state = ADK_GET_DATA;
     break;
 
-    case ADK_GET_DATA:
+  case ADK_GET_DATA:
 
-    USBH_BulkReceiveData(phost, ADK_Machine.inbuff, USBH_ADK_DATA_SIZE, ADK_Machine.hc_num_in);
-    ADK_Machine.state = ADK_IDLE;
+    USBH_BulkReceiveData(phost, aoa_in_buf, USBH_ADK_DATA_SIZE,
+        ADK_Machine.hc_num_in);
+    ADK_Machine.state = ADK_GET_DATA_WAIT;
+
     break;
 
-    case ADK_BUSY:
+  case ADK_GET_DATA_WAIT:
+
+    URB_Status = USBH_LL_GetURBState(phost, ADK_Machine.hc_num_in);
+    if (URB_Status == USBH_URB_DONE)
+    {
+      size = USBH_LL_GetLastXferSize(phost, ADK_Machine.hc_num_in);
+
+      p = out;
+      for (i = 0; i < size; i++)
+      {
+        sprintf(p, " %02x", aoa_in_buf[i]);
+        p += 3;
+      }
+      *p = '\0';
+      USBH_UsrLog("AOA in %u bytes, %s", (unsigned int )size, out);
+
+      memmove(aoa_out_buf, aoa_in_buf, size);
+      ADK_Machine.outSize = size;
+
+      ADK_Machine.state = ADK_IDLE;
+    }
+    break;
+
+  case ADK_BUSY:
     ADK_Machine.state = ADK_IDLE;
     ADK_Machine.outSize = 0;
     break;
 
-    default:
+  default:
     break;
   }
   status = USBH_OK;
   return status;
-#else 
-  return USBH_OK;
-#endif
 }
 
 /**
@@ -516,6 +573,8 @@ static USBH_StatusTypeDef USBH_AOA_ConfigEndpoints(USBH_HandleTypeDef * phost)
 
   ADK_Machine.hc_num_out = USBH_AllocPipe(phost, ADK_Machine.BulkOutEp);
   ADK_Machine.hc_num_in = USBH_AllocPipe(phost, ADK_Machine.BulkInEp);
+
+  USBH_UsrLog("AOA: in pipe %d, out pipe %d", ADK_Machine.hc_num_in, ADK_Machine.hc_num_out);
 
   /* Open the new channels */
   USBH_OpenPipe(phost, ADK_Machine.hc_num_out, ADK_Machine.BulkOutEp,

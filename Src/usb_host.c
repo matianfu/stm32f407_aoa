@@ -83,9 +83,9 @@ void MX_USB_HOST_Init(void)
    * @retval None
    */
   USBH_ADK_Init((unsigned char*)"Actnova",
-                (unsigned char*)"Model T",
+                (unsigned char*)"DemoKit",
                 (unsigned char*)"HID barcode scanner adapter",
-                (unsigned char*)"1.0.0",
+                (unsigned char*)"1.0",
                 (unsigned char*)"http://www.actnova.com/aoa.apk",
                 (unsigned char*)"1234567890");
 
