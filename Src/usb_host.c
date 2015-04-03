@@ -40,6 +40,8 @@
 #include "usbh_hid.h"
 #include "usbh_adk_core.h"
 
+#define DMA_MEM_ALIGN __attribute__ ((aligned(4)))
+
 typedef enum {
   ABORT_HANDLE_INIT,
   ABORT_HANDLE_HANDSHAKE,
@@ -54,7 +56,7 @@ AbortStateTypeDef  Abort_state = ABORT_HANDLE_INIT;
 
 static int aoa_handshake_tried = 0;
 
-static AOA_DeviceInfoTypeDef deviceInfo __attribute__ ((aligned(4)))
+static AOA_DeviceInfoTypeDef deviceInfo DMA_MEM_ALIGN
     =
 {
   .acc_manufacturer = "Actnova",
@@ -65,19 +67,9 @@ static AOA_DeviceInfoTypeDef deviceInfo __attribute__ ((aligned(4)))
   .acc_serial = "BL100A"
 };
 
-static AOA_HandShakeDataTypeDef handshakeData =
-{
-  .deviceInfo = &deviceInfo,
-};
+static AOA_HandShakeDataTypeDef handshakeData DMA_MEM_ALIGN =
+{ .deviceInfo = &deviceInfo, };
 
-extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
-
-/**
-* -- Insert your variables declaration here --
-*/ 
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 /*
 * user callbak declaration
@@ -85,34 +77,9 @@ extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
 static void USBH_UserProcess1  (USBH_HandleTypeDef *phost, uint8_t id);
 // static void USBH_UserProcess2  (USBH_HandleTypeDef *phost, uint8_t id);
 
-/**
-* -- Insert your external function declaration here --
-*/ 
-/* USER CODE BEGIN 1 */
-
-/* USER CODE END 1 */
-
 /* init function */				        
 void MX_USB_HOST_Init(void)
 {
-  /* init adk */
-  /**
-   * @brief  USBH_ADK_Init
-   *         Initialization for ADK class.
-   * @param  manufacture: manufacturer name string(max 63 chars)
-   * @param  model: model name string (max 63 chars)
-   * @param  description: description string (max 63 chars)
-   * @param  version: version string (max 63 chars)
-   * @param  uri: URI string (max 63 chars)
-   * @param  serial: serial number string (max 63 chars)
-   * @retval None
-   */
-//  USBH_ADK_Init((unsigned char*)"Actnova",
-//                (unsigned char*)"DemoKit",
-//                (unsigned char*)"HID barcode scanner adapter",
-//                (unsigned char*)"1.0",
-//                (unsigned char*)"http://www.actnova.com/aoa.apk",
-//                (unsigned char*)"1234567890");
 
   /* Init Host Library,Add Supported Class and Start the library*/
   USBH_Init(&hUsbHostHS, USBH_UserProcess1, HOST_HS);

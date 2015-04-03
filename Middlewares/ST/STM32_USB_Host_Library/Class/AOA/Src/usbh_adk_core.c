@@ -34,7 +34,6 @@
 #include "usart.h"
 #include "usbh_core_helper.h"
 
-
 /** @defgroup USBH_ADK_CORE_Private_Variables
  * @{
  */
@@ -95,37 +94,6 @@ static USBH_StatusTypeDef USBH_ADK_SOFProcess(USBH_HandleTypeDef *phost)
 {
   return USBH_OK;
 }
-/**
- * @}
- */
-
-///**
-// * @brief  USBH_ADK_Init
-// *         Initialization for ADK class.
-// * @param  manufacture: manufacturer name string(max 63 chars)
-// * @param  model: model name string (max 63 chars)
-// * @param  description: description string (max 63 chars)
-// * @param  version: version string (max 63 chars)
-// * @param  uri: URI string (max 63 chars)
-// * @param  serial: serial number string (max 63 chars)
-// * @retval None
-// */
-//void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description,
-//    uint8_t* version, uint8_t* uri, uint8_t* serial)
-//{
-//  strncpy((char*)ADK_Machine.acc_manufacturer, (char*)manufacture, 64);
-//  ADK_Machine.acc_manufacturer[63] = '\0';
-//  strncpy((char*)ADK_Machine.acc_model, (char*)model, 64);
-//  ADK_Machine.acc_model[63] = '\0';
-//  strncpy((char*)ADK_Machine.acc_description, (char*)description, 64);
-//  ADK_Machine.acc_description[63] = '\0';
-//  strncpy((char*)ADK_Machine.acc_version, (char*)version, 64);
-//  ADK_Machine.acc_version[63] = '\0';
-//  strncpy((char*)ADK_Machine.acc_uri, (char*)uri, 64);
-//  ADK_Machine.acc_uri[63] = '\0';
-//  strncpy((char*)ADK_Machine.acc_serial, (char*)serial, 64);
-//  ADK_Machine.acc_serial[63] = '\0';
-//}
 
 /*
  * @brief   USBH_AOA_Handshake
@@ -160,21 +128,21 @@ AOA_HandShakeResultTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
     }
     else if (status == USBH_OK)
     {
-      if (ADK_Machine.protocol >= 1)
+      // if (ADK_Machine.protocol >= 1)
+      if (p->protocol >= 1)
       {
-        USBH_UsrLog("AOA: protocol version %d.", ADK_Machine.protocol);
+        USBH_UsrLog("AOA: protocol version %d.", p->protocol);
         p->state = ADK_INIT_SEND_MANUFACTURER;
       }
       else
       {
-        USBH_UsrLog("AOA: could not read device protocol version.");
-        p->state = ADK_INIT_FAILED;
+        p->state = ADK_INIT_DONE;
         return AOA_HANDSHAKE_NOTSUPPORTED;
       }
     }
     else
     {
-      p->state = ADK_INIT_FAILED;
+      p->state = ADK_INIT_DONE;
       return AOA_HANDSHAKE_ERROR;
     }
     break;
@@ -182,7 +150,6 @@ AOA_HandShakeResultTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
   case ADK_INIT_SEND_MANUFACTURER:
     if (USBH_AOA_SendString(phost, ACCESSORY_STRING_MANUFACTURER,
         deviceInfo->acc_manufacturer) == USBH_OK)
-       // (uint8_t*) ADK_Machine.acc_manufacturer) == USBH_OK)
     {
       p->state = ADK_INIT_SEND_MODEL;
       USBH_UsrLog("AOA: SEND_MANUFACTURER %s", deviceInfo->acc_manufacturer);
@@ -217,8 +184,8 @@ AOA_HandShakeResultTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
     break;
 
   case ADK_INIT_SEND_URI:
-    if (USBH_AOA_SendString(phost, ACCESSORY_STRING_URI,
-        deviceInfo->acc_uri) == USBH_OK)
+    if (USBH_AOA_SendString(phost, ACCESSORY_STRING_URI, deviceInfo->acc_uri)
+        == USBH_OK)
     {
       p->state = ADK_INIT_SEND_SERIAL;
       USBH_UsrLog("AOA: SEND_URI %s", deviceInfo->acc_uri);
@@ -587,6 +554,8 @@ static USBH_StatusTypeDef USBH_AOA_Handle(USBH_HandleTypeDef *phost)
  */
 static USBH_StatusTypeDef USBH_AOA_GetProtocol(USBH_HandleTypeDef *phost)
 {
+  AOA_HandShakeDataTypeDef* p = phost->pUserData;
+
   phost->Control.setup.b.bmRequestType = USB_D2H | USB_REQ_TYPE_VENDOR
       | USB_REQ_RECIPIENT_DEVICE;
   phost->Control.setup.b.bRequest = ACCESSORY_GET_PROTOCOL;
@@ -595,7 +564,7 @@ static USBH_StatusTypeDef USBH_AOA_GetProtocol(USBH_HandleTypeDef *phost)
   phost->Control.setup.b.wLength.w = 2;
 
   /* Control Request */
-  return USBH_CtlReq(phost, (uint8_t*) &ADK_Machine.protocol, 2);
+  return USBH_CtlReq(phost, (uint8_t*)&p->protocol, 2);
 }
 
 /**
