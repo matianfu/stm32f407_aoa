@@ -51,8 +51,8 @@ __ALIGN_BEGIN ADK_Machine_TypeDef ADK_Machine __ALIGN_END;
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
 __ALIGN_BEGIN USB_Setup_TypeDef ADK_Setup __ALIGN_END;
 
-uint8_t aoa_in_buf[64] __attribute__ ((aligned (16)));
-uint8_t aoa_out_buf[64] __attribute__ ((aligned (16)));
+// uint8_t aoa_in_buf[64] __attribute__ ((aligned (16)));
+// uint8_t aoa_out_buf[64] __attribute__ ((aligned (16)));
 
 
 /**
@@ -313,7 +313,7 @@ static USBH_StatusTypeDef USBH_AOA_OutHandle(USBH_HandleTypeDef *phost)
   case AOA_SEND_DATA:
     if (ADK_Machine.outSize > 0)
     {
-      USBH_BulkSendData(phost, aoa_out_buf, ADK_Machine.outSize,
+      USBH_BulkSendData(phost, ADK_Machine.outbuff, ADK_Machine.outSize,
           ADK_Machine.hc_num_out, 0);
       ADK_Machine.outState = AOA_SEND_DATA_WAIT;
     }
@@ -323,8 +323,8 @@ static USBH_StatusTypeDef USBH_AOA_OutHandle(USBH_HandleTypeDef *phost)
     switch (URB_Status)
     {
     case USBH_URB_DONE:
-      aoa_out_buf[ADK_Machine.outSize] = '\0';
-      USBH_UsrLog("AOA: %d bytes sent, %s", ADK_Machine.outSize, aoa_out_buf)
+      ADK_Machine.outbuff[ADK_Machine.outSize] = '\0';
+      USBH_UsrLog("AOA: out %d bytes, \"%s\"", ADK_Machine.outSize, ADK_Machine.outbuff)
       ;
       ADK_Machine.outSize = 0;
       ADK_Machine.outState = AOA_SEND_DATA;
@@ -396,7 +396,7 @@ static USBH_StatusTypeDef USBH_AOA_InHandle(USBH_HandleTypeDef *phost)
   switch (ADK_Machine.inState)
   {
   case AOA_RECV_DATA:
-    USBH_BulkReceiveData(phost, aoa_in_buf, USBH_ADK_DATA_SIZE,
+    USBH_BulkReceiveData(phost, ADK_Machine.inbuff, USBH_ADK_DATA_SIZE,
         ADK_Machine.hc_num_in);
     USBH_PutMessage("ADK_GET_DATA -> ADK_GET_DATA_WAIT");
     ADK_Machine.inState = AOA_RECV_DATA_WAIT;
@@ -410,15 +410,15 @@ static USBH_StatusTypeDef USBH_AOA_InHandle(USBH_HandleTypeDef *phost)
 
       if (size > 0) {
 
-        if (printable(aoa_in_buf, size)) {
-          aoa_in_buf[size] = '\0';
-          USBH_UsrLog("AOA: in %u bytes, \"%s\"", (unsigned int)size, aoa_in_buf);
+        if (printable(ADK_Machine.inbuff, size)) {
+          ADK_Machine.inbuff[size] = '\0';
+          USBH_UsrLog("AOA: in %u bytes, \"%s\"", (unsigned int)size, ADK_Machine.inbuff);
         }
         else {
-          USBH_UsrLog("AOA: in %u bytes, %s", (unsigned int)size, bytes2bin(aoa_in_buf, size));
+          USBH_UsrLog("AOA: in %u bytes, %s", (unsigned int)size, bytes2bin(ADK_Machine.inbuff, size));
         }
 
-        memmove(aoa_in_buf, aoa_out_buf, size);
+        memmove(ADK_Machine.outbuff, ADK_Machine.inbuff, size);
         ADK_Machine.outSize = size;
         ADK_Machine.inState = AOA_RECV_DATA;
       }
