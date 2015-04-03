@@ -490,6 +490,7 @@ typedef struct _USBH_HandleTypeDef
   uint8_t               id;
   void*                 pData;
   void                 (* pUser )(struct _USBH_HandleTypeDef *pHandle, uint8_t id);
+  void*                 pUserData;
   
 #if (USBH_USE_OS == 1)
   osMessageQId          os_event;   

@@ -64,8 +64,8 @@
 #define ACCESSORY_SEND_HID_EVENT        	57
 #define ACCESSORY_SET_AUDIO_MODE        	58
 
-#define USBH_ADK_DATA_SIZE					64
-#define USBH_ADK_NAK_RETRY_LIMIT 			1
+#define USBH_ADK_DATA_SIZE					      64
+#define USBH_ADK_NAK_RETRY_LIMIT 			    1
 
 //added by fan
 
@@ -73,7 +73,7 @@
  * This is interface class
  */
 #define USB_ADK_CLASS                   	0xff
-#define AOA_CODE							0XFF
+#define AOA_CODE							            0XFF
 /**
  * @}
  */
@@ -84,7 +84,31 @@
 extern USBH_ClassTypeDef USBH_ADK_cb;
 #define USBH_AOA_CLASS        &USBH_ADK_cb
 
+typedef enum
+{
+  AOA_HANDSHAKE_BUSY = 0,
+  AOA_HANDSHAKE_OK,
+  AOA_HANDSHAKE_NOTSUPPORTED,
+  AOA_HANDSHAKE_ERROR,
+} AOA_HandShakeResultTypeDef;
+
+
 /* States for ADK Initialize State Machine */
+//typedef enum
+//{
+//  ADK_INIT_SETUP = 0,
+//  ADK_INIT_GET_PROTOCOL,
+//  ADK_INIT_SEND_MANUFACTURER,
+//  ADK_INIT_SEND_MODEL,
+//  ADK_INIT_SEND_DESCRIPTION,
+//  ADK_INIT_SEND_VERSION,
+//  ADK_INIT_SEND_URI,
+//  ADK_INIT_SEND_SERIAL,
+//  ADK_INIT_SWITCHING,
+//  ADK_INIT_DONE,
+//  ADK_INIT_FAILED,
+//} ADK_InitState;
+
 typedef enum
 {
   ADK_INIT_SETUP = 0,
@@ -96,26 +120,40 @@ typedef enum
   ADK_INIT_SEND_URI,
   ADK_INIT_SEND_SERIAL,
   ADK_INIT_SWITCHING,
-  ADK_INIT_GET_DEVDESC,
-  ADK_INIT_CONFIGURE_ANDROID,
   ADK_INIT_DONE,
   ADK_INIT_FAILED,
-} ADK_InitState;
+} AOA_HandShakeStateTypeDef;
 
-/* States for ADK State Machine */
+typedef struct
+{
+  uint8_t acc_manufacturer[64];
+  uint8_t acc_model[64];
+  uint8_t acc_description[64];
+  uint8_t acc_version[64];
+  uint8_t acc_uri[64];
+  uint8_t acc_serial[64];
+} AOA_DeviceInfoTypeDef;
+
+typedef struct {
+  AOA_HandShakeStateTypeDef state;
+  uint16_t protocol;
+  AOA_DeviceInfoTypeDef * deviceInfo;
+} AOA_HandShakeDataTypeDef;
+
 typedef enum
 {
-  ADK_IDLE = 0,
-  ADK_SEND_DATA,
-  ADK_SEND_DATA_WAIT,
-  ADK_BUSY,
-  ADK_GET_DATA,
-  ADK_GET_DATA_WAIT,
-  ADK_INITIALIZING,
-  ADK_ERROR,
-} ADK_State;
+  AOA_RECV_DATA = 0, AOA_RECV_DATA_WAIT,
+} AOA_InStateTypeDef;
 
-/* Structure for ADK process */
+typedef enum
+{
+  AOA_SEND_DATA = 0, AOA_SEND_DATA_WAIT,
+} AOA_OutStateTypeDef;
+
+
+
+
+#if 0
 typedef struct _ADK_Process
 {
   uint16_t pid;
@@ -141,6 +179,36 @@ typedef struct _ADK_Process
 
   uint32_t polling_timer;
 } ADK_Machine_TypeDef;
+#endif
+
+/* Structure for ADK process */
+typedef struct _ADK_Process
+{
+
+  uint16_t protocol;
+
+  uint16_t pid;
+  uint8_t hc_num_in;
+  uint8_t hc_num_out;
+  uint8_t BulkOutEp;
+  uint8_t BulkInEp;
+  uint16_t BulkInEpSize;
+  uint16_t BulkOutEpSize;
+  uint8_t inbuff[USBH_ADK_DATA_SIZE];
+  uint8_t outbuff[USBH_ADK_DATA_SIZE];
+  uint16_t inSize;
+  uint16_t outSize;
+
+  AOA_HandShakeStateTypeDef initstate;
+
+
+
+  uint32_t polling_timer;
+
+  AOA_InStateTypeDef inState;
+  AOA_OutStateTypeDef outState;
+
+} ADK_Machine_TypeDef;
 /**
  * @}
  */
@@ -153,7 +221,7 @@ void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description,
 USBH_StatusTypeDef USBH_ADK_write(USBH_HandleTypeDef *phost, uint8_t *buff,
     uint16_t len);
 uint16_t USBH_ADK_read(USBH_HandleTypeDef *phost, uint8_t *buff, uint16_t len);
-ADK_State USBH_ADK_getStatus(void);
+// ADK_State USBH_ADK_getStatus(void);
 
 /**
  * @}

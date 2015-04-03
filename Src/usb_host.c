@@ -40,10 +40,35 @@
 #include "usbh_hid.h"
 #include "usbh_adk_core.h"
 
+typedef enum {
+  ABORT_HANDLE_INIT,
+  ABORT_HANDLE_HANDSHAKE,
+  ABORT_HANDLE_HANDSHAKE_DONE,
+} AbortStateTypeDef;
+
 /* USB Host Core handle declaration */
 USBH_HandleTypeDef hUsbHostHS;
 USBH_HandleTypeDef hUsbHostFS;
 ApplicationTypeDef Appli_state = APPLICATION_IDLE;
+AbortStateTypeDef  Abort_state = ABORT_HANDLE_INIT;
+
+static int aoa_handshake_tried = 0;
+
+static AOA_DeviceInfoTypeDef deviceInfo __attribute__ ((aligned(4)))
+    =
+{
+  .acc_manufacturer = "Actnova",
+  .acc_model = "DemoKit",
+  .acc_description = "Android Open Accessory DemoKit",
+  .acc_version = "1.0",
+  .acc_uri = "http://developer.android.com/tools/adk/index.html",
+  .acc_serial = "BL100A"
+};
+
+static AOA_HandShakeDataTypeDef handshakeData =
+{
+  .deviceInfo = &deviceInfo,
+};
 
 extern USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
 
@@ -82,12 +107,12 @@ void MX_USB_HOST_Init(void)
    * @param  serial: serial number string (max 63 chars)
    * @retval None
    */
-  USBH_ADK_Init((unsigned char*)"Actnova",
-                (unsigned char*)"DemoKit",
-                (unsigned char*)"HID barcode scanner adapter",
-                (unsigned char*)"1.0",
-                (unsigned char*)"http://www.actnova.com/aoa.apk",
-                (unsigned char*)"1234567890");
+//  USBH_ADK_Init((unsigned char*)"Actnova",
+//                (unsigned char*)"DemoKit",
+//                (unsigned char*)"HID barcode scanner adapter",
+//                (unsigned char*)"1.0",
+//                (unsigned char*)"http://www.actnova.com/aoa.apk",
+//                (unsigned char*)"1234567890");
 
   /* Init Host Library,Add Supported Class and Start the library*/
   USBH_Init(&hUsbHostHS, USBH_UserProcess1, HOST_HS);
@@ -120,10 +145,11 @@ void MX_USB_HOST_Process()
  * user callback definition
 */ 
 
-static int aoa_handshake_tried = 0;
+
 
 static void USBH_UserProcess1(USBH_HandleTypeDef *phost, uint8_t id)
 {
+  AOA_HandShakeResultTypeDef r;
   /* USER CODE BEGIN 2 */
   switch (id)
   {
@@ -140,25 +166,58 @@ static void USBH_UserProcess1(USBH_HandleTypeDef *phost, uint8_t id)
 
   case HOST_USER_CONNECTION:
     Appli_state = APPLICATION_START;
+
+    Abort_state = ABORT_HANDLE_INIT;
     aoa_handshake_tried = 0;
     break;
 
   case HOST_USER_HANDLE_ABORT:
 
-    if (aoa_handshake_tried == 0)
+    switch (Abort_state)
     {
-      if (phost->AbortReason == ABORT_CLASSINIT_FAIL || /** interface with class code 0xff but subclass protocol not match **/
-          phost->AbortReason == ABORT_NOCLASS_MATCH)    /** no interface with class code 0xff but aoa may works **/
-      {
-        USBH_StatusTypeDef status = USBH_AOA_Handshake(phost);
+    case ABORT_HANDLE_INIT:
 
-        if (status == USBH_FAIL || status == USBH_NOT_SUPPORTED)
-        {
-          aoa_handshake_tried = 1;
-          USBH_UsrLog("AOA Handshake fail, abort");
-        }
+      if (phost->AbortReason == ABORT_CLASSINIT_FAIL || /** interface with class code 0xff but subclass protocol not match **/
+      phost->AbortReason == ABORT_NOCLASS_MATCH) /** no interface with class code 0xff but aoa may works **/
+      {
+        handshakeData.state = ADK_INIT_SETUP;
+        handshakeData.protocol = -1;
+        phost->pUserData = &handshakeData;
+
+        Abort_state = ABORT_HANDLE_HANDSHAKE;
       }
+      break;
+
+    case ABORT_HANDLE_HANDSHAKE:
+
+      r = USBH_AOA_Handshake(phost);
+      switch (r)
+      {
+      case AOA_HANDSHAKE_OK:
+        USBH_UsrLog("AOA Handshake OK, Waiting for re-connect.")
+        ;
+        Abort_state = ABORT_HANDLE_HANDSHAKE_DONE;
+        break;
+      case AOA_HANDSHAKE_NOTSUPPORTED:
+        USBH_UsrLog("AOA Handshake fail, not supported")
+        ;
+        Abort_state = ABORT_HANDLE_HANDSHAKE_DONE;
+        break;
+      case AOA_HANDSHAKE_ERROR:
+        USBH_UsrLog("AOA Handshake fail, error")
+        ;
+        Abort_state = ABORT_HANDLE_HANDSHAKE_DONE;
+        break;
+
+      default:
+        break;
+      }
+      break;
+
+    case ABORT_HANDLE_HANDSHAKE_DONE:
+      break;
     }
+
     break;
 
   default:

@@ -25,13 +25,15 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "usbh_adk_core.h"
 #include "usart.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "usbh_core_helper.h"
 
-#define DEBUG
 
 /** @defgroup USBH_ADK_CORE_Private_Variables
  * @{
@@ -63,7 +65,9 @@ uint8_t aoa_out_buf[64] __attribute__ ((aligned (16)));
  */
 static USBH_StatusTypeDef USBH_AOA_InterfaceInit(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef USBH_AOA_InterfaceDeInit(USBH_HandleTypeDef *phost);
-static USBH_StatusTypeDef USBH_ADK_Handle(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef USBH_AOA_InHandle(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef USBH_AOA_OutHandle(USBH_HandleTypeDef *phost);
+static USBH_StatusTypeDef USBH_AOA_Handle(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef USBH_AOA_ClassRequest(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef USBH_AOA_GetProtocol(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef USBH_AOA_SendString(USBH_HandleTypeDef *phost,
@@ -78,7 +82,7 @@ static USBH_StatusTypeDef USBH_ADK_SOFProcess(USBH_HandleTypeDef *phost);
 USBH_ClassTypeDef USBH_ADK_cb =
 { "AOA",
 USB_ADK_CLASS, USBH_AOA_InterfaceInit, USBH_AOA_InterfaceDeInit,
-    USBH_AOA_ClassRequest, USBH_ADK_Handle, USBH_ADK_SOFProcess,
+    USBH_AOA_ClassRequest, USBH_AOA_Handle, USBH_ADK_SOFProcess,
     NULL , };
 
 /**  add by fan
@@ -95,36 +99,33 @@ static USBH_StatusTypeDef USBH_ADK_SOFProcess(USBH_HandleTypeDef *phost)
  * @}
  */
 
-/**
- * @brief  USBH_ADK_Init
- *         Initialization for ADK class.
- * @param  manufacture: manufacturer name string(max 63 chars)
- * @param  model: model name string (max 63 chars)
- * @param  description: description string (max 63 chars)
- * @param  version: version string (max 63 chars)
- * @param  uri: URI string (max 63 chars)
- * @param  serial: serial number string (max 63 chars)
- * @retval None
- */
-void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description,
-    uint8_t* version, uint8_t* uri, uint8_t* serial)
-{
-  strncpy((char*)ADK_Machine.acc_manufacturer, (char*)manufacture, 64);
-  ADK_Machine.acc_manufacturer[63] = '\0';
-  strncpy((char*)ADK_Machine.acc_model, (char*)model, 64);
-  ADK_Machine.acc_model[63] = '\0';
-  strncpy((char*)ADK_Machine.acc_description, (char*)description, 64);
-  ADK_Machine.acc_description[63] = '\0';
-  strncpy((char*)ADK_Machine.acc_version, (char*)version, 64);
-  ADK_Machine.acc_version[63] = '\0';
-  strncpy((char*)ADK_Machine.acc_uri, (char*)uri, 64);
-  ADK_Machine.acc_uri[63] = '\0';
-  strncpy((char*)ADK_Machine.acc_serial, (char*)serial, 64);
-  ADK_Machine.acc_serial[63] = '\0';
-
-  ADK_Machine.initstate = ADK_INIT_SETUP;
-  ADK_Machine.state = ADK_INITIALIZING; //ADK_ERROR;
-}
+///**
+// * @brief  USBH_ADK_Init
+// *         Initialization for ADK class.
+// * @param  manufacture: manufacturer name string(max 63 chars)
+// * @param  model: model name string (max 63 chars)
+// * @param  description: description string (max 63 chars)
+// * @param  version: version string (max 63 chars)
+// * @param  uri: URI string (max 63 chars)
+// * @param  serial: serial number string (max 63 chars)
+// * @retval None
+// */
+//void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description,
+//    uint8_t* version, uint8_t* uri, uint8_t* serial)
+//{
+//  strncpy((char*)ADK_Machine.acc_manufacturer, (char*)manufacture, 64);
+//  ADK_Machine.acc_manufacturer[63] = '\0';
+//  strncpy((char*)ADK_Machine.acc_model, (char*)model, 64);
+//  ADK_Machine.acc_model[63] = '\0';
+//  strncpy((char*)ADK_Machine.acc_description, (char*)description, 64);
+//  ADK_Machine.acc_description[63] = '\0';
+//  strncpy((char*)ADK_Machine.acc_version, (char*)version, 64);
+//  ADK_Machine.acc_version[63] = '\0';
+//  strncpy((char*)ADK_Machine.acc_uri, (char*)uri, 64);
+//  ADK_Machine.acc_uri[63] = '\0';
+//  strncpy((char*)ADK_Machine.acc_serial, (char*)serial, 64);
+//  ADK_Machine.acc_serial[63] = '\0';
+//}
 
 /*
  * @brief   USBH_AOA_Handshake
@@ -132,101 +133,111 @@ void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description,
  * @param   USB host handle
  * @retval  USBH_FAIL if no disconnect occurs in specified time.
  */
-USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
+AOA_HandShakeResultTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
 {
   USBH_StatusTypeDef status;
+  AOA_HandShakeDataTypeDef* p = phost->pUserData;
+  AOA_DeviceInfoTypeDef* deviceInfo;
 
-  switch (ADK_Machine.initstate)
+  if (p == NULL)
+  {
+    return AOA_HANDSHAKE_ERROR;
+  }
+
+  deviceInfo = p->deviceInfo;
+
+  switch (p->state)
   {
   case ADK_INIT_SETUP:
-    ADK_Machine.initstate = ADK_INIT_GET_PROTOCOL;
-    ADK_Machine.protocol = -1;
+    p->state = ADK_INIT_GET_PROTOCOL;
+    p->protocol = -1;
     break;
 
   case ADK_INIT_GET_PROTOCOL:
     status = USBH_AOA_GetProtocol(phost);
-    if (status == USBH_OK)
+    if (status == USBH_BUSY)
+    {
+    }
+    else if (status == USBH_OK)
     {
       if (ADK_Machine.protocol >= 1)
       {
-        ADK_Machine.initstate = ADK_INIT_SEND_MANUFACTURER;
         USBH_UsrLog("AOA: protocol version %d.", ADK_Machine.protocol);
+        p->state = ADK_INIT_SEND_MANUFACTURER;
       }
       else
       {
-        ADK_Machine.initstate = ADK_INIT_FAILED;
         USBH_UsrLog("AOA: could not read device protocol version.");
+        p->state = ADK_INIT_FAILED;
+        return AOA_HANDSHAKE_NOTSUPPORTED;
       }
     }
-    else if (status == USBH_BUSY) {
-      // wait
-    }
-    else {
-      USBH_UsrLog("AOA: get protocol command failed.")
-      return USBH_FAIL;
+    else
+    {
+      p->state = ADK_INIT_FAILED;
+      return AOA_HANDSHAKE_ERROR;
     }
     break;
 
   case ADK_INIT_SEND_MANUFACTURER:
     if (USBH_AOA_SendString(phost, ACCESSORY_STRING_MANUFACTURER,
-        (uint8_t*) ADK_Machine.acc_manufacturer) == USBH_OK)
+        deviceInfo->acc_manufacturer) == USBH_OK)
+       // (uint8_t*) ADK_Machine.acc_manufacturer) == USBH_OK)
     {
-      ADK_Machine.initstate = ADK_INIT_SEND_MODEL;
-      USBH_UsrLog("AOA: SEND_MANUFACTURER %s", ADK_Machine.acc_manufacturer);
+      p->state = ADK_INIT_SEND_MODEL;
+      USBH_UsrLog("AOA: SEND_MANUFACTURER %s", deviceInfo->acc_manufacturer);
     }
     break;
 
   case ADK_INIT_SEND_MODEL:
     if (USBH_AOA_SendString(phost, ACCESSORY_STRING_MODEL,
-        (uint8_t*) ADK_Machine.acc_model) == USBH_OK)
+        deviceInfo->acc_model) == USBH_OK)
     {
-      ADK_Machine.initstate = ADK_INIT_SEND_DESCRIPTION;
-      USBH_UsrLog("AOA: SEND_MODEL %s", ADK_Machine.acc_model);
+      p->state = ADK_INIT_SEND_DESCRIPTION;
+      USBH_UsrLog("AOA: SEND_MODEL %s", deviceInfo->acc_model);
     }
     break;
 
   case ADK_INIT_SEND_DESCRIPTION:
     if (USBH_AOA_SendString(phost, ACCESSORY_STRING_DESCRIPTION,
-        (uint8_t*) ADK_Machine.acc_description) == USBH_OK)
+        deviceInfo->acc_description) == USBH_OK)
     {
-      ADK_Machine.initstate = ADK_INIT_SEND_VERSION;
-      USBH_UsrLog("AOA: SEND_DESCRIPTION %s", ADK_Machine.acc_description);
+      p->state = ADK_INIT_SEND_VERSION;
+      USBH_UsrLog("AOA: SEND_DESCRIPTION %s", deviceInfo->acc_description);
     }
     break;
 
   case ADK_INIT_SEND_VERSION:
     if (USBH_AOA_SendString(phost, ACCESSORY_STRING_VERSION,
-        (uint8_t*) ADK_Machine.acc_version) == USBH_OK)
+        deviceInfo->acc_version) == USBH_OK)
     {
-      ADK_Machine.initstate = ADK_INIT_SEND_URI;
-      USBH_UsrLog("AOA: SEND_VERSION %s", ADK_Machine.acc_version);
+      p->state = ADK_INIT_SEND_URI;
+      USBH_UsrLog("AOA: SEND_VERSION %s", deviceInfo->acc_version);
     }
     break;
 
   case ADK_INIT_SEND_URI:
     if (USBH_AOA_SendString(phost, ACCESSORY_STRING_URI,
-        (uint8_t*) ADK_Machine.acc_uri) == USBH_OK)
+        deviceInfo->acc_uri) == USBH_OK)
     {
-      ADK_Machine.initstate = ADK_INIT_SEND_SERIAL;
-      USBH_UsrLog("AOA: SEND_URI %s", ADK_Machine.acc_uri);
+      p->state = ADK_INIT_SEND_SERIAL;
+      USBH_UsrLog("AOA: SEND_URI %s", deviceInfo->acc_uri);
     }
     break;
 
   case ADK_INIT_SEND_SERIAL:
     if (USBH_AOA_SendString(phost, ACCESSORY_STRING_SERIAL,
-        (uint8_t*) ADK_Machine.acc_serial) == USBH_OK)
+        deviceInfo->acc_serial) == USBH_OK)
     {
-      ADK_Machine.initstate = ADK_INIT_SWITCHING;
-      // ADK_Machine.polling_timer = HAL_GetTick();
-      USBH_UsrLog("AOA: SEND_SERIAL %s", ADK_Machine.acc_serial);
+      p->state = ADK_INIT_SWITCHING;
+      USBH_UsrLog("AOA: SEND_SERIAL %s", deviceInfo->acc_serial);
     }
     break;
 
   case ADK_INIT_SWITCHING:
-
     if (USBH_AOA_Switch(phost) == USBH_OK)
     {
-      ADK_Machine.initstate = ADK_INIT_GET_DEVDESC;
+      p->state = ADK_INIT_DONE;
       USBH_UsrLog("AOA: Switch to accessory mode");
     }
     break;
@@ -235,7 +246,7 @@ USBH_StatusTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
     break;
   }
 
-  return USBH_BUSY;
+  return AOA_HANDSHAKE_BUSY;
 }
 
 /**
@@ -269,7 +280,8 @@ static USBH_StatusTypeDef USBH_AOA_InterfaceInit(USBH_HandleTypeDef * phost)
     }
 
     phost->pActiveClass->pData = &ADK_Machine;
-    ADK_Machine.state = ADK_IDLE;
+    ADK_Machine.inState = AOA_RECV_DATA;
+    ADK_Machine.outState = AOA_SEND_DATA;
     ADK_Machine.inSize = 0;
     ADK_Machine.outSize = 0;
     USBH_AOA_ConfigEndpoints(phost);    // this function configure in/out pipes.
@@ -309,7 +321,6 @@ USBH_StatusTypeDef USBH_AOA_InterfaceDeInit(USBH_HandleTypeDef *phost)
 
     ADK_Machine.hc_num_in = 0; /* Reset the Channel as Free */
   }
-  ADK_Machine.initstate = ADK_INIT_SETUP;
 
   return USBH_OK;
 }
@@ -323,39 +334,131 @@ USBH_StatusTypeDef USBH_AOA_InterfaceDeInit(USBH_HandleTypeDef *phost)
  */
 static USBH_StatusTypeDef USBH_AOA_ClassRequest(USBH_HandleTypeDef *phost)
 {
-//  USBH_HandleTypeDef *pphost = phost;
-//  USBH_StatusTypeDef status = USBH_BUSY;
-//
-//  switch (ADK_Machine.initstate)
-//  {
-//  case ADK_INIT_SETUP:
-//    USBH_UsrLog("ADK");
-//
-//    // minimize NAK retry limit
-//    // pdev->host.NakRetryLimit = USBH_ADK_NAK_RETRY_LIMIT;
-//
-//
-//  case ADK_INIT_CONFIGURE_ANDROID:
-//    USBH_ADK_ConfigEndpoints(phost);
-//    ADK_Machine.initstate = ADK_INIT_DONE;
-//    break;
-//
-//  case ADK_INIT_DONE:
-//    status = USBH_OK;
-//    ADK_Machine.state = ADK_IDLE;
-//#ifdef DEBUG
-//    printf("ADK:configuration complete.\r\n");
-//#endif
-//    break;
-//
-//  case ADK_INIT_FAILED:
-//    status = USBH_UNRECOVERED_ERROR;
-//    break;
-//
-//  default:
-//    break;
-//  }
-//  return status;
+  return USBH_OK;
+}
+
+static USBH_StatusTypeDef USBH_AOA_OutHandle(USBH_HandleTypeDef *phost)
+{
+  USBH_URBStateTypeDef URB_Status;
+
+  switch (ADK_Machine.outState)
+  {
+  case AOA_SEND_DATA:
+    if (ADK_Machine.outSize > 0)
+    {
+      USBH_BulkSendData(phost, aoa_out_buf, ADK_Machine.outSize,
+          ADK_Machine.hc_num_out, 0);
+      ADK_Machine.outState = AOA_SEND_DATA_WAIT;
+    }
+    break;
+  case AOA_SEND_DATA_WAIT:
+    URB_Status = USBH_LL_GetURBState(phost, ADK_Machine.hc_num_out);
+    switch (URB_Status)
+    {
+    case USBH_URB_DONE:
+      aoa_out_buf[ADK_Machine.outSize] = '\0';
+      USBH_UsrLog("AOA: %d bytes sent, %s", ADK_Machine.outSize, aoa_out_buf)
+      ;
+      ADK_Machine.outSize = 0;
+      ADK_Machine.outState = AOA_SEND_DATA;
+      break;
+    case USBH_URB_NOTREADY:
+
+      ADK_Machine.outState = AOA_SEND_DATA;
+      break;
+    case USBH_URB_STALL:
+      // TODO
+      break;
+    case USBH_URB_ERROR:
+      // TODO
+      break;
+    default:
+      break;
+    }
+    break;
+  }
+
+  return USBH_OK;
+}
+
+bool printable(uint8_t* buf, uint32_t size)
+{
+  int i;
+
+  for (i = 0; i < size; i++)
+  {
+    /**
+     * ascii 0x20 (space) to 0x7E (tilde)
+     */
+    if (buf[i] < 0x20 || buf[i] > 0x7E)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+char* bytes2bin(uint8_t* buf, uint32_t size) {
+
+  static char out[256];
+  static char* err = "ERROR";
+  char* p;
+  int i;
+
+  if (buf == NULL || size == 0 || size > 64)
+    return err;
+
+  p = out;
+  for (i = 0; i < size; i++)
+  {
+    sprintf(p, " %02x", buf[i]);
+    p += 3;
+  }
+  *p = '\0';
+
+  return out;
+}
+
+
+static USBH_StatusTypeDef USBH_AOA_InHandle(USBH_HandleTypeDef *phost)
+{
+  USBH_URBStateTypeDef URB_Status;
+  uint32_t size;
+
+  switch (ADK_Machine.inState)
+  {
+  case AOA_RECV_DATA:
+    USBH_BulkReceiveData(phost, aoa_in_buf, USBH_ADK_DATA_SIZE,
+        ADK_Machine.hc_num_in);
+    USBH_PutMessage("ADK_GET_DATA -> ADK_GET_DATA_WAIT");
+    ADK_Machine.inState = AOA_RECV_DATA_WAIT;
+    break;
+
+  case AOA_RECV_DATA_WAIT:
+    URB_Status = USBH_LL_GetURBState(phost, ADK_Machine.hc_num_in);
+    if (URB_Status == USBH_URB_DONE)
+    {
+      size = USBH_LL_GetLastXferSize(phost, ADK_Machine.hc_num_in);
+
+      if (size > 0) {
+
+        if (printable(aoa_in_buf, size)) {
+          aoa_in_buf[size] = '\0';
+          USBH_UsrLog("AOA: in %u bytes, \"%s\"", (unsigned int)size, aoa_in_buf);
+        }
+        else {
+          USBH_UsrLog("AOA: in %u bytes, %s", (unsigned int)size, bytes2bin(aoa_in_buf, size));
+        }
+
+        memmove(aoa_in_buf, aoa_out_buf, size);
+        ADK_Machine.outSize = size;
+        ADK_Machine.inState = AOA_RECV_DATA;
+      }
+    }
+    break;
+  }
+
   return USBH_OK;
 }
 
@@ -366,101 +469,113 @@ static USBH_StatusTypeDef USBH_AOA_ClassRequest(USBH_HandleTypeDef *phost)
  * @param  hdev: Selected device property
  * @retval USBH_StatusTypeDef
  */
-static USBH_StatusTypeDef USBH_ADK_Handle(USBH_HandleTypeDef *phost)
+static USBH_StatusTypeDef USBH_AOA_Handle(USBH_HandleTypeDef *phost)
 {
-  USBH_StatusTypeDef status = USBH_BUSY;
-  USBH_URBStateTypeDef URB_Status;
-  uint32_t size, i;
-  static char buf[65];
-  static char out[256];
-  char* p;
-
-  switch (ADK_Machine.state)
-  {
-  case ADK_IDLE:
-
-    if (ADK_Machine.outSize > 0) {
-      ADK_Machine.state = ADK_SEND_DATA;
-    }
-    else {
-      ADK_Machine.state = ADK_GET_DATA;
-    }
-    break;
-
-  case ADK_SEND_DATA:
-
-    USBH_BulkSendData(phost, aoa_out_buf, ADK_Machine.outSize,
-        ADK_Machine.hc_num_out, 0);
-    ADK_Machine.state = ADK_SEND_DATA_WAIT;
-    break;
-
-  case ADK_SEND_DATA_WAIT:
-
-    URB_Status = USBH_LL_GetURBState(phost, ADK_Machine.hc_num_out);
-    switch (URB_Status)
-    {
-    case USBH_URB_DONE:
-      aoa_out_buf[ADK_Machine.outSize] = '\0';
-      USBH_UsrLog("AOA: %d bytes sent, %s", ADK_Machine.outSize, aoa_out_buf);
-      ADK_Machine.outSize = 0;
-      ADK_Machine.state = ADK_GET_DATA;
-      break;
-    case USBH_URB_NOTREADY:
-
-      // dont clear outSize
-      ADK_Machine.state = ADK_SEND_DATA;
-      break;
-    case USBH_URB_STALL:
-      break;
-    case USBH_URB_ERROR:
-      break;
-    default:
-      break;
-    }
-
-    break;
-
-  case ADK_GET_DATA:
-
-    USBH_BulkReceiveData(phost, aoa_in_buf, USBH_ADK_DATA_SIZE,
-        ADK_Machine.hc_num_in);
-    ADK_Machine.state = ADK_GET_DATA_WAIT;
-
-    break;
-
-  case ADK_GET_DATA_WAIT:
-
-    URB_Status = USBH_LL_GetURBState(phost, ADK_Machine.hc_num_in);
-    if (URB_Status == USBH_URB_DONE)
-    {
-      size = USBH_LL_GetLastXferSize(phost, ADK_Machine.hc_num_in);
-
-      p = out;
-      for (i = 0; i < size; i++)
-      {
-        sprintf(p, " %02x", aoa_in_buf[i]);
-        p += 3;
-      }
-      *p = '\0';
-      USBH_UsrLog("AOA in %u bytes, %s", (unsigned int )size, out);
-
-      memmove(aoa_out_buf, aoa_in_buf, size);
-      ADK_Machine.outSize = size;
-
-      ADK_Machine.state = ADK_IDLE;
-    }
-    break;
-
-  case ADK_BUSY:
-    ADK_Machine.state = ADK_IDLE;
-    ADK_Machine.outSize = 0;
-    break;
-
-  default:
-    break;
-  }
-  status = USBH_OK;
-  return status;
+  USBH_AOA_OutHandle(phost);
+  USBH_AOA_InHandle(phost);
+  return USBH_OK;
+//  USBH_StatusTypeDef status = USBH_BUSY;
+//  USBH_URBStateTypeDef URB_Status;
+//  uint32_t size, i;
+//  static char out[256];
+//  char* p;
+//
+//  switch (ADK_Machine.state)
+//  {
+//  case ADK_IDLE:
+//
+//    if (ADK_Machine.outSize > 0) {
+//      USBH_PutMessage("ADK_IDLE -> ADK_SEND_DATA");
+//      ADK_Machine.state = ADK_SEND_DATA;
+//    }
+//    else {
+//      ADK_Machine.state = ADK_GET_DATA;
+//      USBH_PutMessage("ADK_IDLE -> ADK_GET_DATA");
+//    }
+//    break;
+//
+//  case ADK_SEND_DATA:
+//
+//    USBH_BulkSendData(phost, aoa_out_buf, ADK_Machine.outSize,
+//        ADK_Machine.hc_num_out, 0);
+//    ADK_Machine.state = ADK_SEND_DATA_WAIT;
+//    break;
+//
+//  case ADK_SEND_DATA_WAIT:
+//
+//    URB_Status = USBH_LL_GetURBState(phost, ADK_Machine.hc_num_out);
+//    switch (URB_Status)
+//    {
+//    case USBH_URB_DONE:
+//      aoa_out_buf[ADK_Machine.outSize] = '\0';
+//      USBH_UsrLog("AOA: %d bytes sent, %s", ADK_Machine.outSize, aoa_out_buf);
+//      ADK_Machine.outSize = 0;
+//      ADK_Machine.state = ADK_GET_DATA;
+//      break;
+//    case USBH_URB_NOTREADY:
+//
+//      ADK_Machine.state = ADK_SEND_DATA;
+//      break;
+//    case USBH_URB_STALL:
+//      break;
+//    case USBH_URB_ERROR:
+//      break;
+//    default:
+//      break;
+//    }
+//
+//    break;
+//
+//  case ADK_GET_DATA:
+//
+//    USBH_BulkReceiveData(phost, aoa_in_buf, USBH_ADK_DATA_SIZE,
+//        ADK_Machine.hc_num_in);
+//    USBH_PutMessage("ADK_GET_DATA -> ADK_GET_DATA_WAIT");
+//    ADK_Machine.state = ADK_GET_DATA_WAIT;
+//
+//    break;
+//
+//  case ADK_GET_DATA_WAIT:
+//
+//    URB_Status = USBH_LL_GetURBState(phost, ADK_Machine.hc_num_in);
+//    if (URB_Status == USBH_URB_DONE)
+//    {
+//      size = USBH_LL_GetLastXferSize(phost, ADK_Machine.hc_num_in);
+//
+//      p = out;
+//      for (i = 0; i < size; i++)
+//      {
+//        sprintf(p, " %02x", aoa_in_buf[i]);
+//        p += 3;
+//      }
+//      *p = '\0';
+//      USBH_UsrLog("AOA in %u bytes, %s", (unsigned int )size, out);
+//
+//      if (size == 0) {
+//        ADK_Machine.state = ADK_IDLE;
+//      }
+//      else if (size == 3 && aoa_in_buf[0] == 'E' && aoa_in_buf[1] == 'N' && aoa_in_buf[2] == 'D') {
+//        ADK_Machine.outSize = 0;
+//        ADK_Machine.state = ADK_IDLE;
+//      }
+//      else {
+//        memmove(aoa_out_buf, aoa_in_buf, size);
+//        ADK_Machine.outSize = size;
+//        ADK_Machine.state = ADK_IDLE;
+//      }
+//    }
+//    break;
+//
+//  case ADK_BUSY:
+//    ADK_Machine.state = ADK_IDLE;
+//    ADK_Machine.outSize = 0;
+//    break;
+//
+//  default:
+//    break;
+//  }
+//  status = USBH_OK;
+//  return status;
 }
 
 /**
@@ -615,12 +730,12 @@ USBH_StatusTypeDef USBH_ADK_send(USBH_HandleTypeDef *phost, uint8_t *buff,
 //	HCD_Status = HCD_GetHCState(pdev , ADK_Machine.hc_num_out);
 //	HCD_GXferCnt = HCD_GetXferCnt(pdev , ADK_Machine.hc_num_out);
 
-  if (len > 0)
-  {
-    USBH_BulkSendData(phost, buff, len, ADK_Machine.hc_num_out, 1);
-//		ADK_Machine.outSize = 0;
-    ADK_Machine.state = ADK_GET_DATA;
-  }
+//  if (len > 0)
+//  {
+//    USBH_BulkSendData(phost, buff, len, ADK_Machine.hc_num_out, 1);
+////		ADK_Machine.outSize = 0;
+//    ADK_Machine.state = ADK_GET_DATA;
+//  }
   return USBH_OK;
 }
 
@@ -683,7 +798,7 @@ uint16_t USBH_ADK_read(USBH_HandleTypeDef *phost, uint8_t *buff, uint16_t len)
  * @param  None
  * @retval ADK_Machine.state
  */
-ADK_State USBH_ADK_getStatus(void)
-{
-  return ADK_Machine.state;
-}
+//ADK_State USBH_ADK_getStatus(void)
+//{
+//  return ADK_Machine.state;
+//}
