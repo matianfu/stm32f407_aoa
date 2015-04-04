@@ -390,8 +390,6 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   return USBH_OK;  
 }
 
-extern int DoCoreReset;
-
 /**
   * @brief  USBH_Process 
   *         Background process of the USB Core.

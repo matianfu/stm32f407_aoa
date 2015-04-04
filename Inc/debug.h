@@ -14,7 +14,7 @@
 /**
  * Do CoreReset after usb disconnect forcefully
  */
-#define CONFIG_USBH_FORCE_CORERESET_AFTER_DISCONNECT
+// #define CONFIG_USBH_FORCE_CORERESET_AFTER_DISCONNECT
 
 
 

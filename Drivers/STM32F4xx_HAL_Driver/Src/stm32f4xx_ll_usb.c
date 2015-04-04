@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_usb.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-June-2014
+  * @version V1.3.0
+  * @date    09-March-2015
   * @brief   USB Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -22,13 +22,13 @@
   
       (#) Call USB_CoreInit() API to initialize the USB Core peripheral.
 
-      (#) The upper HAL HCD/PCD driver will call the righ routines for its internal processes.
+      (#) The upper HAL HCD/PCD driver will call the right routines for its internal processes.
 
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -70,6 +70,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+// static HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx);
 
 /** @defgroup PCD_Private_Functions
   * @{
@@ -87,8 +88,6 @@
 @endverbatim
   * @{
   */
-
-int DoCoreReset = 1;
 
 /**
   * @brief  Initializes the USB Core
@@ -123,8 +122,7 @@ HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
     USBx->GUSBCFG |= USB_OTG_GUSBCFG_PHYSEL;
     
     /* Reset after a PHY select and set Host mode */
-    if (DoCoreReset)
-      USB_CoreReset(USBx);
+    USB_CoreReset(USBx);
     
     /* Deactivate the power down*/
     USBx->GCCFG = USB_OTG_GCCFG_PWRDWN;
@@ -169,7 +167,7 @@ HAL_StatusTypeDef USB_DisableGlobalInt(USB_OTG_GlobalTypeDef *USBx)
   * @param  USBx : Selected device
   * @param  mode :  current core mode
   *          This parameter can be one of the these values:
-  *            @arg USB_OTG_DEVICE_MODE: Peripheral mode mode
+  *            @arg USB_OTG_DEVICE_MODE: Peripheral mode
   *            @arg USB_OTG_HOST_MODE: Host mode
   *            @arg USB_OTG_DRD_MODE: Dual Role Device mode  
   * @retval HAL status
@@ -204,13 +202,27 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   uint32_t i = 0;
 
   /*Activate VBUS Sensing B */
+#if defined(STM32F446xx)
+  USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
+  
+  if (cfg.vbus_sensing_enable == 0)
+  {
+    /*Desactivate VBUS Sensing B */
+    USBx->GCCFG &= ~USB_OTG_GCCFG_VBDEN;
+    
+    /* B-peripheral session valid override enable*/ 
+    USBx->GOTGCTL |= USB_OTG_GOTGCTL_BVALOEN;
+    USBx->GOTGCTL |= USB_OTG_GOTGCTL_BVALOVAL;
+  }
+#else
   USBx->GCCFG |= USB_OTG_GCCFG_VBUSBSEN;
   
   if (cfg.vbus_sensing_enable == 0)
   {
     USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
   }
-   
+#endif /* STM32F446xx */
+
   /* Restart the Phy Clock */
   USBx_PCGCCTL = 0;
 
@@ -781,12 +793,12 @@ HAL_StatusTypeDef USB_WritePacket(USB_OTG_GlobalTypeDef *USBx, uint8_t *src, uin
   * @param  USBx : Selected device  
   * @param  src : source pointer
   * @param  ch_ep_num : endpoint or host channel number
-  * @param  len : Noumber of bytes to read
+  * @param  len : Number of bytes to read
   * @param  dma: USB dma enabled or disabled 
   *          This parameter can be one of the these values:
   *           0 : DMA feature not used 
   *           1 : DMA feature used  
-  * @retval pointer to desctination buffer
+  * @retval pointer to destination buffer
   */
 void *USB_ReadPacket(USB_OTG_GlobalTypeDef *USBx, uint8_t *dest, uint16_t len)
 {
@@ -1123,11 +1135,15 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
   /* Restart the Phy Clock */
   USBx_PCGCCTL = 0;
   
-  /* no VBUS sensing*/
+  /* Activate VBUS Sensing B */
+#if defined(STM32F446xx)
+  USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
+#else
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSASEN);
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSBSEN);
   USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
-  
+#endif /* STM32F446xx */
+
   /* Disable the FS/LS support mode only */
   if((cfg.speed == USB_OTG_SPEED_FULL)&&
      (USBx != USB_OTG_FS))
@@ -1312,7 +1328,7 @@ uint32_t USB_GetCurrentFrame (USB_OTG_GlobalTypeDef *USBx)
   * @param  ep_type : Endpoint Type
   *          This parameter can be one of the these values:
   *            @arg EP_TYPE_CTRL: Control type
-  *            @arg EP_TYPE_ISOC: Isochrounous type
+  *            @arg EP_TYPE_ISOC: Isochronous type
   *            @arg EP_TYPE_BULK: Bulk type
   *            @arg EP_TYPE_INTR: Interrupt type
   * @param  mps : Max Packet Size
@@ -1429,7 +1445,7 @@ HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDe
   uint16_t len_words = 0;   
   uint16_t num_packets = 0;
   uint16_t max_hc_pkt_count = 256;
-
+  
   if((USBx != USB_OTG_FS) && (hc->speed == USB_OTG_SPEED_HIGH))
   {
     if((dma == 0) && (hc->do_ping == 1))
@@ -1484,7 +1500,7 @@ HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDe
   /* Set host channel enable */
   USBx_HC(hc->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
   USBx_HC(hc->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
-
+  
   if (dma == 0) /* Slave mode */
   {  
     if((hc->ep_is_in == 0) && (hc->xfer_len > 0))
@@ -1631,25 +1647,28 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
   uint8_t i;
   uint32_t count = 0;
   uint32_t value;
-
+  
   USB_DisableGlobalInt(USBx);
+  
     /* Flush FIFO */
   USB_FlushTxFifo(USBx, 0x10);
   USB_FlushRxFifo(USBx);
-
+  
   /* Flush out any leftover queued requests. */
   for (i = 0; i <= 15; i++)
   {   
+
     value = USBx_HC(i)->HCCHAR ;
     value |=  USB_OTG_HCCHAR_CHDIS;
     value &= ~USB_OTG_HCCHAR_CHENA;  
     value &= ~USB_OTG_HCCHAR_EPDIR;
     USBx_HC(i)->HCCHAR = value;
   }
-
+  
   /* Halt all channels to put them into a known state. */  
   for (i = 0; i <= 15; i++)
   {   
+
     value = USBx_HC(i)->HCCHAR ;
     
     value |= USB_OTG_HCCHAR_CHDIS;
@@ -1659,7 +1678,7 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
     USBx_HC(i)->HCCHAR = value;
     do 
     {
-      if (++count > 1000)
+      if (++count > 1000) 
       {
         break;
       }
@@ -1667,26 +1686,10 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
     while ((USBx_HC(i)->HCCHAR & USB_OTG_HCCHAR_CHENA) == USB_OTG_HCCHAR_CHENA);
   }
 
-  /**
-   * clear all int mask
-   */
-  for (i = 0; i <= 15; i++)
-  {
-    // USBx_HC(i)->HCCHAR = 0;
-    USBx_HC(i)->HCINTMSK = 0;
-    value = USBx_HC(i)->HCINT;  // (rc-w1)
-    USBx_HC(i)->HCSPLT = 0;
-    USBx_HC(i)->HCTSIZ = 0;
-  }
-
-
-
-  /* Clear any pending Host interrups */  
+  /* Clear any pending Host interrupts */  
   USBx_HOST->HAINT = 0xFFFFFFFF;
-  USBx_HOST->HAINTMSK = 0;
   USBx->GINTSTS = 0xFFFFFFFF;
   // USB_EnableGlobalInt(USBx);
-
   return HAL_OK;  
 }
 /**
