@@ -57,6 +57,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "usbh_core.h"
+#include "usbh_core_helper.h"
 
 /** @addtogroup STM32F4xx_LL_USB_DRIVER
   * @{
@@ -1579,6 +1581,7 @@ HAL_StatusTypeDef USB_HC_Halt(USB_OTG_GlobalTypeDef *USBx , uint8_t hc_num)
       {
         if (++count > 1000) 
         {
+          USBH_PutMessage("!!! USB_HC_Halt Halt Channel Timeout");
           break;
         }
       } 
@@ -1602,6 +1605,7 @@ HAL_StatusTypeDef USB_HC_Halt(USB_OTG_GlobalTypeDef *USBx , uint8_t hc_num)
       {
         if (++count > 1000) 
         {
+          USBH_PutMessage("!!! USB_HC_Halt Halt Channel Timeout");
           break;
         }
       } 
@@ -1680,6 +1684,7 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
     {
       if (++count > 1000) 
       {
+        USBH_PutMessage("!!! USB_StopHost Halt Channel Timeout");
         break;
       }
     } 

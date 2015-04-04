@@ -28,5 +28,10 @@
 *.x86_64
 *.hex
 *.mk
-Projects/GCC/stm32f4_aoa/Debug
 
+# It seems eclipse/egit will generate gitignore for these folders
+Projects/GCC/stm32f4_aoa/Debug
+Projects/GCC/stm32f4_aoa/Release
+
+# KDiff
+*.orig

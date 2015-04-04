@@ -832,6 +832,8 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     break;
     
   case CTRL_ERROR:
+
+    USBH_UsrLog("!!! USBH_CtlReq: CTRL_ERROR");
     /* 
     After a halt condition is encountered or an error is detected by the 
     host, a control endpoint is allowed to recover by accepting the next Setup 
