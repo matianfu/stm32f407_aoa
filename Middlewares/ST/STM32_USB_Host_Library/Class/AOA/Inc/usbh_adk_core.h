@@ -81,8 +81,8 @@
  * @{
  */
 
-extern USBH_ClassTypeDef      USBH_ADK_cb;
-#define USBH_AOA_CLASS        &USBH_ADK_cb
+extern USBH_ClassTypeDef USBH_AOA_CLASS_1;
+extern USBH_ClassTypeDef USBH_AOA_CLASS_2;
 
 typedef enum
 {
@@ -152,7 +152,7 @@ typedef struct
   uint16_t BulkInEpSize;
   uint16_t BulkOutEpSize;
 
-} ADK_Machine_TypeDef;
+} AOA_HandleTypeDef;
 /**
  * @}
  */

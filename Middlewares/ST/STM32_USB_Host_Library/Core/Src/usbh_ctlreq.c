@@ -587,6 +587,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
   {
   case CTRL_SETUP:
     /* send a SETUP packet */
+    USBH_UsrLog("<< %s >> SETUP Packet", __func__);
     USBH_CtlSendSetup(phost, (uint8_t *)phost->Control.setup.d8, phost->Control.pipe_out);
     phost->Control.state = CTRL_SETUP_WAIT; 
     break; 
@@ -594,10 +595,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
   case CTRL_SETUP_WAIT:
     
     URB_Status = USBH_LL_GetURBState(phost, phost->Control.pipe_out); 
-    // print_urb_status(__func__, "CTRL_SETUP_WAIT", URB_Status);
-    if (URB_Status == USBH_URB_IDLE) {
-      // phost->Control.state = CTRL_SETUP;    /** revert to send setup */
-    }
 
     /* case SETUP packet sent successfully */
     if(URB_Status == USBH_URB_DONE)
@@ -648,7 +645,8 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     
   case CTRL_DATA_IN:  
     /* Issue an IN token */ 
-     phost->Control.timer = phost->Timer;
+    USBH_UsrLog("<< %s >> IN Packet", __func__);
+    phost->Control.timer = phost->Timer;
     USBH_CtlReceiveData(phost,
                         phost->Control.buff, 
                         phost->Control.length,
@@ -673,8 +671,9 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     if  (URB_Status == USBH_URB_STALL) 
     { 
       /* In stall case, return to previous machine state*/
-      status = USBH_NOT_SUPPORTED;
-      // printf("%s, USBH_URB_STALL", __func__);
+      // status = USBH_NOT_SUPPORTED;
+      phost->Control.state = CTRL_STALLED;
+      status = USBH_FAIL;
 
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
@@ -691,7 +690,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     break;
     
   case CTRL_DATA_OUT:
-    
+    USBH_UsrLog("<< %s >> OUT Packet", __func__);
     USBH_CtlSendData (phost,
                       phost->Control.buff, 
                       phost->Control.length , 
@@ -712,13 +711,13 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
       osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
 #endif      
     }
-    
     /* handle error cases */
     else if  (URB_Status == USBH_URB_STALL) 
     { 
       /* In stall case, return to previous machine state*/
       phost->Control.state = CTRL_STALLED; 
-      status = USBH_NOT_SUPPORTED;
+      // status = USBH_NOT_SUPPORTED;
+      status = USBH_FAIL;
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
 #endif      
@@ -746,6 +745,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     
     
   case CTRL_STATUS_IN:
+    USBH_UsrLog("<< %s >> STATUS IN Packet", __func__);
     /* Send 0 bytes out packet */
     USBH_CtlReceiveData (phost,
                          0,
@@ -788,6 +788,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     break;
     
   case CTRL_STATUS_OUT:
+    USBH_UsrLog("<< %s >> STATUS OUT Packet", __func__);
     USBH_CtlSendData (phost,
                       0,
                       0,

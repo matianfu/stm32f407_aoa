@@ -121,6 +121,8 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd);
   */
 HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
 {
+  int i;
+
   /* Check the HCD handle allocation */
   if (hhcd == NULL)
   {
@@ -495,7 +497,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
 
       /* Handle Host Port Interrupts */
       // HAL_HCD_Disconnect_Callback(hhcd);
-      // USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
+      USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
 
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
     }
@@ -942,7 +944,6 @@ static void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
       hhcd->hc[chnum].urb_state  = URB_NOTREADY;
     }
   }
-  
   else if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_NYET)
   {
     hhcd->hc[chnum].state = HC_NYET;

@@ -88,6 +88,8 @@
   * @{
   */
 
+int DoCoreReset = 1;
+
 /**
   * @brief  Initializes the USB Core
   * @param  USBx: USB Instance
@@ -121,7 +123,8 @@ HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
     USBx->GUSBCFG |= USB_OTG_GUSBCFG_PHYSEL;
     
     /* Reset after a PHY select and set Host mode */
-    USB_CoreReset(USBx);
+    if (DoCoreReset)
+      USB_CoreReset(USBx);
     
     /* Deactivate the power down*/
     USBx->GCCFG = USB_OTG_GCCFG_PWRDWN;
@@ -1664,8 +1667,23 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
     while ((USBx_HC(i)->HCCHAR & USB_OTG_HCCHAR_CHENA) == USB_OTG_HCCHAR_CHENA);
   }
 
+  /**
+   * clear all int mask
+   */
+  for (i = 0; i <= 15; i++)
+  {
+    // USBx_HC(i)->HCCHAR = 0;
+    USBx_HC(i)->HCINTMSK = 0;
+    value = USBx_HC(i)->HCINT;  // (rc-w1)
+    USBx_HC(i)->HCSPLT = 0;
+    USBx_HC(i)->HCTSIZ = 0;
+  }
+
+
+
   /* Clear any pending Host interrups */  
   USBx_HOST->HAINT = 0xFFFFFFFF;
+  USBx_HOST->HAINTMSK = 0;
   USBx->GINTSTS = 0xFFFFFFFF;
   // USB_EnableGlobalInt(USBx);
 

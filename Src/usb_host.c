@@ -40,8 +40,6 @@
 #include "usbh_hid.h"
 #include "usbh_adk_core.h"
 
-#define DMA_MEM_ALIGN __attribute__ ((aligned(4)))
-
 typedef enum {
   ABORT_HANDLE_INIT,
   ABORT_HANDLE_HANDSHAKE,
@@ -56,7 +54,7 @@ AbortStateTypeDef  Abort_state = ABORT_HANDLE_INIT;
 
 static int aoa_handshake_tried = 0;
 
-static AOA_DeviceInfoTypeDef deviceInfo DMA_MEM_ALIGN
+static __ALIGN_BEGIN AOA_DeviceInfoTypeDef deviceInfo __ALIGN_END
     =
 {
   .acc_manufacturer = "Actnova",
@@ -67,9 +65,8 @@ static AOA_DeviceInfoTypeDef deviceInfo DMA_MEM_ALIGN
   .acc_serial = "BL100A"
 };
 
-static AOA_HandShakeDataTypeDef handshakeData DMA_MEM_ALIGN =
+static __ALIGN_BEGIN AOA_HandShakeDataTypeDef handshakeData __ALIGN_END =
 { .deviceInfo = &deviceInfo, };
-
 
 /*
 * user callbak declaration
@@ -86,7 +83,7 @@ void MX_USB_HOST_Init(void)
 
   // USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS);
   USBH_RegisterClass(&hUsbHostHS, USBH_HID_CLASS);
-  USBH_RegisterClass(&hUsbHostHS, USBH_AOA_CLASS);
+  USBH_RegisterClass(&hUsbHostHS, &USBH_AOA_CLASS_1);
 
   USBH_Start(&hUsbHostHS);
 

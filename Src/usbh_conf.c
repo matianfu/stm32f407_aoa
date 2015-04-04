@@ -213,6 +213,8 @@ USBH_StatusTypeDef  USBH_LL_Init (USBH_HandleTypeDef *phost)
   hhcd_USB_OTG_FS.pData = phost;
   phost->pData = &hhcd_USB_OTG_FS;
 
+  memset(&hhcd_USB_OTG_FS, 0, sizeof(hhcd_USB_OTG_FS));
+
   hhcd_USB_OTG_FS.Instance = USB_OTG_FS;
   hhcd_USB_OTG_FS.Init.Host_channels = 8;
   hhcd_USB_OTG_FS.Init.speed = HCD_SPEED_FULL;
@@ -230,6 +232,8 @@ USBH_StatusTypeDef  USBH_LL_Init (USBH_HandleTypeDef *phost)
   /* Link The driver to the stack */
   hhcd_USB_OTG_HS.pData = phost;
   phost->pData = &hhcd_USB_OTG_HS;
+
+  memset(&hhcd_USB_OTG_FS, 0, sizeof(hhcd_USB_OTG_FS));
 
   hhcd_USB_OTG_HS.Instance = USB_OTG_HS;
   hhcd_USB_OTG_HS.Init.Host_channels = 15;
@@ -347,8 +351,11 @@ USBH_StatusTypeDef USBH_LL_OpenPipe(USBH_HandleTypeDef *phost, uint8_t pipe_num,
     uint8_t epnum, uint8_t dev_address, uint8_t speed, uint8_t ep_type,
     uint16_t mps)
 {
-  HAL_StatusTypeDef status = HAL_HCD_HC_Init(phost->pData, pipe_num, epnum,
-      dev_address, speed, ep_type, mps);
+  HCD_HandleTypeDef *hhcd = phost->pData;
+  memset(&hhcd->hc[pipe_num], 0, sizeof(hhcd->hc[pipe_num]));
+
+  HAL_StatusTypeDef status = HAL_HCD_HC_Init(hhcd, pipe_num, epnum, dev_address,
+      speed, ep_type, mps);
 
   if (status != HAL_OK)
   {
@@ -364,9 +371,12 @@ USBH_StatusTypeDef USBH_LL_OpenPipe(USBH_HandleTypeDef *phost, uint8_t pipe_num,
   * @param  
   * @retval Status
   */
-USBH_StatusTypeDef   USBH_LL_ClosePipe   (USBH_HandleTypeDef *phost, uint8_t pipe)   
+USBH_StatusTypeDef   USBH_LL_ClosePipe   (USBH_HandleTypeDef *phost, uint8_t pipe_num)
 {
-  HAL_HCD_HC_Halt(phost->pData, pipe);
+  HCD_HandleTypeDef *hhcd = phost->pData;
+  HAL_HCD_HC_Halt(phost->pData, pipe_num);
+
+  memset(&hhcd->hc[pipe_num], 0, sizeof(hhcd->hc[pipe_num]));
   return USBH_OK; 
 }
 

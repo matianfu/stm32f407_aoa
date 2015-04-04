@@ -390,6 +390,8 @@ USBH_StatusTypeDef  USBH_ReEnumerate   (USBH_HandleTypeDef *phost)
   return USBH_OK;  
 }
 
+extern int DoCoreReset;
+
 /**
   * @brief  USBH_Process 
   *         Background process of the USB Core.
@@ -405,6 +407,9 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   if (mapped_port_state(phost) == PORT_UP) {
     if (!USBH_DevState_IsAttached(phost))
     {
+#ifdef CONFIG_USBH_SYSRESET_AFTER_DISCONNECT
+      NVIC_SystemReset();
+#endif
       phost->gState = HOST_DEV_DISCONNECTED;
     }
   }
@@ -642,6 +647,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   case HOST_DEV_DISCONNECTED:
 
     USBH_LL_Stop(phost);
+    // USB_InitFSLSPClkSel(phost->pData, );
 
     if (phost->device.speed != USBH_SPEED_FULL)
     {
@@ -668,13 +674,18 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       phost->pUser(phost, HOST_USER_DISCONNECTION);
     }
 
-    USBH_Delay(100);
     USBH_LL_Start(phost);
 
     restore_debug_defaults();
 
-    if (reset_core) {
+#ifdef CONFIG_USBH_FORCE_CORERESET_AFTER_DISCONNECT
+    reset_core = 1;
+#else
+#endif
+    if (reset_core)
+    {
       USBH_UsrLog("USBH Reset Core.");
+      // DoCoreReset = 0;
       USBH_LL_Init(phost);
       USBH_LL_Start(phost);
     }
