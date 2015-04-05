@@ -352,7 +352,6 @@ USBH_StatusTypeDef USBH_LL_OpenPipe(USBH_HandleTypeDef *phost, uint8_t pipe_num,
     uint16_t mps)
 {
   HCD_HandleTypeDef *hhcd = phost->pData;
-  // memset(&hhcd->hc[pipe_num], 0, sizeof(hhcd->hc[pipe_num]));
 
   HAL_StatusTypeDef status = HAL_HCD_HC_Init(hhcd, pipe_num, epnum, dev_address,
       speed, ep_type, mps);
@@ -376,7 +375,6 @@ USBH_StatusTypeDef   USBH_LL_ClosePipe   (USBH_HandleTypeDef *phost, uint8_t pip
   HCD_HandleTypeDef *hhcd = phost->pData;
   HAL_HCD_HC_Halt(phost->pData, pipe_num);
 
-  // memset(&hhcd->hc[pipe_num], 0, sizeof(hhcd->hc[pipe_num]));
   return USBH_OK; 
 }
 

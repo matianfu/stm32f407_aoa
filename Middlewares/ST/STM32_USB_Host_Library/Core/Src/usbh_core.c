@@ -644,7 +644,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
   case HOST_DEV_DISCONNECTED:
 
-    USBH_LL_Stop(phost);
+    // USBH_LL_Stop(phost);
     // USB_InitFSLSPClkSel(phost->pData, );
 
     if (phost->device.speed != USBH_SPEED_FULL)
@@ -717,12 +717,14 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
 {
   USBH_StatusTypeDef Status = USBH_BUSY;  
+  USBH_StatusTypeDef status;
   
   switch (phost->EnumState)
   {
   case ENUM_IDLE:
     /* Get Device Desc for only 1st 8 bytes : To get EP0 MaxPacketSize */
-    if ( USBH_Get_DevDesc(phost, 8) == USBH_OK)
+    status = USBH_Get_DevDesc(phost, 8);
+    if ( status == USBH_OK)
     {
       phost->Control.pipe_size = phost->device.DevDesc.bMaxPacketSize;
 
@@ -746,6 +748,10 @@ static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
                            USBH_EP_CONTROL,
                            phost->Control.pipe_size);
       
+    }
+    else if (status == USBH_FAIL) {
+      phost->EnumState = ENUM_IDLE;
+      phost->gState = HOST_IDLE;
     }
     break;
     

@@ -79,7 +79,7 @@ void SysTick_Handler(void)
 {
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
-  uart_ll_print();
+//   uart_ll_print();
   USBH_HCD_DevStateTask();
 }
 

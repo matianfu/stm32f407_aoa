@@ -212,7 +212,6 @@ HAL_StatusTypeDef HAL_HCD_HC_Init(HCD_HandleTypeDef *hhcd,
 }
 
 
-
 /**
   * @brief  Halt a host channel
   * @param  hhcd: HCD handle
@@ -331,6 +330,8 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
                                             uint16_t length,
                                             uint8_t do_ping) 
 {
+  HAL_StatusTypeDef status;
+
   hhcd->hc[ch_num].ep_is_in = direction;
   hhcd->hc[ch_num].ep_type  = ep_type; 
   
@@ -440,7 +441,19 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
 
   hc_helper_sumbit_request();
 
-  return USB_HC_StartXfer(hhcd->Instance, &(hhcd->hc[ch_num]), hhcd->Init.dma_enable);
+  USB_DisableGlobalInt(hhcd->Instance);
+
+  if (hhcd->DevState.state.attached == 0) {
+    USBH_UsrLog("USB_HC_StartXfer run after detached.");
+    status = HAL_ERROR;
+  }
+  else {
+    status = USB_HC_StartXfer(hhcd->Instance, &(hhcd->hc[ch_num]), hhcd->Init.dma_enable);
+  }
+
+  USB_EnableGlobalInt(hhcd->Instance);
+
+  return status;
 }
 
 /**
@@ -497,7 +510,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
 
       /* Handle Host Port Interrupts */
       // HAL_HCD_Disconnect_Callback(hhcd);
-      USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
+      // USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
 
       __HAL_HCD_CLEAR_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT);
     }
@@ -505,7 +518,13 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
     /* Handle Host Port Interrupts */
     if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_HPRTINT))
     {
+      uint8_t in, out;
+      in = hhcd->DevState.state.attached;
       HCD_Port_IRQHandler (hhcd);
+      out = hhcd->DevState.state.attached;
+
+      if ((in == 1) && (out == 0))
+        return;
     }
 
     /* Handle Host SOF Interrupts */
@@ -641,11 +660,26 @@ __weak void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_HCD_Start(HCD_HandleTypeDef *hhcd)
-{ 
-  __HAL_LOCK(hhcd); 
+{
+  int ch_num;
+  __HAL_LOCK(hhcd);
+
+  /** This code reset channel registers **/
+  for (ch_num = 0; ch_num <= 15; ch_num++)
+  {
+    if (hhcd->hc[ch_num].dev_addr == USBH_DEVICE_ADDRESS)
+    {
+      USB_HC_Init(hhcd->Instance, ch_num,
+          (hhcd->hc[ch_num].ep_is_in) ?
+              (hhcd->hc[ch_num].ep_num | 0x80) : hhcd->hc[ch_num].ep_num,
+          hhcd->hc[ch_num].dev_addr, hhcd->hc[ch_num].speed,
+          hhcd->hc[ch_num].ep_type, hhcd->hc[ch_num].max_packet);
+    }
+  }
+
   __HAL_HCD_ENABLE(hhcd);
-  USB_DriveVbus(hhcd->Instance, 1);  
-  __HAL_UNLOCK(hhcd); 
+  USB_DriveVbus(hhcd->Instance, 1);
+  __HAL_UNLOCK(hhcd);
   return HAL_OK;
 }
 
@@ -657,8 +691,22 @@ HAL_StatusTypeDef HAL_HCD_Start(HCD_HandleTypeDef *hhcd)
 
 HAL_StatusTypeDef HAL_HCD_Stop(HCD_HandleTypeDef *hhcd)
 { 
+  int ch_num;
   __HAL_LOCK(hhcd); 
   USB_StopHost(hhcd->Instance);
+
+  /** This code reset channel registers **/
+  for (ch_num = 0; ch_num <= 15; ch_num++)
+  {
+    if (hhcd->hc[ch_num].dev_addr == USBH_DEVICE_ADDRESS)
+    {
+      USB_HC_Init(hhcd->Instance, ch_num,
+          (hhcd->hc[ch_num].ep_is_in) ?
+              (hhcd->hc[ch_num].ep_num | 0x80) : hhcd->hc[ch_num].ep_num,
+          hhcd->hc[ch_num].dev_addr, hhcd->hc[ch_num].speed,
+          hhcd->hc[ch_num].ep_type, hhcd->hc[ch_num].max_packet);
+    }
+  }
   __HAL_UNLOCK(hhcd); 
   return HAL_OK;
 }
@@ -790,6 +838,9 @@ uint32_t HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd)
 static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+
+  if (hhcd->DevState.state.attached == 0)
+    USBH_PutMessage("IN IRQ Handler run after detached.");
     
   if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_AHBERR)
   {
@@ -927,6 +978,10 @@ static void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
   
+  if (hhcd->DevState.state.attached == 0) {
+    USBH_PutMessage("OUT IRQ Handler run after detached.");
+  }
+
   if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_AHBERR)
   {
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_AHBERR);
@@ -1038,6 +1093,7 @@ static void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
             (hhcd->hc[chnum].state == HC_DATATGLERR))
     {
       if(hhcd->hc[chnum].ErrCnt++ > 3)
+      // if(hhcd->hc[chnum].ErrCnt >= 0)
       {      
         hhcd->hc[chnum].ErrCnt = 0;
         hhcd->hc[chnum].urb_state = URB_ERROR;
@@ -1116,7 +1172,7 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
   __IO uint32_t hprt0, hprt0_dup;
-
+  int i;
   /* Handle Host Port Interrupts */
   hprt0 = USBx_HPRT0;
   hprt0_dup = USBx_HPRT0;
@@ -1182,6 +1238,19 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
           USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG);
 
       // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
+      /**
+       * Disable Global Int is critical for clean up
+       */
+      // USB_DisableGlobalInt(hhcd->Instance);
+      USB_StopHost(USBx);
+      for (i = 0; i <=10000; i++) {
+
+      }
+      for (i = 0; i <= 15; i++) {
+//        __HAL_HCD_MASK_HALT_HC_INT(i);
+//        __HAL_HCD_CLEAR_HC_INT(i, USB_OTG_HCINT_CHH);
+        USBx_HC(i)->HCINT = 0xFFFFFFFF;
+      }
       hhcd->DevState.state.attached = 0;
     }
   }
