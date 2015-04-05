@@ -672,22 +672,27 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       phost->pUser(phost, HOST_USER_DISCONNECTION);
     }
 
-    USBH_LL_Start(phost);
-
+    /**
+     * for debug
+     */
     restore_debug_defaults();
 
 #ifdef CONFIG_USBH_FORCE_CORERESET_AFTER_DISCONNECT
     reset_core = 1;
 #else
 #endif
+
     if (reset_core)
     {
       USBH_UsrLog("USBH Reset Core.");
-      // DoCoreReset = 0;
       USBH_LL_Init(phost);
-      USBH_LL_Start(phost);
     }
 
+    USBH_LL_Start(phost);
+
+    /**
+     * force new connect detection
+     */
     USBH_DevState_Reset(phost);
     phost->gState = HOST_IDLE;
     break;
