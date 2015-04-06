@@ -72,7 +72,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-// static HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx);
+static HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx);
 
 /** @defgroup PCD_Private_Functions
   * @{
@@ -1091,7 +1091,7 @@ HAL_StatusTypeDef USB_EP0_OutStart(USB_OTG_GlobalTypeDef *USBx, uint8_t dma, uin
   * @param  USBx : Selected device
   * @retval HAL status
   */
-HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx)
+static HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx)
 {
   uint32_t count = 0;
 
@@ -1690,8 +1690,6 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
     } 
     while ((USBx_HC(i)->HCCHAR & USB_OTG_HCCHAR_CHENA) == USB_OTG_HCCHAR_CHENA);
   }
-
-
 
   /* Clear any pending Host interrupts */  
   USBx_HOST->HAINT = 0xFFFFFFFF;
