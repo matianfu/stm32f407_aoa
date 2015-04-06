@@ -1426,6 +1426,124 @@ HAL_StatusTypeDef USB_HC_Init(USB_OTG_GlobalTypeDef *USBx,
   return HAL_OK; 
 }
 
+/*
+ * This function clear interrupts and restore interrupt masks,
+ * but it does NOT touch other fields.
+ */
+HAL_StatusTypeDef USB_HC_Restart(USB_OTG_GlobalTypeDef *USBx,
+                              uint8_t ch_num)
+{
+  uint8_t ep_type;
+  uint8_t epnum;
+
+  /* Disable the top level host channel interrupt. */
+  USBx_HOST->HAINTMSK &= ~(1 << ch_num);
+
+  /* Halt the channel */
+  USB_HC_Halt(USBx, ch_num);
+
+  HAL_Delay(20);
+
+  /* Clear interrupt */
+  USBx_HC(ch_num)->HCINT = 0xFFFFFFFF;
+
+  /* extract epnum and ep_type */
+  epnum = (((USBx_HC(ch_num)->HCCHAR) & USB_OTG_HCCHAR_EPNUM) >> 11) |
+      ((USBx_HC(ch_num)->HCCHAR) & USB_OTG_HCCHAR_EPDIR) ? 0x80 : 0x00;
+
+  ep_type = ((USBx_HC(ch_num)->HCCHAR) >> 18) & USB_OTG_HCCHAR_EPTYP;
+
+  /* copied code from HC_Init */
+  switch (ep_type)
+  {
+  case EP_TYPE_CTRL:
+  case EP_TYPE_BULK:
+
+    USBx_HC(ch_num)->HCINTMSK = USB_OTG_HCINTMSK_XFRCM  |\
+                                USB_OTG_HCINTMSK_STALLM |\
+                                USB_OTG_HCINTMSK_TXERRM |\
+                                USB_OTG_HCINTMSK_DTERRM |\
+                                USB_OTG_HCINTMSK_AHBERR |\
+                                USB_OTG_HCINTMSK_NAKM ;
+
+    if (epnum & 0x80)
+    {
+      USBx_HC(ch_num)->HCINTMSK |= USB_OTG_HCINTMSK_BBERRM;
+    }
+    else
+    {
+      if(USBx != USB_OTG_FS)
+      {
+        USBx_HC(ch_num)->HCINTMSK |= (USB_OTG_HCINTMSK_NYET | USB_OTG_HCINTMSK_ACKM);
+      }
+    }
+    break;
+  case EP_TYPE_INTR:
+
+    USBx_HC(ch_num)->HCINTMSK = USB_OTG_HCINTMSK_XFRCM  |\
+                                USB_OTG_HCINTMSK_STALLM |\
+                                USB_OTG_HCINTMSK_TXERRM |\
+                                USB_OTG_HCINTMSK_DTERRM |\
+                                USB_OTG_HCINTMSK_NAKM   |\
+                                USB_OTG_HCINTMSK_AHBERR |\
+                                USB_OTG_HCINTMSK_FRMORM ;
+
+    if (epnum & 0x80)
+    {
+      USBx_HC(ch_num)->HCINTMSK |= USB_OTG_HCINTMSK_BBERRM;
+    }
+
+    break;
+  case EP_TYPE_ISOC:
+
+    USBx_HC(ch_num)->HCINTMSK = USB_OTG_HCINTMSK_XFRCM  |\
+                                USB_OTG_HCINTMSK_ACKM   |\
+                                USB_OTG_HCINTMSK_AHBERR |\
+                                USB_OTG_HCINTMSK_FRMORM ;
+
+    if (epnum & 0x80)
+    {
+      USBx_HC(ch_num)->HCINTMSK |= (USB_OTG_HCINTMSK_TXERRM | USB_OTG_HCINTMSK_BBERRM);
+    }
+    break;
+  }
+
+  /* Enable the top level host channel interrupt. */
+  USBx_HOST->HAINTMSK |= (1 << ch_num);
+
+  return HAL_OK;
+}
+
+HAL_StatusTypeDef USB_HC_DeInit(USB_OTG_GlobalTypeDef *USBx,
+                              uint8_t ch_num)
+{
+  /* Disable the top level host channel interrupt. */
+  USBx_HOST->HAINTMSK &= ~(1 << ch_num);
+
+  /* Halt the channel */
+  USB_HC_Halt(USBx, ch_num);
+
+  /* Disable channel interrupts required for this transfer. */
+  USBx_HC(ch_num)->HCINTMSK = 0;
+
+  /* Clear the HCCHAR register  */
+  USBx_HC(ch_num)->HCCHAR = 0;
+  USBx_HC(ch_num)->HCSPLT = 0;
+  USBx_HC(ch_num)->HCTSIZ = 0;
+  USBx_HC(ch_num)->HCDMA = 0;
+
+  /* Without this delay, the subsequent clear may left CHH bit */
+  HAL_Delay(5);
+
+  /* Clear old interrupt conditions for this host channel. */
+  USBx_HC(ch_num)->HCINT = 0xFFFFFFFF;
+
+  /* Make sure host channel interrupts are enabled. */
+  // USBx->GINTMSK |= USB_OTG_GINTMSK_HCIM;
+
+  return HAL_OK;
+}
+
 /**
   * @brief  Start a transfer over a host channel
   * @param  USBx : Selected device
@@ -1566,22 +1684,24 @@ uint32_t USB_HC_ReadInterrupt (USB_OTG_GlobalTypeDef *USBx)
 HAL_StatusTypeDef USB_HC_Halt(USB_OTG_GlobalTypeDef *USBx , uint8_t hc_num)
 {
   uint32_t count = 0;
-  
+
   /* Check for space in the request queue to issue the halt. */
-  if (((USBx_HC(hc_num)->HCCHAR) & (HCCHAR_CTRL << 18)) || ((USBx_HC(hc_num)->HCCHAR) & (HCCHAR_BULK << 18)))
+  // if (((USBx_HC(hc_num)->HCCHAR) & (HCCHAR_CTRL << 18)) || ((USBx_HC(hc_num)->HCCHAR) & (HCCHAR_BULK << 18)))
+  if ((((USBx_HC(hc_num)->HCCHAR) & USB_OTG_HCCHAR_EPTYP) == (HCCHAR_CTRL << 18)) ||
+      (((USBx_HC(hc_num)->HCCHAR) & USB_OTG_HCCHAR_EPTYP) == (HCCHAR_BULK << 18)))
   {
     USBx_HC(hc_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS;
     
     if ((USBx->HNPTXSTS & 0xFFFF) == 0)
     {
       USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHENA;
-      USBx_HC(hc_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;  
-      USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_EPDIR;
+      USBx_HC(hc_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+      // USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_EPDIR;
       do 
       {
         if (++count > 1000) 
         {
-          USBH_PutMessage("!!! USB_HC_Halt Halt Channel Timeout");
+          USBH_PutMessage("!!! USB_HC_Halt Flush Non-periodic Tx FIFO Timeout");
           break;
         }
       } 
@@ -1600,12 +1720,12 @@ HAL_StatusTypeDef USB_HC_Halt(USB_OTG_GlobalTypeDef *USBx , uint8_t hc_num)
     {
       USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHENA;
       USBx_HC(hc_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;  
-      USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_EPDIR;
+      // USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_EPDIR;
       do 
       {
         if (++count > 1000) 
         {
-          USBH_PutMessage("!!! USB_HC_Halt Halt Channel Timeout");
+          USBH_PutMessage("!!! USB_HC_Halt Flush Periodic Tx FIFO Timeout");
           break;
         }
       } 

@@ -351,15 +351,8 @@ USBH_StatusTypeDef USBH_LL_OpenPipe(USBH_HandleTypeDef *phost, uint8_t pipe_num,
     uint8_t epnum, uint8_t dev_address, uint8_t speed, uint8_t ep_type,
     uint16_t mps)
 {
-  HCD_HandleTypeDef *hhcd = phost->pData;
-
-  HAL_StatusTypeDef status = HAL_HCD_HC_Init(hhcd, pipe_num, epnum, dev_address,
-      speed, ep_type, mps);
-
-  if (status != HAL_OK)
-  {
-    printf("%s --------- HAL_HCD_HC_INIT not ok, %d\n", __func__, (int) status);
-  }
+  HAL_HCD_HC_Init(phost->pData, pipe_num, epnum, dev_address, speed, ep_type,
+      mps);
 
   return USBH_OK;
 }
@@ -372,8 +365,7 @@ USBH_StatusTypeDef USBH_LL_OpenPipe(USBH_HandleTypeDef *phost, uint8_t pipe_num,
   */
 USBH_StatusTypeDef   USBH_LL_ClosePipe   (USBH_HandleTypeDef *phost, uint8_t pipe_num)
 {
-  HCD_HandleTypeDef *hhcd = phost->pData;
-  HAL_HCD_HC_Halt(phost->pData, pipe_num);
+  HAL_HCD_HC_DeInit(phost->pData, pipe_num);
 
   return USBH_OK; 
 }

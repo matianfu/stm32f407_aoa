@@ -439,6 +439,10 @@ HAL_StatusTypeDef USB_HC_Init(USB_OTG_GlobalTypeDef *USBx,
                                   uint8_t speed,
                                   uint8_t ep_type,
                                   uint16_t mps);
+HAL_StatusTypeDef USB_HC_DeInit(USB_OTG_GlobalTypeDef *USBx,
+                                  uint8_t ch_num);
+HAL_StatusTypeDef USB_HC_Restart(USB_OTG_GlobalTypeDef *USBx,
+                                  uint8_t ch_num);
 HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDef *hc, uint8_t dma);
 uint32_t          USB_HC_ReadInterrupt (USB_OTG_GlobalTypeDef *USBx);
 HAL_StatusTypeDef USB_HC_Halt(USB_OTG_GlobalTypeDef *USBx , uint8_t hc_num);

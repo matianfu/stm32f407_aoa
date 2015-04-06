@@ -1,7 +1,7 @@
 #include "usbh_core.h"
 #include "usbh_core_helper.h"
 
-extern USBH_HandleTypeDef hUsbHostHS;
+//extern USBH_HandleTypeDef hUsbHostHS;
 
 /*
  * local constants

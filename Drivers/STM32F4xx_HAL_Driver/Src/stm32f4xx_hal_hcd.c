@@ -211,6 +211,19 @@ HAL_StatusTypeDef HAL_HCD_HC_Init(HCD_HandleTypeDef *hhcd,
   return status;
 }
 
+HAL_StatusTypeDef HAL_HCD_HC_DeInit(HCD_HandleTypeDef *hhcd, uint8_t ch_num)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+
+  __HAL_LOCK(hhcd);
+
+  memset(&hhcd->hc[ch_num], 0, sizeof(hhcd->hc[ch_num]));
+  USB_HC_DeInit(hhcd->Instance, ch_num);
+
+  __HAL_UNLOCK(hhcd);
+
+  return status;
+}
 
 /**
   * @brief  Halt a host channel
@@ -665,17 +678,17 @@ HAL_StatusTypeDef HAL_HCD_Start(HCD_HandleTypeDef *hhcd)
   __HAL_LOCK(hhcd);
 
   /** This code reset channel registers **/
-  for (ch_num = 0; ch_num <= 15; ch_num++)
-  {
-    if (hhcd->hc[ch_num].dev_addr == USBH_DEVICE_ADDRESS)
-    {
-      USB_HC_Init(hhcd->Instance, ch_num,
-          (hhcd->hc[ch_num].ep_is_in) ?
-              (hhcd->hc[ch_num].ep_num | 0x80) : hhcd->hc[ch_num].ep_num,
-          hhcd->hc[ch_num].dev_addr, hhcd->hc[ch_num].speed,
-          hhcd->hc[ch_num].ep_type, hhcd->hc[ch_num].max_packet);
-    }
-  }
+//  for (ch_num = 0; ch_num <= 15; ch_num++)
+//  {
+//    if (hhcd->hc[ch_num].dev_addr == USBH_DEVICE_ADDRESS)
+//    {
+//      USB_HC_Init(hhcd->Instance, ch_num,
+//          (hhcd->hc[ch_num].ep_is_in) ?
+//              (hhcd->hc[ch_num].ep_num | 0x80) : hhcd->hc[ch_num].ep_num,
+//          hhcd->hc[ch_num].dev_addr, hhcd->hc[ch_num].speed,
+//          hhcd->hc[ch_num].ep_type, hhcd->hc[ch_num].max_packet);
+//    }
+//  }
 
   __HAL_HCD_ENABLE(hhcd);
   USB_DriveVbus(hhcd->Instance, 1);
