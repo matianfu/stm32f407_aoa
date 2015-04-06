@@ -170,6 +170,7 @@ USBH_StatusTypeDef   USBH_LL_Init         (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_DeInit       (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_Start        (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_Stop         (USBH_HandleTypeDef *phost);
+USBH_StatusTypeDef   USBH_LL_CoreReset    (USBH_HandleTypeDef *phost);
 
 USBH_StatusTypeDef   USBH_LL_Connect      (USBH_HandleTypeDef *phost);
 USBH_StatusTypeDef   USBH_LL_PortUp       (USBH_HandleTypeDef *phost);

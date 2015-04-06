@@ -393,7 +393,8 @@ pop:
     goto pop;
   }
 
-  USBH_DebugOutput(phost, e, 0);
+  if (e.evt != USBH_EVT_NULL)
+    USBH_DebugOutput(phost, e, 0);
 
   return e;
 }

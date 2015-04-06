@@ -205,48 +205,63 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
   * @param  base_address: OTG base address
   * @retval Status
   */
-USBH_StatusTypeDef  USBH_LL_Init (USBH_HandleTypeDef *phost)
+USBH_StatusTypeDef USBH_LL_Init(USBH_HandleTypeDef *phost)
 {
   /* Init USB_IP */
-  if (phost->id == HOST_FS) {
-  /* Link The driver to the stack */
-  hhcd_USB_OTG_FS.pData = phost;
-  phost->pData = &hhcd_USB_OTG_FS;
+  if (phost->id == HOST_FS)
+  {
+    /* Link The driver to the stack */
+    hhcd_USB_OTG_FS.pData = phost;
+    phost->pData = &hhcd_USB_OTG_FS;
 
-  // memset(&hhcd_USB_OTG_FS, 0, sizeof(hhcd_USB_OTG_FS));
+    hhcd_USB_OTG_FS.Instance = USB_OTG_FS;
+    hhcd_USB_OTG_FS.Init.Host_channels = 8;
+    hhcd_USB_OTG_FS.Init.speed = HCD_SPEED_FULL;
+    hhcd_USB_OTG_FS.Init.dma_enable = DISABLE;
+    hhcd_USB_OTG_FS.Init.phy_itface = HCD_PHY_EMBEDDED;
+    hhcd_USB_OTG_FS.Init.Sof_enable = DISABLE;
+    hhcd_USB_OTG_FS.Init.low_power_enable = ENABLE;
+    hhcd_USB_OTG_FS.Init.vbus_sensing_enable = ENABLE;
+    hhcd_USB_OTG_FS.Init.use_external_vbus = ENABLE;
+    HAL_HCD_Init(&hhcd_USB_OTG_FS);
 
-  hhcd_USB_OTG_FS.Instance = USB_OTG_FS;
-  hhcd_USB_OTG_FS.Init.Host_channels = 8;
-  hhcd_USB_OTG_FS.Init.speed = HCD_SPEED_FULL;
-  hhcd_USB_OTG_FS.Init.dma_enable = DISABLE;
-  hhcd_USB_OTG_FS.Init.phy_itface = HCD_PHY_EMBEDDED;
-  hhcd_USB_OTG_FS.Init.Sof_enable = DISABLE;
-  hhcd_USB_OTG_FS.Init.low_power_enable = ENABLE;
-  hhcd_USB_OTG_FS.Init.vbus_sensing_enable = ENABLE;
-  hhcd_USB_OTG_FS.Init.use_external_vbus = ENABLE;
-  HAL_HCD_Init(&hhcd_USB_OTG_FS);
-
-  USBH_LL_SetTimer (phost, HAL_HCD_GetCurrentFrame(&hhcd_USB_OTG_FS));
+    USBH_LL_SetTimer(phost, HAL_HCD_GetCurrentFrame(&hhcd_USB_OTG_FS));
   }
-  if (phost->id == HOST_HS) {
-  /* Link The driver to the stack */
-  hhcd_USB_OTG_HS.pData = phost;
-  phost->pData = &hhcd_USB_OTG_HS;
+  if (phost->id == HOST_HS)
+  {
+    /* Link The driver to the stack */
+    hhcd_USB_OTG_HS.pData = phost;
+    phost->pData = &hhcd_USB_OTG_HS;
 
-  // memset(&hhcd_USB_OTG_FS, 0, sizeof(hhcd_USB_OTG_FS));
+    hhcd_USB_OTG_HS.Instance = USB_OTG_HS;
+    hhcd_USB_OTG_HS.Init.Host_channels = 15;
+    hhcd_USB_OTG_HS.Init.speed = HCD_SPEED_FULL;
+    hhcd_USB_OTG_HS.Init.dma_enable = ENABLE;
+    hhcd_USB_OTG_HS.Init.phy_itface = USB_OTG_EMBEDDED_PHY;
+    hhcd_USB_OTG_HS.Init.Sof_enable = DISABLE;
+    hhcd_USB_OTG_HS.Init.low_power_enable = ENABLE;
+    hhcd_USB_OTG_HS.Init.vbus_sensing_enable = ENABLE;
+    hhcd_USB_OTG_HS.Init.use_external_vbus = DISABLE;
+    HAL_HCD_Init(&hhcd_USB_OTG_HS);
 
-  hhcd_USB_OTG_HS.Instance = USB_OTG_HS;
-  hhcd_USB_OTG_HS.Init.Host_channels = 15;
-  hhcd_USB_OTG_HS.Init.speed = HCD_SPEED_FULL;
-  hhcd_USB_OTG_HS.Init.dma_enable = ENABLE;
-  hhcd_USB_OTG_HS.Init.phy_itface = USB_OTG_EMBEDDED_PHY;
-  hhcd_USB_OTG_HS.Init.Sof_enable = DISABLE;
-  hhcd_USB_OTG_HS.Init.low_power_enable = ENABLE;
-  hhcd_USB_OTG_HS.Init.vbus_sensing_enable = ENABLE;
-  hhcd_USB_OTG_HS.Init.use_external_vbus = DISABLE;
-  HAL_HCD_Init(&hhcd_USB_OTG_HS);
+    USBH_LL_SetTimer(phost, HAL_HCD_GetCurrentFrame(&hhcd_USB_OTG_HS));
+  }
+  return USBH_OK;
+}
 
-  USBH_LL_SetTimer (phost, HAL_HCD_GetCurrentFrame(&hhcd_USB_OTG_HS));
+USBH_StatusTypeDef USBH_LL_CoreReset(USBH_HandleTypeDef *phost)
+{
+  if (phost->id == HOST_FS)
+  {
+    USB_InitFSLSPClkSel(hhcd_USB_OTG_FS.Instance ,HCFG_48_MHZ);
+    HAL_HCD_CoreReset(&hhcd_USB_OTG_FS);
+    USBH_LL_SetTimer(phost, HAL_HCD_GetCurrentFrame(&hhcd_USB_OTG_FS));
+  }
+  if (phost->id == HOST_HS)
+  {
+    USB_InitFSLSPClkSel(hhcd_USB_OTG_HS.Instance ,HCFG_48_MHZ);
+    HAL_HCD_CoreReset(&hhcd_USB_OTG_HS);
+    USBH_LL_SetTimer(phost, HAL_HCD_GetCurrentFrame(&hhcd_USB_OTG_HS));
   }
   return USBH_OK;
 }

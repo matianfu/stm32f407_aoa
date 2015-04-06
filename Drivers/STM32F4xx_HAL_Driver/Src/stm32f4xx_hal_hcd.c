@@ -121,8 +121,6 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd);
   */
 HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
 {
-  int i;
-
   /* Check the HCD handle allocation */
   if (hhcd == NULL)
   {
@@ -152,6 +150,37 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
   hhcd->DevState.value = 0;
   hhcd->State = HAL_HCD_STATE_READY;
 
+  return HAL_OK;
+}
+
+HAL_StatusTypeDef HAL_HCD_CoreReset(HCD_HandleTypeDef *hhcd)
+{
+  /* Check the HCD handle allocation */
+  if (hhcd == NULL)
+  {
+    return HAL_ERROR;
+  }
+
+  /* Check the parameters */
+  assert_param(IS_HCD_ALL_INSTANCE(hhcd->Instance));
+
+  hhcd->State = HAL_HCD_STATE_BUSY;
+
+  /* Disable the Interrupts */
+  __HAL_HCD_DISABLE(hhcd);
+
+  /*Init the Core (common init.) */
+  USB_CoreInit(hhcd->Instance, hhcd->Init);
+
+  /* Force Host Mode*/
+  USB_SetCurrentMode(hhcd->Instance, USB_OTG_HOST_MODE);
+
+  /* Init Host */
+  USB_HostInit(hhcd->Instance, hhcd->Init);
+
+  hhcd->State = HAL_HCD_STATE_READY;
+
+  hhcd->DevState.value = 0;
   return HAL_OK;
 }
 
@@ -674,25 +703,12 @@ __weak void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t
   */
 HAL_StatusTypeDef HAL_HCD_Start(HCD_HandleTypeDef *hhcd)
 {
-  int ch_num;
   __HAL_LOCK(hhcd);
-
-  /** This code reset channel registers **/
-//  for (ch_num = 0; ch_num <= 15; ch_num++)
-//  {
-//    if (hhcd->hc[ch_num].dev_addr == USBH_DEVICE_ADDRESS)
-//    {
-//      USB_HC_Init(hhcd->Instance, ch_num,
-//          (hhcd->hc[ch_num].ep_is_in) ?
-//              (hhcd->hc[ch_num].ep_num | 0x80) : hhcd->hc[ch_num].ep_num,
-//          hhcd->hc[ch_num].dev_addr, hhcd->hc[ch_num].speed,
-//          hhcd->hc[ch_num].ep_type, hhcd->hc[ch_num].max_packet);
-//    }
-//  }
 
   __HAL_HCD_ENABLE(hhcd);
   USB_DriveVbus(hhcd->Instance, 1);
   __HAL_UNLOCK(hhcd);
+
   return HAL_OK;
 }
 
@@ -704,22 +720,8 @@ HAL_StatusTypeDef HAL_HCD_Start(HCD_HandleTypeDef *hhcd)
 
 HAL_StatusTypeDef HAL_HCD_Stop(HCD_HandleTypeDef *hhcd)
 { 
-  int ch_num;
   __HAL_LOCK(hhcd); 
   USB_StopHost(hhcd->Instance);
-
-  /** This code reset channel registers **/
-  for (ch_num = 0; ch_num <= 15; ch_num++)
-  {
-    if (hhcd->hc[ch_num].dev_addr == USBH_DEVICE_ADDRESS)
-    {
-      USB_HC_Init(hhcd->Instance, ch_num,
-          (hhcd->hc[ch_num].ep_is_in) ?
-              (hhcd->hc[ch_num].ep_num | 0x80) : hhcd->hc[ch_num].ep_num,
-          hhcd->hc[ch_num].dev_addr, hhcd->hc[ch_num].speed,
-          hhcd->hc[ch_num].ep_type, hhcd->hc[ch_num].max_packet);
-    }
-  }
   __HAL_UNLOCK(hhcd); 
   return HAL_OK;
 }
@@ -1106,7 +1108,6 @@ static void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
             (hhcd->hc[chnum].state == HC_DATATGLERR))
     {
       if(hhcd->hc[chnum].ErrCnt++ > 3)
-      // if(hhcd->hc[chnum].ErrCnt >= 0)
       {      
         hhcd->hc[chnum].ErrCnt = 0;
         hhcd->hc[chnum].urb_state = URB_ERROR;
@@ -1185,7 +1186,6 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
   __IO uint32_t hprt0, hprt0_dup;
-  int i;
   /* Handle Host Port Interrupts */
   hprt0 = USBx_HPRT0;
   hprt0_dup = USBx_HPRT0;
@@ -1251,19 +1251,8 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
           USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG);
 
       // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
-      /**
-       * Disable Global Int is critical for clean up
-       */
-      // USB_DisableGlobalInt(hhcd->Instance);
-      USB_StopHost(USBx);
-      for (i = 0; i <=10000; i++) {
-
-      }
-      for (i = 0; i <= 15; i++) {
-//        __HAL_HCD_MASK_HALT_HC_INT(i);
-//        __HAL_HCD_CLEAR_HC_INT(i, USB_OTG_HCINT_CHH);
-        USBx_HC(i)->HCINT = 0xFFFFFFFF;
-      }
+      /* Disable Global Int  clean up */
+      __HAL_HCD_DISABLE(hhcd);
       hhcd->DevState.state.attached = 0;
     }
   }

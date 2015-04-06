@@ -357,10 +357,6 @@ USBH_StatusTypeDef  USBH_Stop   (USBH_HandleTypeDef *phost)
   /* DeActivate VBUS on the port */ 
   USBH_LL_DriverVBUS (phost, FALSE);
   
-  /* FRee Control Pipes */
-//  USBH_FreePipe  (phost, phost->Control.pipe_in);
-//  USBH_FreePipe  (phost, phost->Control.pipe_out);
-  
   return USBH_OK;  
 }
 
@@ -644,9 +640,6 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
 
   case HOST_DEV_DISCONNECTED:
 
-    // USBH_LL_Stop(phost);
-    // USB_InitFSLSPClkSel(phost->pData, );
-
     if (phost->device.speed != USBH_SPEED_FULL)
     {
       reset_core = 1;
@@ -685,7 +678,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     if (reset_core)
     {
       USBH_UsrLog("USBH Reset Core.");
-      USBH_LL_Init(phost);
+      USBH_LL_CoreReset(phost);
     }
 
     USBH_LL_Start(phost);
@@ -753,10 +746,6 @@ static USBH_StatusTypeDef USBH_HandleEnum (USBH_HandleTypeDef *phost)
                            USBH_EP_CONTROL,
                            phost->Control.pipe_size);
       
-    }
-    else if (status == USBH_FAIL) {
-      phost->EnumState = ENUM_IDLE;
-      phost->gState = HOST_IDLE;
     }
     break;
     
