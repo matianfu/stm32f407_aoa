@@ -97,6 +97,8 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum);
 static void HCD_HC_OUT_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum); 
 static void HCD_RXQLVL_IRQHandler(HCD_HandleTypeDef *hhcd);
 static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd);
+
+static uint32_t HAL_HCD_ATTACHED(HCD_HandleTypeDef* hhcd);
 /**
   * @}
   */
@@ -157,36 +159,6 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
   return HAL_OK;
 }
 
-HAL_StatusTypeDef HAL_HCD_CoreReset(HCD_HandleTypeDef *hhcd)
-{
-  /* Check the HCD handle allocation */
-  if (hhcd == NULL)
-  {
-    return HAL_ERROR;
-  }
-
-  /* Check the parameters */
-  assert_param(IS_HCD_ALL_INSTANCE(hhcd->Instance));
-
-  hhcd->State = HAL_HCD_STATE_BUSY;
-
-  /* Disable the Interrupts */
-  __HAL_HCD_DISABLE(hhcd);
-
-  /*Init the Core (common init.) */
-  USB_CoreInit(hhcd->Instance, hhcd->Init);
-
-  /* Force Host Mode*/
-  USB_SetCurrentMode(hhcd->Instance, USB_OTG_HOST_MODE);
-
-  /* Init Host */
-  USB_HostInit(hhcd->Instance, hhcd->Init);
-
-  hhcd->State = HAL_HCD_STATE_READY;
-
-  return HAL_OK;
-}
-
 /**
   * @brief  Initialize a host channel
   * @param  hhcd: HCD handle
@@ -240,20 +212,6 @@ HAL_StatusTypeDef HAL_HCD_HC_Init(HCD_HandleTypeDef *hhcd,
                         mps);
   __HAL_UNLOCK(hhcd); 
   
-  return status;
-}
-
-HAL_StatusTypeDef HAL_HCD_HC_DeInit(HCD_HandleTypeDef *hhcd, uint8_t ch_num)
-{
-  HAL_StatusTypeDef status = HAL_OK;
-
-  __HAL_LOCK(hhcd);
-
-  memset(&hhcd->hc[ch_num], 0, sizeof(hhcd->hc[ch_num]));
-  USB_HC_DeInit(hhcd->Instance, ch_num);
-
-  __HAL_UNLOCK(hhcd);
-
   return status;
 }
 
@@ -488,7 +446,6 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
 
   __HAL_HCD_DISABLE(hhcd);
 
-  // if (hhcd->DevState.state.attached == 0) {
   if (!HAL_HCD_ATTACHED(hhcd))
   {
     USBH_UsrLog("USB_HC_StartXfer run after detached.");
@@ -556,6 +513,7 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
         USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
       
       /* Handle Host Port Interrupts */
+      /* Do this in port down handler, not disconnect handler */
       // HAL_HCD_Disconnect_Callback(hhcd);
       // USB_InitFSLSPClkSel(hhcd->Instance ,HCFG_48_MHZ );
 
@@ -567,7 +525,9 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
     {
       HCD_Port_IRQHandler (hhcd);
 
-      /* TODO cleaner **/
+      /* If port down/global interrupt disabled, channel
+       * process should not be processed further.
+       */
       if (!(hhcd->Instance->GAHBCFG & USB_OTG_GAHBCFG_GINT))
         return;
     }
@@ -1209,13 +1169,14 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
   {  
     USBH_PutMessage("CONNECT");
     
-//    if ((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
-//    {
-//      USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
+    if((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
+    {
+      USB_MASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
+      /* connect callback is used for port up only, now */
 //      HAL_HCD_Connect_Callback(hhcd);
-//    }
-
-    hprt0_dup |= USB_OTG_HPRT_PCDET;
+    }
+    hprt0_dup  |= USB_OTG_HPRT_PCDET;
+    
   }
   
   /* Check whether Port Enable Changed */
@@ -1245,8 +1206,7 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
           USBx_HOST->HFIR = (uint32_t)60000;
         }
       }
-      // HAL_HCD_Connect_Callback(hhcd);
-      // hhcd->DevState.state.attached = 1;
+      HAL_HCD_Connect_Callback(hhcd);
       
       if(hhcd->Init.speed == HCD_SPEED_HIGH)
       {
@@ -1261,13 +1221,13 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
         USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
       
-      // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
+      USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT); 
 
       // This is EXTREMELY important to clean up hardware here
       // Other ways won't do if DMA is enabled, you got very unstable
       // enumeration during disconnect and reconnect
       HAL_HCD_Stop(hhcd);
-
+      HAL_HCD_Disconnect_Callback(hhcd);
     }    
   }
   
@@ -1281,7 +1241,51 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
   USBx_HPRT0 = hprt0_dup;
 }
 
-uint32_t HAL_HCD_ATTACHED(HCD_HandleTypeDef* hhcd)
+HAL_StatusTypeDef HAL_HCD_CoreReset(HCD_HandleTypeDef *hhcd)
+{
+  /* Check the HCD handle allocation */
+  if (hhcd == NULL)
+  {
+    return HAL_ERROR;
+  }
+
+  /* Check the parameters */
+  assert_param(IS_HCD_ALL_INSTANCE(hhcd->Instance));
+
+  hhcd->State = HAL_HCD_STATE_BUSY;
+
+  /* Disable the Interrupts */
+  __HAL_HCD_DISABLE(hhcd);
+
+  /*Init the Core (common init.) */
+  USB_CoreInit(hhcd->Instance, hhcd->Init);
+
+  /* Force Host Mode*/
+  USB_SetCurrentMode(hhcd->Instance, USB_OTG_HOST_MODE);
+
+  /* Init Host */
+  USB_HostInit(hhcd->Instance, hhcd->Init);
+
+  hhcd->State = HAL_HCD_STATE_READY;
+
+  return HAL_OK;
+}
+
+HAL_StatusTypeDef HAL_HCD_HC_DeInit(HCD_HandleTypeDef *hhcd, uint8_t ch_num)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+
+  __HAL_LOCK(hhcd);
+
+  memset(&hhcd->hc[ch_num], 0, sizeof(hhcd->hc[ch_num]));
+  USB_HC_DeInit(hhcd->Instance, ch_num);
+
+  __HAL_UNLOCK(hhcd);
+
+  return status;
+}
+
+static uint32_t HAL_HCD_ATTACHED(HCD_HandleTypeDef* hhcd)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
 

@@ -156,26 +156,16 @@ void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd)
   USBH_LL_IncTimer(hhcd->pData);
 }
 
-/**
- * @brief  SOF callback.
- * @param  hhcd: HCD handle
- * @retval None
- */
 void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
 {
 //  USBH_LL_Connect(hhcd->pData);
-  ((USBH_HandleTypeDef*) (hhcd->pData))->device.is_connected = 1;
+  ((USBH_HandleTypeDef*) (hhcd->pData))->device.is_attached = 1;
 }
 
-/**
- * @brief  SOF callback.
- * @param  hhcd: HCD handle
- * @retval None
- */
 void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd)
 {
 //  USBH_LL_Disconnect(hhcd->pData);
-  ((USBH_HandleTypeDef*) (hhcd->pData))->device.is_connected = 0;
+  ((USBH_HandleTypeDef*) (hhcd->pData))->device.is_attached = 0;
 }
 
 /**
@@ -502,11 +492,6 @@ uint8_t USBH_LL_GetToggle(USBH_HandleTypeDef *phost, uint8_t pipe)
 void USBH_Delay(uint32_t Delay)
 {
   HAL_Delay(Delay);
-}
-
-uint32_t USBH_LL_Attached(USBH_HandleTypeDef *phost)
-{
-  return HAL_HCD_ATTACHED(phost->pData);
 }
 
 void USBH_DebounceTask(void)

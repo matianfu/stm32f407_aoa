@@ -268,7 +268,6 @@ uint32_t            HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
 /**
   * @}
   */
-uint32_t HAL_HCD_ATTACHED(HCD_HandleTypeDef* hhcd);
 uint32_t HAL_HCD_CONNECTED(HCD_HandleTypeDef* hhcd);
 HAL_StatusTypeDef HAL_HCD_CoreReset(HCD_HandleTypeDef *hhcd);
 HAL_StatusTypeDef HAL_HCD_HC_DeInit(HCD_HandleTypeDef *hhcd, uint8_t ch_num);
