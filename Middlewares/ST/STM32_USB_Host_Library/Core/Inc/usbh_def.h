@@ -492,6 +492,7 @@ typedef struct _USBH_HandleTypeDef
   void                 (* pUser )(struct _USBH_HandleTypeDef *pHandle, uint8_t id);
   void*                 pUserData;
   
+  uint32_t              requestCoreReset;
 #if (USBH_USE_OS == 1)
   osMessageQId          os_event;   
   osThreadId            thread; 

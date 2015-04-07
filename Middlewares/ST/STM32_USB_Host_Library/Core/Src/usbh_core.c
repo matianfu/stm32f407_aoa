@@ -52,7 +52,7 @@
 #define USBH_ADDRESS_ASSIGNED                    1      
 #define USBH_MPS_DEFAULT                         0x40
 
-#define USBH_CONNECT_DELAY                      200
+#define USBH_CONNECT_DELAY                       100
 /**
   * @}
   */ 
@@ -188,6 +188,8 @@ static USBH_StatusTypeDef  DeInitStateMachine(USBH_HandleTypeDef *phost)
   phost->device.address = USBH_ADDRESS_DEFAULT;
   phost->device.speed   = USBH_SPEED_FULL;
   
+  phost->requestCoreReset = 0;
+
   return USBH_OK;
 }
 
@@ -401,10 +403,11 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
   if (mapped_port_state(phost) == PORT_UP) {
     if (!phost->device.is_attached)
     {
-#ifdef CONFIG_USBH_SYSRESET_AFTER_DISCONNECT
-      NVIC_SystemReset();
-#endif
       phost->gState = HOST_DEV_DISCONNECTED;
+    }
+    else if (phost->requestCoreReset) {
+      phost->gState = HOST_DEV_DISCONNECTED;
+      reset_core = 1;
     }
   }
   
@@ -415,10 +418,20 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     if (phost->device.is_connected)  
     {
       /* Wait for 200 ms after connection */
-      phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT; 
+      USBH_UsrLog(".");
+      USBH_UsrLog(".");
+      USBH_UsrLog(".");
       USBH_UsrLog("Connected, delay %dms before port reset", USBH_CONNECT_DELAY);
       USBH_Delay(USBH_CONNECT_DELAY);
+
+      /* TODO QUICK FIX: making sure Global Int is enabled, may be disabled by
+       * unpaired port down event in hcd, ridiculous bug
+       */
+      USBH_LL_Start(phost);
+
       USBH_LL_ResetPort(phost);
+      phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
+      phost->gStateTimer = HAL_GetTick();
 #if (USBH_USE_OS == 1)
       osMessagePut ( phost->os_event, USBH_PORT_EVENT, 0);
 #endif
@@ -428,15 +441,15 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
   case HOST_DEV_WAIT_FOR_ATTACHMENT:
     if (!phost->device.is_connected)
     {
-      phost->device.is_connected = 0;
+      // phost->device.is_connected = 0;
       phost->gState = HOST_IDLE;
     }
     else if (phost->device.is_attached)
     {
       phost->gState = HOST_DEV_ATTACHED;
     }
-    else if (HAL_GetTick() - phost->gStateTimer > 500) {
-      phost->device.is_connected = 0;
+    else if (HAL_GetTick() - phost->gStateTimer > 1000) {
+      // phost->device.is_connected = 0;
       phost->gState = HOST_IDLE;
     }
     break;    
@@ -444,7 +457,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
   case HOST_DEV_ATTACHED :
     if (!phost->device.is_connected)
     {
-      phost->device.is_connected = 0;
+      // phost->device.is_connected = 0;
       phost->gState = HOST_IDLE;
     }
     
@@ -647,6 +660,17 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 
   case HOST_DEV_DISCONNECTED :
     
+    /* This code is intend for debug
+     * Do clean up here (rather than in hcd irq) make
+     * usb core unstable.
+     */
+    if (DebugConfig.no_clean_after_port_down)
+    {
+      USBH_LL_Stop(phost);
+    }
+
+    USBH_UsrLog("USB Device Detached");
+
     if (phost->device.speed != USBH_SPEED_FULL)
     {
       reset_core = 1;
@@ -693,7 +717,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
     /**
      * force new connect detection
      */
-    phost->device.is_connected = 0;
+    // phost->device.is_connected = 0;
     phost->gState = HOST_IDLE;
     break;
     

@@ -1,7 +1,15 @@
 #include "debug.h"
 
 DebugConfigTypeDef DebugConfig = {
+
+    .print_hcd_event = 1,
+    .print_debouncer_event = 1,
     .print_device_descriptor = 0,
+
+    .handle_control_level = 7,
+
+
+    .no_clean_after_port_down = 1,
 };
 
 void restore_debug_defaults(void)

@@ -544,6 +544,9 @@ USBH_StatusTypeDef USBH_CtlReq     (USBH_HandleTypeDef *phost,
     phost->Control.length = length;
     phost->Control.state = CTRL_SETUP;  
     phost->RequestState = CMD_WAIT;
+
+    phost->gStateTimer = HAL_GetTick();
+
     status = USBH_BUSY;
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
@@ -551,6 +554,14 @@ USBH_StatusTypeDef USBH_CtlReq     (USBH_HandleTypeDef *phost,
     break;
     
   case CMD_WAIT:
+
+    if (HAL_GetTick() - phost->gStateTimer > 500)
+    {
+      USBH_UsrLog("%s TIMEOUT, request core reset.", __func__);
+      phost->requestCoreReset = 1;
+      return USBH_BUSY;
+    }
+
     status = USBH_HandleControl(phost);
      if (status == USBH_OK) 
     {
@@ -589,7 +600,11 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
   {
   case CTRL_SETUP:
     /* send a SETUP packet */
-    USBH_UsrLog("<< %s >> SETUP", __func__);
+    if (DebugConfig.handle_control_level > 0)
+    {
+      USBH_UsrLog("<< %s >> SETUP", __func__);
+    }
+
     USBH_CtlSendSetup     (phost, 
 	                   (uint8_t *)phost->Control.setup.d8 , 
 	                   phost->Control.pipe_out); 
@@ -649,7 +664,11 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     
   case CTRL_DATA_IN:  
     /* Issue an IN token */ 
-    USBH_UsrLog("<< %s >> DATA IN", __func__);
+    if (DebugConfig.handle_control_level > 0)
+    {
+      USBH_UsrLog("<< %s >> DATA IN", __func__);
+    }
+
      phost->Control.timer = phost->Timer;
     USBH_CtlReceiveData(phost,
                         phost->Control.buff, 
@@ -692,7 +711,11 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     break;
     
   case CTRL_DATA_OUT:
-    USBH_UsrLog("<< %s >> DATA OUT", __func__);
+    if (DebugConfig.handle_control_level > 0)
+    {
+      USBH_UsrLog("<< %s >> DATA OUT", __func__);
+    }
+
     USBH_CtlSendData (phost,
                       phost->Control.buff, 
                       phost->Control.length , 
@@ -726,7 +749,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     } 
     else if  (URB_Status == USBH_URB_NOTREADY)
     { 
-      USBH_UsrLog("DATAOUT wait USBH_URB_NOTREADY");
       /* Nack received from device */
       phost->Control.state = CTRL_DATA_OUT;
       
@@ -748,7 +770,11 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     
     
   case CTRL_STATUS_IN:
-    USBH_UsrLog("<< %s >> STATUS IN", __func__);
+    if (DebugConfig.handle_control_level > 0)
+    {
+      USBH_UsrLog("<< %s >> STATUS IN", __func__);
+    }
+
     /* Send 0 bytes out packet */
     USBH_CtlReceiveData (phost,
                          0,
@@ -791,7 +817,11 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     break;
     
   case CTRL_STATUS_OUT:
-    USBH_UsrLog("<< %s >> STATUS OUT Packet", __func__);
+    if (DebugConfig.handle_control_level > 0)
+    {
+      USBH_UsrLog("<< %s >> STATUS OUT Packet", __func__);
+    }
+
     USBH_CtlSendData (phost,
                       0,
                       0,
@@ -815,7 +845,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     }
     else if  (URB_Status == USBH_URB_NOTREADY)
     { 
-      USBH_UsrLog("STATUS OUT USBH_URB_NOTREADY");
       phost->Control.state = CTRL_STATUS_OUT;
       
 #if (USBH_USE_OS == 1)
@@ -843,6 +872,10 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     */
     if (++ phost->Control.errorcount <= USBH_MAX_ERROR_COUNT)
     {
+      if (DebugConfig.handle_control_level > 0) {
+        USBH_UsrLog("<< %s >> Error, try to recover", __func__);
+      }
+
       /* try to recover control */
       USBH_LL_Stop(phost);
       USBH_Delay(100);
@@ -857,6 +890,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
       phost->pUser(phost, HOST_USER_UNRECOVERED_ERROR);
       phost->Control.errorcount = 0;
       USBH_ErrLog("Control error");
+      phost->requestCoreReset = 1;
       status = USBH_FAIL;
     }
     break;

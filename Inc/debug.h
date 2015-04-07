@@ -19,8 +19,13 @@
 typedef struct {
 
   /* Print Options */
-
+  int print_hcd_event;
+  int print_debouncer_event;
   int print_device_descriptor;
+
+  int handle_control_level;
+
+
 
   /* Behavioral Options */
   /*

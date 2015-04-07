@@ -506,7 +506,9 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
     /* Handle Host Disconnect Interrupts */
     if(__HAL_HCD_GET_FLAG(hhcd, USB_OTG_GINTSTS_DISCINT))
     {
-      USBH_PutMessage("DISCONNECT");
+      if (DebugConfig.print_hcd_event) {
+        USBH_PutMessage("DISCONNECT");
+      }
       
       /* Cleanup HPRT */
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
@@ -1110,6 +1112,10 @@ static void HCD_RXQLVL_IRQHandler(HCD_HandleTypeDef *hhcd)
   uint32_t pktcnt; 
   uint32_t temp = 0;
   
+  if (!HAL_HCD_ATTACHED(hhcd)) {
+    USBH_PutMessage("RXQLVL Handler run after detached.");
+  }
+
   temp = hhcd->Instance->GRXSTSP;
   channelnum = temp &  USB_OTG_GRXSTSP_EPNUM;  
   pktsts = (temp &  USB_OTG_GRXSTSP_PKTSTS) >> 17;
@@ -1166,8 +1172,10 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
   
   /* Check whether Port Connect Detected */
   if((hprt0 & USB_OTG_HPRT_PCDET) == USB_OTG_HPRT_PCDET)
-  {  
-    USBH_PutMessage("CONNECT");
+  {
+    if (DebugConfig.print_hcd_event) {
+      USBH_PutMessage("CONNECT");
+    }
     
     if((hprt0 & USB_OTG_HPRT_PCSTS) == USB_OTG_HPRT_PCSTS)
     {
@@ -1186,7 +1194,9 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
     
     if((hprt0 & USB_OTG_HPRT_PENA) == USB_OTG_HPRT_PENA)
     {    
-      USBH_PutMessage("PORTUP");
+      if (DebugConfig.print_hcd_event) {
+        USBH_PutMessage("PORTUP");
+      }
 
       if(hhcd->Init.phy_itface  == USB_OTG_EMBEDDED_PHY)
       {
@@ -1215,7 +1225,9 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
     }
     else
     {
-      USBH_PutMessage("PORTDOWN");
+      if (DebugConfig.print_hcd_event) {
+        USBH_PutMessage("PORTDOWN");
+      }
 
       /* Cleanup HPRT */
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
@@ -1226,7 +1238,10 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
       // This is EXTREMELY important to clean up hardware here
       // Other ways won't do if DMA is enabled, you got very unstable
       // enumeration during disconnect and reconnect
-      HAL_HCD_Stop(hhcd);
+      if (!DebugConfig.no_clean_after_port_down)
+      {
+        HAL_HCD_Stop(hhcd);
+      }
       HAL_HCD_Disconnect_Callback(hhcd);
     }    
   }

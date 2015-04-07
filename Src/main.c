@@ -96,7 +96,6 @@ int main(void)
   Command_Init();
   printf("%s", hello);
 
-
 //  printf("size of input_dev: %d\r\n", sizeof(struct input_dev));
 //  printf("size of hid_device: %d\r\n", sizeof(struct hid_device));
 //  printf("size of hid_parser: %d\r\n", sizeof(struct hid_parser));

@@ -512,12 +512,20 @@ void USBH_DebounceTask(void)
       if (phost->device.is_connected == 0 && debounce_hs == 0xFFFF)
       {
         phost->device.is_connected = 1;
-        USBH_PutMessage("Debouncer: USB HS Connected.");
+
+        if (DebugConfig.print_debouncer_event)
+        {
+          USBH_PutMessage("Debouncer: USB HS Connected.");
+        }
       }
       else if (phost->device.is_connected == 1 && debounce_hs == 0)
       {
         phost->device.is_connected = 0;
-        USBH_PutMessage("Debouncer: USB HS Disconnected.");
+
+        if (DebugConfig.print_debouncer_event)
+        {
+          USBH_PutMessage("Debouncer: USB HS Disconnected.");
+        }
       }
     }
   }
@@ -536,12 +544,20 @@ void USBH_DebounceTask(void)
       if (phost->device.is_connected == 0 && debounce_fs == 0xFFFF)
       {
         phost->device.is_connected = 1;
-        USBH_PutMessage("Debouncer: USB HS Connected.");
+
+        if (DebugConfig.print_debouncer_event)
+        {
+          USBH_PutMessage("Debouncer: USB HS Connected.");
+        }
       }
       else if (phost->device.is_connected == 1 && debounce_fs == 0)
       {
         phost->device.is_connected = 0;
-        USBH_PutMessage("Debouncer: USB HS Disconnected.");
+
+        if (DebugConfig.print_debouncer_event)
+        {
+          USBH_PutMessage("Debouncer: USB HS Disconnected.");
+        }
       }
     }
   }
