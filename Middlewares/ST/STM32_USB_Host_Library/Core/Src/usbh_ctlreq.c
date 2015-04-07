@@ -594,7 +594,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     break;
 
   case CTRL_SETUP:
-
     /* send a SETUP packet */
     USBH_UsrLog("<< %s >> SETUP", __func__);
     USBH_CtlSendSetup     (phost, 
@@ -722,6 +721,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
       osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
 #endif      
     }
+    
     /* handle error cases */
     else if  (URB_Status == USBH_URB_STALL) 
     { 
@@ -733,15 +733,15 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
 #endif      
     } 
     else if  (URB_Status == USBH_URB_NOTREADY)
-    {
+    { 
       USBH_UsrLog("DATAOUT wait USBH_URB_NOTREADY");
       /* Nack received from device */
       phost->Control.state = CTRL_DATA_OUT;
-
+      
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
-#endif
-    }
+#endif      
+    }    
     else if (URB_Status == USBH_URB_ERROR)
     {
       /* device error */
@@ -827,14 +827,14 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
       status = USBH_NOT_SUPPORTED;
     }
     else if  (URB_Status == USBH_URB_NOTREADY)
-    {
+    { 
       USBH_UsrLog("STATUS OUT USBH_URB_NOTREADY");
       phost->Control.state = CTRL_STATUS_OUT;
-
+      
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
-#endif
-    }
+#endif      
+    }      
     else if (URB_Status == USBH_URB_ERROR)
     {
       phost->Control.state = CTRL_ERROR; 
@@ -846,7 +846,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     break;
     
   case CTRL_ERROR:
-
     /* 
     After a halt condition is encountered or an error is detected by the 
     host, a control endpoint is allowed to recover by accepting the next Setup 
@@ -855,24 +854,20 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     required to clear the halt or error condition if the next Setup PID is not 
     accepted.
     */
-    phost->Control.errorcount ++;
-    if (phost->Control.errorcount <= USBH_MAX_ERROR_COUNT)
+    if (++ phost->Control.errorcount <= USBH_MAX_ERROR_COUNT)
     {
-      USBH_UsrLog("!!!!!!!!!!!!!!!!!!!!! USBH_CtlReq: CTRL_ERROR !!!!!!!!!!!!!!!!!!!!!!! ++++++++++++++++++++++ ");
       /* try to recover control */
       USBH_LL_Stop(phost);
-      USBH_Delay(100);
-      USBH_LL_Start(phost);
          
       /* Do the transmission again, starting from SETUP Packet */
       phost->Control.state = CTRL_SETUP; 
-//      phost->RequestState = CMD_SEND;
+      phost->RequestState = CMD_SEND;
     }
     else
     {
       phost->pUser(phost, HOST_USER_UNRECOVERED_ERROR);
       phost->Control.errorcount = 0;
-      USBH_UsrLog("!!!!!!!!!!!!!!!!!!!!! USBH_CtlReq: CTRL_ERROR !!!!!!!!!!!!!!!!!!!!!!! ");
+      USBH_ErrLog("Control error");
       status = USBH_FAIL;
     }
     break;

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    usbh_ioreq.c 
   * @author  MCD Application Team
-  * @version V3.1.0
-  * @date    19-June-2014
+  * @version V3.2.0
+  * @date    04-November-2014
   * @brief   This file handles the issuing of the USB transactions
   ******************************************************************************
   * @attention
@@ -97,18 +97,20 @@
   * @param  pipe_num: Pipe Number
   * @retval USBH Status
   */
-USBH_StatusTypeDef USBH_CtlSendSetup(USBH_HandleTypeDef *phost, uint8_t *buff,
-    uint8_t pipe_num)
+USBH_StatusTypeDef USBH_CtlSendSetup (USBH_HandleTypeDef *phost, 
+                                uint8_t *buff, 
+                                uint8_t pipe_num)
 {
-  USBH_LL_SubmitURB(phost, /* Driver handle    */
-                    pipe_num, /* Pipe index       */
-                    0, /* Direction : OUT  */
-                    USBH_EP_CONTROL, /* EP type          */
-                    USBH_PID_SETUP, /* Type setup       */
-                    buff, /* data buffer      */
-                    USBH_SETUP_PKT_SIZE, /* data length      */
-                    0);
-  return USBH_OK;
+
+  USBH_LL_SubmitURB (phost,                     /* Driver handle    */
+                          pipe_num,             /* Pipe index       */
+                          0,                    /* Direction : OUT  */
+                          USBH_EP_CONTROL,      /* EP type          */
+                          USBH_PID_SETUP,       /* Type setup       */
+                          buff,                 /* data buffer      */
+                          USBH_SETUP_PKT_SIZE,  /* data length      */ 
+                          0);
+  return USBH_OK;  
 }
 
 
@@ -132,7 +134,7 @@ USBH_StatusTypeDef USBH_CtlSendData (USBH_HandleTypeDef *phost,
     do_ping = 0;
   }
   
-  USBH_LL_SubmitURB (phost,         /* Driver handle    */
+  USBH_LL_SubmitURB (phost,                     /* Driver handle    */
                           pipe_num,             /* Pipe index       */
                           0,                    /* Direction : OUT  */
                           USBH_EP_CONTROL,      /* EP type          */                          
@@ -159,7 +161,7 @@ USBH_StatusTypeDef USBH_CtlReceiveData(USBH_HandleTypeDef *phost,
                                 uint16_t length,
                                 uint8_t pipe_num)
 {
-  USBH_LL_SubmitURB (phost,         /* Driver handle    */
+  USBH_LL_SubmitURB (phost,                     /* Driver handle    */
                           pipe_num,             /* Pipe index       */
                           1,                    /* Direction : IN   */
                           USBH_EP_CONTROL,      /* EP type          */                          
@@ -192,7 +194,7 @@ USBH_StatusTypeDef USBH_BulkSendData (USBH_HandleTypeDef *phost,
     do_ping = 0;
   }
   
-  USBH_LL_SubmitURB (phost,         /* Driver handle    */
+  USBH_LL_SubmitURB (phost,                     /* Driver handle    */
                           pipe_num,             /* Pipe index       */
                           0,                    /* Direction : IN   */
                           USBH_EP_BULK,         /* EP type          */                          
@@ -218,7 +220,7 @@ USBH_StatusTypeDef USBH_BulkReceiveData(USBH_HandleTypeDef *phost,
                                 uint16_t length,
                                 uint8_t pipe_num)
 {
-  USBH_LL_SubmitURB (phost,         /* Driver handle    */
+  USBH_LL_SubmitURB (phost,                     /* Driver handle    */
                           pipe_num,             /* Pipe index       */
                           1,                    /* Direction : IN   */
                           USBH_EP_BULK,         /* EP type          */                          
@@ -244,7 +246,7 @@ USBH_StatusTypeDef USBH_InterruptReceiveData(USBH_HandleTypeDef *phost,
                                 uint8_t length,
                                 uint8_t pipe_num)
 {
-  USBH_LL_SubmitURB (phost,         /* Driver handle    */
+  USBH_LL_SubmitURB (phost,                     /* Driver handle    */
                           pipe_num,             /* Pipe index       */
                           1,                    /* Direction : IN   */
                           USBH_EP_INTERRUPT,    /* EP type          */                          
@@ -270,7 +272,7 @@ USBH_StatusTypeDef USBH_InterruptSendData(USBH_HandleTypeDef *phost,
                                 uint8_t length,
                                 uint8_t pipe_num)
 {
-  USBH_LL_SubmitURB (phost,         /* Driver handle    */
+  USBH_LL_SubmitURB (phost,                     /* Driver handle    */
                           pipe_num,             /* Pipe index       */
                           0,                    /* Direction : OUT   */
                           USBH_EP_INTERRUPT,    /* EP type          */                          
@@ -296,7 +298,7 @@ USBH_StatusTypeDef USBH_IsocReceiveData(USBH_HandleTypeDef *phost,
                                 uint32_t length,
                                 uint8_t pipe_num)
 {    
-  USBH_LL_SubmitURB (phost,         /* Driver handle    */
+  USBH_LL_SubmitURB (phost,                     /* Driver handle    */
                           pipe_num,             /* Pipe index       */
                           1,                    /* Direction : IN   */
                           USBH_EP_ISO,          /* EP type          */                          
@@ -323,7 +325,7 @@ USBH_StatusTypeDef USBH_IsocSendData(USBH_HandleTypeDef *phost,
                                 uint32_t length,
                                 uint8_t pipe_num)
 {
-  USBH_LL_SubmitURB (phost,         /* Driver handle    */
+  USBH_LL_SubmitURB (phost,                     /* Driver handle    */
                           pipe_num,             /* Pipe index       */
                           0,                    /* Direction : OUT   */
                           USBH_EP_ISO,          /* EP type          */                          
