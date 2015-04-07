@@ -40,7 +40,6 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "debug.h"
 #include "hid.h"
 #include "usbh_hid.h"
 

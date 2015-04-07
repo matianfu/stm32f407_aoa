@@ -5,7 +5,6 @@
 #include "stm32f407xx.h"
 #include "usbh_core.h"
 #include "usbh_conf.h"
-#include "debug.h"
 #include "stm32f4xx_hal_hcd_helper.h"
 #include "stm32f4xx_ll_usb.h"
 #include "usbh_core_helper.h"

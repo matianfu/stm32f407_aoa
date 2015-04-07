@@ -26,7 +26,6 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
-#include "debug.h"
 #include "usbh_pipes.h"
 
 /** @addtogroup USBH_LIB

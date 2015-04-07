@@ -27,7 +27,6 @@
   */ 
 /* Includes ------------------------------------------------------------------*/
 
-#include "debug.h"
 #include "usbh_core.h"
 #include "usbh_core_helper.h"
 

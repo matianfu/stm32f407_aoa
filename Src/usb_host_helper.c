@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "debug.h"
 #include "usbh_conf.h"
 #include "usbh_core.h"
 #include "stm32f4xx.h"

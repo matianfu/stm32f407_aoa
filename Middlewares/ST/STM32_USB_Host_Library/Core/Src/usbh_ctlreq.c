@@ -26,7 +26,6 @@
   */ 
 /* Includes ------------------------------------------------------------------*/
 
-#include "debug.h"
 #include "usbh_conf.h"
 #include "usbh_ctlreq.h"
 
@@ -588,11 +587,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
   
   switch (phost->Control.state)
   {
-  case CTRL_STALLED:
-    USBH_Delay(100);
-    phost->Control.state = CTRL_SETUP;
-    break;
-
   case CTRL_SETUP:
     /* send a SETUP packet */
     USBH_UsrLog("<< %s >> SETUP", __func__);
@@ -646,8 +640,7 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     }
     else if(URB_Status == USBH_URB_ERROR)
     {
-      // phost->Control.state = CTRL_ERROR;
-      phost->Control.state = CTRL_SETUP;
+      phost->Control.state = CTRL_ERROR;
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
 #endif      
@@ -683,7 +676,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     if  (URB_Status == USBH_URB_STALL) 
     { 
       /* In stall case, return to previous machine state*/
-      phost->Control.state = CTRL_STALLED;
       status = USBH_NOT_SUPPORTED;
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
@@ -790,7 +782,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
      else if(URB_Status == USBH_URB_STALL)
     {
       /* Control transfers completed, Exit the State Machine */
-      phost->Control.state = CTRL_STALLED;
       status = USBH_NOT_SUPPORTED;
       
 #if (USBH_USE_OS == 1)
@@ -821,10 +812,6 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
 #if (USBH_USE_OS == 1)
     osMessagePut ( phost->os_event, USBH_CONTROL_EVENT, 0);
 #endif      
-    }
-    else if (URB_Status == USBH_URB_STALL) {
-      phost->Control.state = CTRL_STALLED;
-      status = USBH_NOT_SUPPORTED;
     }
     else if  (URB_Status == USBH_URB_NOTREADY)
     { 
@@ -858,6 +845,8 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     {
       /* try to recover control */
       USBH_LL_Stop(phost);
+      USBH_Delay(100);
+      USBH_LL_Start(phost);
          
       /* Do the transmission again, starting from SETUP Packet */
       phost->Control.state = CTRL_SETUP; 

@@ -1,7 +1,7 @@
 #include "usbh_core.h"
 #include "usbh_core_helper.h"
 
-//extern USBH_HandleTypeDef hUsbHostHS;
+
 
 /*
  * local constants
@@ -73,6 +73,15 @@ const static char * channel_state_string[] =
 void USBH_Print_DeviceDescriptor(USBH_HandleTypeDef *phost)
 {
   int i;
+
+  if (!DebugConfig.print_device_descriptor)
+  {
+    return;
+  }
+
+  if (!phost) {
+    return;
+  }
 
   USBH_DevDescTypeDef* devdesc = &phost->device.DevDesc;
   USBH_CfgDescTypeDef* cfgdesc = &phost->device.CfgDesc;

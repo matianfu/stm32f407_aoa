@@ -1,5 +1,9 @@
 #include "debug.h"
 
+DebugConfigTypeDef DebugConfig = {
+    .print_device_descriptor = 0,
+};
+
 void restore_debug_defaults(void)
 {
   int i;
