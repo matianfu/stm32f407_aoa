@@ -500,34 +500,23 @@ void USBH_DebounceTask(void)
 
   if (hhcd_USB_OTG_HS.pData)
   {
-
-    debounce_hs = debounce_hs << 1;
-
-    if (HAL_HCD_CONNECTED(&hhcd_USB_OTG_HS))
-    {
-      debounce_hs |= 0x0001;
-    }
-    else
-    {
-      debounce_hs &= ~(0x0001);
-    }
-
     phost = hhcd_USB_OTG_HS.pData;
-    if (phost->device.is_connected == 0)
+
+    if (phost)
     {
-      if (debounce_hs == 0xFFFF)
+      debounce_hs = debounce_hs << 1;
+      debounce_hs =
+          HAL_HCD_CONNECTED(&hhcd_USB_OTG_HS) ?
+              (debounce_hs | 0x0001) : (debounce_hs & (~(0x0001)));
+
+      if (phost->device.is_connected == 0 && debounce_hs == 0xFFFF)
       {
         phost->device.is_connected = 1;
-
         USBH_PutMessage("Debouncer: USB HS Connected.");
       }
-    }
-    else
-    {
-      if (debounce_hs == 0x0000)
+      else if (phost->device.is_connected == 1 && debounce_hs == 0)
       {
         phost->device.is_connected = 0;
-
         USBH_PutMessage("Debouncer: USB HS Disconnected.");
       }
     }
@@ -535,7 +524,26 @@ void USBH_DebounceTask(void)
 
   if (hhcd_USB_OTG_FS.pData)
   {
+    phost = hhcd_USB_OTG_FS.pData;
 
+    if (phost)
+    {
+      debounce_fs = debounce_fs << 1;
+      debounce_fs =
+          HAL_HCD_CONNECTED(&hhcd_USB_OTG_HS) ?
+              (debounce_fs | 0x0001) : (debounce_fs & (~(0x0001)));
+
+      if (phost->device.is_connected == 0 && debounce_fs == 0xFFFF)
+      {
+        phost->device.is_connected = 1;
+        USBH_PutMessage("Debouncer: USB HS Connected.");
+      }
+      else if (phost->device.is_connected == 1 && debounce_fs == 0)
+      {
+        phost->device.is_connected = 0;
+        USBH_PutMessage("Debouncer: USB HS Disconnected.");
+      }
+    }
   }
 }
 
