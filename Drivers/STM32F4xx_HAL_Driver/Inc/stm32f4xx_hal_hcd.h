@@ -154,6 +154,7 @@ typedef struct
  */
 #define __HAL_HCD_ENABLE(__HANDLE__)                   USB_EnableGlobalInt ((__HANDLE__)->Instance)
 #define __HAL_HCD_DISABLE(__HANDLE__)                  USB_DisableGlobalInt ((__HANDLE__)->Instance)
+
    
    
 #define __HAL_HCD_GET_FLAG(__HANDLE__, __INTERRUPT__)      ((USB_ReadInterrupts((__HANDLE__)->Instance) & (__INTERRUPT__)) == (__INTERRUPT__))
@@ -229,6 +230,7 @@ uint32_t                HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
 /**
   * @}
   */
+uint32_t                HAL_HCD_ATTACHED(HCD_HandleTypeDef* hhcd);
 
 /**
   * @}

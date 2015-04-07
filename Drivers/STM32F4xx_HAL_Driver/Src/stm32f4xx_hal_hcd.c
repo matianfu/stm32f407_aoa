@@ -483,9 +483,11 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
 
   hc_helper_sumbit_request();
 
-  USB_DisableGlobalInt(hhcd->Instance);
+  __HAL_HCD_DISABLE(hhcd);
 
-  if (hhcd->DevState.state.attached == 0) {
+  // if (hhcd->DevState.state.attached == 0) {
+  if (!HAL_HCD_ATTACHED(hhcd))
+  {
     USBH_UsrLog("USB_HC_StartXfer run after detached.");
     status = HAL_ERROR;
   }
@@ -493,7 +495,7 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
     status = USB_HC_StartXfer(hhcd->Instance, &(hhcd->hc[ch_num]), hhcd->Init.dma_enable);
   }
 
-  USB_EnableGlobalInt(hhcd->Instance);
+  __HAL_HCD_ENABLE(hhcd);
 
   return status;
 }
@@ -854,7 +856,7 @@ static void HCD_HC_IN_IRQHandler(HCD_HandleTypeDef *hhcd, uint8_t chnum)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
 
-  if (hhcd->DevState.state.attached == 0)
+  if (!HAL_HCD_ATTACHED(hhcd))
     USBH_PutMessage("IN IRQ Handler run after detached.");
     
   if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_AHBERR)
@@ -993,7 +995,7 @@ static void HCD_HC_OUT_IRQHandler  (HCD_HandleTypeDef *hhcd, uint8_t chnum)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
   
-  if (hhcd->DevState.state.attached == 0) {
+  if (!HAL_HCD_ATTACHED(hhcd)) {
     USBH_PutMessage("OUT IRQ Handler run after detached.");
   }
 
@@ -1253,6 +1255,8 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
       // USB_UNMASK_INTERRUPT(hhcd->Instance, USB_OTG_GINTSTS_DISCINT);
       /* Disable Global Int  clean up */
       __HAL_HCD_DISABLE(hhcd);
+      /* TODO Seems stop host must be called here */
+      USB_StopHost(hhcd->Instance);
       hhcd->DevState.state.attached = 0;
     }
   }
@@ -1265,6 +1269,13 @@ static void HCD_Port_IRQHandler(HCD_HandleTypeDef *hhcd)
 
   /* Clear Port Interrupts */
   USBx_HPRT0 = hprt0_dup;
+}
+
+uint32_t HAL_HCD_ATTACHED(HCD_HandleTypeDef* hhcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+
+  return (USBx_HPRT0 & USB_OTG_HPRT_PENA);
 }
 
 /**
