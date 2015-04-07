@@ -1,69 +1,74 @@
 /**
-  ******************************************************************************
-  * @file            : usbh_conf.c
-  * @date            : 04/02/2015 16:50:32 
-  * @version         : v1.0_Cube
-  * @brief           : This file implements the board support package for the USB host library
-  ******************************************************************************
-  * COPYRIGHT(c) 2015 STMicroelectronics
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  * 1. Redistributions of source code must retain the above copyright notice,
-  * this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  * this list of conditions and the following disclaimer in the documentation
-  * and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of its contributors
-  * may be used to endorse or promote products derived from this software
-  * without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-*/
+ ******************************************************************************
+ * @file            : usbh_conf.c
+ * @date            : 04/02/2015 16:50:32
+ * @version         : v1.0_Cube
+ * @brief           : This file implements the board support package for the USB host library
+ ******************************************************************************
+ * COPYRIGHT(c) 2015 STMicroelectronics
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ * 3. Neither the name of STMicroelectronics nor the names of its contributors
+ * may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************
+ */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
-#include "usbh_core.h"
 #include "stm32f4xx_hal_hcd_helper.h"
+#include "usbh_core.h"
+#include "usbh_core_helper.h"
 
 HCD_HandleTypeDef hhcd_USB_OTG_FS;
 HCD_HandleTypeDef hhcd_USB_OTG_HS;
 
+uint16_t debounce_fs;
+uint16_t debounce_hs;
+
 /*******************************************************************************
-                       LL Driver Callbacks (HCD -> USB Host Library)
-*******************************************************************************/
+ LL Driver Callbacks (HCD -> USB Host Library)
+ *******************************************************************************/
 /* MSP Init */
 
 void HAL_HCD_MspInit(HCD_HandleTypeDef* hhcd)
 {
   GPIO_InitTypeDef GPIO_InitStruct;
-  if(hhcd->Instance==USB_OTG_FS)
+  if (hhcd->Instance == USB_OTG_FS)
   {
     /* Peripheral clock enable */
-    __USB_OTG_FS_CLK_ENABLE();
-  
+    __USB_OTG_FS_CLK_ENABLE()
+    ;
+
     /**USB_OTG_FS GPIO Configuration    
-    PA9     ------> USB_OTG_FS_VBUS
-    PA11     ------> USB_OTG_FS_DM
-    PA12     ------> USB_OTG_FS_DP 
-    */
+     PA9     ------> USB_OTG_FS_VBUS
+     PA11     ------> USB_OTG_FS_DM
+     PA12     ------> USB_OTG_FS_DP
+     */
     GPIO_InitStruct.Pin = GPIO_PIN_9;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
+    GPIO_InitStruct.Pin = GPIO_PIN_11 | GPIO_PIN_12;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
@@ -76,22 +81,22 @@ void HAL_HCD_MspInit(HCD_HandleTypeDef* hhcd)
     HAL_NVIC_SetPriority(OTG_FS_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
   }
-  else if(hhcd->Instance==USB_OTG_HS)
+  else if (hhcd->Instance == USB_OTG_HS)
   {
     /* Peripheral clock enable */
     __USB_OTG_HS_CLK_ENABLE();
-  
+
     /**USB_OTG_HS GPIO Configuration    
-    PB13     ------> USB_OTG_HS_VBUS
-    PB14     ------> USB_OTG_HS_DM
-    PB15     ------> USB_OTG_HS_DP 
-    */
+     PB13     ------> USB_OTG_HS_VBUS
+     PB14     ------> USB_OTG_HS_DM
+     PB15     ------> USB_OTG_HS_DP
+     */
     GPIO_InitStruct.Pin = GPIO_PIN_13;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_14|GPIO_PIN_15;
+    GPIO_InitStruct.Pin = GPIO_PIN_14 | GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
@@ -108,32 +113,33 @@ void HAL_HCD_MspInit(HCD_HandleTypeDef* hhcd)
 
 void HAL_HCD_MspDeInit(HCD_HandleTypeDef* hhcd)
 {
-  if(hhcd->Instance==USB_OTG_FS)
+  if (hhcd->Instance == USB_OTG_FS)
   {
     /* Peripheral clock disable */
-    __USB_OTG_FS_CLK_DISABLE();
-  
+    __USB_OTG_FS_CLK_DISABLE()
+    ;
+
     /**USB_OTG_FS GPIO Configuration    
-    PA9     ------> USB_OTG_FS_VBUS
-    PA11     ------> USB_OTG_FS_DM
-    PA12     ------> USB_OTG_FS_DP 
-    */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9|GPIO_PIN_11|GPIO_PIN_12);
+     PA9     ------> USB_OTG_FS_VBUS
+     PA11     ------> USB_OTG_FS_DM
+     PA12     ------> USB_OTG_FS_DP
+     */
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9 | GPIO_PIN_11 | GPIO_PIN_12);
 
     /* Peripheral interrupt Deinit*/
     HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
   }
-  else if(hhcd->Instance==USB_OTG_HS)
+  else if (hhcd->Instance == USB_OTG_HS)
   {
     /* Peripheral clock disable */
     __USB_OTG_HS_CLK_DISABLE();
-  
+
     /**USB_OTG_HS GPIO Configuration    
-    PB13     ------> USB_OTG_HS_VBUS
-    PB14     ------> USB_OTG_HS_DM
-    PB15     ------> USB_OTG_HS_DP 
-    */
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15);
+     PB13     ------> USB_OTG_HS_VBUS
+     PB14     ------> USB_OTG_HS_DM
+     PB15     ------> USB_OTG_HS_DP
+     */
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15);
 
     /* Peripheral interrupt Deinit*/
     HAL_NVIC_DisableIRQ(OTG_HS_IRQn);
@@ -141,54 +147,44 @@ void HAL_HCD_MspDeInit(HCD_HandleTypeDef* hhcd)
 }
 
 /**
-  * @brief  SOF callback.
-  * @param  hhcd: HCD handle
-  * @retval None
-  */
+ * @brief  SOF callback.
+ * @param  hhcd: HCD handle
+ * @retval None
+ */
 void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd)
 {
-  USBH_LL_IncTimer (hhcd->pData);
+  USBH_LL_IncTimer(hhcd->pData);
 }
 
 /**
-  * @brief  SOF callback.
-  * @param  hhcd: HCD handle
-  * @retval None
-  */
+ * @brief  SOF callback.
+ * @param  hhcd: HCD handle
+ * @retval None
+ */
 void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
 {
 //  USBH_LL_Connect(hhcd->pData);
-  ((USBH_HandleTypeDef*)(hhcd->pData))->device.is_connected = 1;
+  ((USBH_HandleTypeDef*) (hhcd->pData))->device.is_connected = 1;
 }
 
 /**
-  * @brief  SOF callback.
-  * @param  hhcd: HCD handle
-  * @retval None
-  */
+ * @brief  SOF callback.
+ * @param  hhcd: HCD handle
+ * @retval None
+ */
 void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd)
 {
 //  USBH_LL_Disconnect(hhcd->pData);
-  ((USBH_HandleTypeDef*)(hhcd->pData))->device.is_connected = 0;
+  ((USBH_HandleTypeDef*) (hhcd->pData))->device.is_connected = 0;
 }
-
-void HAL_HCD_Attach_Callback(HCD_HandleTypeDef *hhcd)
-{
-  ((USBH_HandleTypeDef*)(hhcd->pData))->device.is_attached = 1;
-}
-
-void HAL_HCD_Detach_Callback(HCD_HandleTypeDef *hhcd)
-{
-  ((USBH_HandleTypeDef*)(hhcd->pData))->device.is_attached = 0;
-}
-
 
 /**
-  * @brief  Notify URB state change callback.
-  * @param  hhcd: HCD handle
-  * @retval None
-  */
-void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum, HCD_URBStateTypeDef urb_state)
+ * @brief  Notify URB state change callback.
+ * @param  hhcd: HCD handle
+ * @retval None
+ */
+void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
+    HCD_URBStateTypeDef urb_state)
 {
   /* To be used with OS to sync URB state with the global state machine */
 #if (USBH_USE_OS == 1)   
@@ -196,15 +192,15 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum,
 #endif 
 }
 /*******************************************************************************
-                       LL Driver Interface (USB Host Library --> HCD)
-*******************************************************************************/
+ LL Driver Interface (USB Host Library --> HCD)
+ *******************************************************************************/
 /**
-  * @brief  USBH_LL_Init 
-  *         Initialize the HOST portion of the driver.
-  * @param  phost: Selected device
-  * @param  base_address: OTG base address
-  * @retval Status
-  */
+ * @brief  USBH_LL_Init
+ *         Initialize the HOST portion of the driver.
+ * @param  phost: Selected device
+ * @param  base_address: OTG base address
+ * @retval Status
+ */
 USBH_StatusTypeDef USBH_LL_Init(USBH_HandleTypeDef *phost)
 {
   /* Init USB_IP */
@@ -253,13 +249,13 @@ USBH_StatusTypeDef USBH_LL_CoreReset(USBH_HandleTypeDef *phost)
 {
   if (phost->id == HOST_FS)
   {
-    USB_InitFSLSPClkSel(hhcd_USB_OTG_FS.Instance ,HCFG_48_MHZ);
+    USB_InitFSLSPClkSel(hhcd_USB_OTG_FS.Instance, HCFG_48_MHZ);
     HAL_HCD_CoreReset(&hhcd_USB_OTG_FS);
     USBH_LL_SetTimer(phost, HAL_HCD_GetCurrentFrame(&hhcd_USB_OTG_FS));
   }
   if (phost->id == HOST_HS)
   {
-    USB_InitFSLSPClkSel(hhcd_USB_OTG_HS.Instance ,HCFG_48_MHZ);
+    USB_InitFSLSPClkSel(hhcd_USB_OTG_HS.Instance, HCFG_48_MHZ);
     HAL_HCD_CoreReset(&hhcd_USB_OTG_HS);
     USBH_LL_SetTimer(phost, HAL_HCD_GetCurrentFrame(&hhcd_USB_OTG_HS));
   }
@@ -267,101 +263,101 @@ USBH_StatusTypeDef USBH_LL_CoreReset(USBH_HandleTypeDef *phost)
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-USBH_StatusTypeDef  USBH_LL_DeInit (USBH_HandleTypeDef *phost)
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+USBH_StatusTypeDef USBH_LL_DeInit(USBH_HandleTypeDef *phost)
 {
   HAL_HCD_DeInit(phost->pData);
-  return USBH_OK; 
+  return USBH_OK;
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-USBH_StatusTypeDef  USBH_LL_Start(USBH_HandleTypeDef *phost)
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+USBH_StatusTypeDef USBH_LL_Start(USBH_HandleTypeDef *phost)
 {
   HAL_HCD_Start(phost->pData);
-  return USBH_OK; 
+  return USBH_OK;
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-USBH_StatusTypeDef  USBH_LL_Stop (USBH_HandleTypeDef *phost)
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+USBH_StatusTypeDef USBH_LL_Stop(USBH_HandleTypeDef *phost)
 {
   HAL_HCD_Stop(phost->pData);
-  return USBH_OK; 
+  return USBH_OK;
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-USBH_SpeedTypeDef USBH_LL_GetSpeed  (USBH_HandleTypeDef *phost)
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+USBH_SpeedTypeDef USBH_LL_GetSpeed(USBH_HandleTypeDef *phost)
 {
   USBH_SpeedTypeDef speed = USBH_SPEED_FULL;
-    
+
   switch (HAL_HCD_GetCurrentSpeed(phost->pData))
   {
-  case 0 : 
+  case 0:
     speed = USBH_SPEED_HIGH;
     break;
-    
-  case 1 : 
-    speed = USBH_SPEED_FULL;    
+
+  case 1:
+    speed = USBH_SPEED_FULL;
     break;
-    
-  case 2 : 
-    speed = USBH_SPEED_LOW;    
+
+  case 2:
+    speed = USBH_SPEED_LOW;
     break;
-	
-  default:  
-   speed = USBH_SPEED_FULL;    
-    break;  
+
+  default:
+    speed = USBH_SPEED_FULL;
+    break;
   }
-  return  speed;
+  return speed;
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-USBH_StatusTypeDef USBH_LL_ResetPort (USBH_HandleTypeDef *phost) 
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+USBH_StatusTypeDef USBH_LL_ResetPort(USBH_HandleTypeDef *phost)
 {
   HAL_HCD_ResetPort(phost->pData);
-  return USBH_OK; 
+  return USBH_OK;
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-uint32_t USBH_LL_GetLastXferSize  (USBH_HandleTypeDef *phost, uint8_t pipe)  
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+uint32_t USBH_LL_GetLastXferSize(USBH_HandleTypeDef *phost, uint8_t pipe)
 {
   return HAL_HCD_HC_GetXferCount(phost->pData, pipe);
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
 USBH_StatusTypeDef USBH_LL_OpenPipe(USBH_HandleTypeDef *phost, uint8_t pipe_num,
     uint8_t epnum, uint8_t dev_address, uint8_t speed, uint8_t ep_type,
     uint16_t mps)
@@ -373,78 +369,68 @@ USBH_StatusTypeDef USBH_LL_OpenPipe(USBH_HandleTypeDef *phost, uint8_t pipe_num,
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-USBH_StatusTypeDef   USBH_LL_ClosePipe   (USBH_HandleTypeDef *phost, uint8_t pipe_num)
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+USBH_StatusTypeDef USBH_LL_ClosePipe(USBH_HandleTypeDef *phost,
+    uint8_t pipe_num)
 {
   HAL_HCD_HC_DeInit(phost->pData, pipe_num);
 
-  return USBH_OK; 
+  return USBH_OK;
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
 
-USBH_StatusTypeDef   USBH_LL_SubmitURB  (USBH_HandleTypeDef *phost, 
-                                            uint8_t pipe, 
-                                            uint8_t direction ,
-                                            uint8_t ep_type,  
-                                            uint8_t token, 
-                                            uint8_t* pbuff, 
-                                            uint16_t length,
-                                            uint8_t do_ping ) 
+USBH_StatusTypeDef USBH_LL_SubmitURB(USBH_HandleTypeDef *phost, uint8_t pipe,
+    uint8_t direction, uint8_t ep_type, uint8_t token, uint8_t* pbuff,
+    uint16_t length, uint8_t do_ping)
 {
-  HAL_StatusTypeDef status =
-  HAL_HCD_HC_SubmitRequest (phost->pData,
-                            pipe, 
-                            direction ,
-                            ep_type,  
-                            token, 
-                            pbuff, 
-                            length,
-                            do_ping);
+  HAL_StatusTypeDef status = HAL_HCD_HC_SubmitRequest(phost->pData, pipe,
+      direction, ep_type, token, pbuff, length, do_ping);
 
   if (status != HAL_OK)
   {
     printf("%s HAL not ok, %d", __func__, status);
   }
-  return USBH_OK;   
+  return USBH_OK;
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-USBH_URBStateTypeDef  USBH_LL_GetURBState (USBH_HandleTypeDef *phost, uint8_t pipe) 
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+USBH_URBStateTypeDef USBH_LL_GetURBState(USBH_HandleTypeDef *phost,
+    uint8_t pipe)
 {
-  return (USBH_URBStateTypeDef)HAL_HCD_HC_GetURBState (phost->pData, pipe);
+  return (USBH_URBStateTypeDef) HAL_HCD_HC_GetURBState(phost->pData, pipe);
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-USBH_StatusTypeDef  USBH_LL_DriverVBUS (USBH_HandleTypeDef *phost, uint8_t state)
-{ 
- /* USER CODE BEGIN 0 */ 
- /* USER CODE END 0 */
-  if(state == 0)
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+USBH_StatusTypeDef USBH_LL_DriverVBUS(USBH_HandleTypeDef *phost, uint8_t state)
+{
+  /* USER CODE BEGIN 0 */
+  /* USER CODE END 0 */
+  if (state == 0)
   {
     /* Drive high Charge pump */
-    /* USER CODE BEGIN 1 */ 
+    /* USER CODE BEGIN 1 */
     /* ToDo: Add IOE driver control */
-    /* USER CODE END 1 */ 
+    /* USER CODE END 1 */
   }
   else
   {
@@ -455,22 +441,23 @@ USBH_StatusTypeDef  USBH_LL_DriverVBUS (USBH_HandleTypeDef *phost, uint8_t state
   }
 
   HAL_Delay(200);
-  return USBH_OK;  
+  return USBH_OK;
 }
 
 /**
-  * @brief  USBH_LL_SetToggle 
-  *         Initialize the HOST portion of the driver.
-  * @param  phost: Selected device
-  * @param  base_address: OTG base address
-  * @retval Status
-  */
-USBH_StatusTypeDef   USBH_LL_SetToggle   (USBH_HandleTypeDef *phost, uint8_t pipe, uint8_t toggle)   
+ * @brief  USBH_LL_SetToggle
+ *         Initialize the HOST portion of the driver.
+ * @param  phost: Selected device
+ * @param  base_address: OTG base address
+ * @retval Status
+ */
+USBH_StatusTypeDef USBH_LL_SetToggle(USBH_HandleTypeDef *phost, uint8_t pipe,
+    uint8_t toggle)
 {
   HCD_HandleTypeDef *pHandle;
   pHandle = phost->pData;
-  
-  if(pHandle->hc[pipe].ep_is_in)
+
+  if (pHandle->hc[pipe].ep_is_in)
   {
     pHandle->hc[pipe].toggle_in = toggle;
   }
@@ -478,24 +465,24 @@ USBH_StatusTypeDef   USBH_LL_SetToggle   (USBH_HandleTypeDef *phost, uint8_t pip
   {
     pHandle->hc[pipe].toggle_out = toggle;
   }
-  
-  return USBH_OK; 
+
+  return USBH_OK;
 }
 
 /**
-  * @brief  USBH_LL_GetToggle 
-  *         Initialize the HOST portion of the driver.
-  * @param  phost: Selected device
-  * @param  base_address: OTG base address
-  * @retval Status
-  */
-uint8_t  USBH_LL_GetToggle   (USBH_HandleTypeDef *phost, uint8_t pipe)   
+ * @brief  USBH_LL_GetToggle
+ *         Initialize the HOST portion of the driver.
+ * @param  phost: Selected device
+ * @param  base_address: OTG base address
+ * @retval Status
+ */
+uint8_t USBH_LL_GetToggle(USBH_HandleTypeDef *phost, uint8_t pipe)
 {
   uint8_t toggle = 0;
   HCD_HandleTypeDef *pHandle;
-  pHandle = phost->pData; 
-  
-  if(pHandle->hc[pipe].ep_is_in)
+  pHandle = phost->pData;
+
+  if (pHandle->hc[pipe].ep_is_in)
   {
     toggle = pHandle->hc[pipe].toggle_in;
   }
@@ -503,39 +490,68 @@ uint8_t  USBH_LL_GetToggle   (USBH_HandleTypeDef *phost, uint8_t pipe)
   {
     toggle = pHandle->hc[pipe].toggle_out;
   }
-  return toggle; 
+  return toggle;
 }
 
 /**
-  * @brief   
-  * @param  
-  * @param  
-  * @retval Status
-  */
-void  USBH_Delay (uint32_t Delay)
+ * @brief
+ * @param
+ * @param
+ * @retval Status
+ */
+void USBH_Delay(uint32_t Delay)
 {
-  HAL_Delay(Delay);  
+  HAL_Delay(Delay);
 }
 
-void USBH_HCD_DevStateTask(void)
+uint32_t USBH_LL_Attached(USBH_HandleTypeDef *phost)
 {
-  HCD_DevState_Task(&hhcd_USB_OTG_HS);
+  return HAL_HCD_ATTACHED(phost->pData);
 }
 
-void USBH_DevState_Reset(USBH_HandleTypeDef *phost)
+void USBH_DebounceTask(void)
 {
-  HCD_DevState_Reset(phost->pData);
-}
-int USBH_DevState_IsConnected(USBH_HandleTypeDef *phost)
-{
-  return HCD_DevState_IsConnected(phost->pData);
-}
-int USBH_DevState_IsAttached(USBH_HandleTypeDef *phost)
-{
-  return HCD_DevState_IsAttached(phost->pData);
-}
+  USBH_HandleTypeDef *phost;
 
+  if (hhcd_USB_OTG_HS.pData)
+  {
 
+    debounce_hs = debounce_hs << 1;
 
+    if (HAL_HCD_CONNECTED(&hhcd_USB_OTG_HS))
+    {
+      debounce_hs |= 0x0001;
+    }
+    else
+    {
+      debounce_hs &= ~(0x0001);
+    }
+
+    phost = hhcd_USB_OTG_HS.pData;
+    if (phost->device.is_connected == 0)
+    {
+      if (debounce_hs == 0xFFFF)
+      {
+        phost->device.is_connected = 1;
+
+        USBH_PutMessage("Debouncer: USB HS Connected.");
+      }
+    }
+    else
+    {
+      if (debounce_hs == 0x0000)
+      {
+        phost->device.is_connected = 0;
+
+        USBH_PutMessage("Debouncer: USB HS Disconnected.");
+      }
+    }
+  }
+
+  if (hhcd_USB_OTG_FS.pData)
+  {
+
+  }
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -25,7 +25,7 @@ extern int debug_hal_hcd_hc_submitrequest_halt;
 
 #define DEBUG_HC_HCINTX_ALL                                 ((uint32_t)0x000007FF)  /** low 11 bits **/
 #define DEBUG_HC_HCINTX_NONE                                ((uint32_t)0)
-#define DEBUG_HC_HCINTX_MASK_DEFAULT                        0
+#define DEBUG_HC_HCINTX_MASK_DEFAULT                        DEBUG_HC_HCINTX_ALL
 extern uint32_t debug_hc_hcintx_mask[16];
 
 #define DEBUG_USBH_ALLOCPIPE_DEFAULT                        (0)

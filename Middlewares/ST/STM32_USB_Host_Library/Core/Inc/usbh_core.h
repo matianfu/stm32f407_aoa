@@ -205,8 +205,9 @@ void                 USBH_LL_IncTimer     (USBH_HandleTypeDef *phost);
 
 
 void USBH_DevState_Reset(USBH_HandleTypeDef *phost);
-int USBH_DevState_IsConnected(USBH_HandleTypeDef *phost);
-int USBH_DevState_IsAttached(USBH_HandleTypeDef *phost);
+
+uint32_t USBH_LL_Attached(USBH_HandleTypeDef *phost);
+uint32_t USBH_LL_Connected(USBH_HandleTypeDef *phost);
 
 
 #endif /* __CORE_H */

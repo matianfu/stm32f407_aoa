@@ -145,54 +145,5 @@ void hc_helper_sumbit_request(void)
   }
 }
 
-void HCD_DevState_Reset(HCD_HandleTypeDef *hhcd)
-{
-  USBH_PutMessage("DevState: reset");
-  hhcd->DevState.value = 0;
-}
-
-int HCD_DevState_IsConnected(HCD_HandleTypeDef *hhcd)
-{
-  return hhcd->DevState.state.connected ? 1 : 0;
-}
-
-int HCD_DevState_IsAttached(HCD_HandleTypeDef *hhcd)
-{
-  return hhcd->DevState.state.attached ? 1 : 0;
-}
-
-void HCD_DevState_Task(HCD_HandleTypeDef *hhcd)
-{
-  USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
-
-  hhcd->DevState.state.debounce = (hhcd->DevState.state.debounce << 1);
-
-  if (USBx_HPRT0 & USB_OTG_HPRT_PCSTS)
-  {
-    hhcd->DevState.state.debounce |= 0x0001;
-  }
-  else
-  {
-    hhcd->DevState.state.debounce &= ~(0x0001);
-  }
-
-  if (hhcd->DevState.state.connected == 0)
-  {
-    if (hhcd->DevState.state.debounce == 0xFFFF)
-    {
-      USBH_PutMessage("DevState: connected.");
-      hhcd->DevState.state.connected = 1;
-    }
-  }
-  else
-  {
-    if (hhcd->DevState.state.debounce == 0x0000)
-    {
-      USBH_PutMessage("DevState: disconnected.");
-      hhcd->DevState.state.connected = 0;
-    }
-  }
-}
-
 
 

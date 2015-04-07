@@ -399,7 +399,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   uint8_t idx = 0, j;
 
   if (mapped_port_state(phost) == PORT_UP) {
-    if (!USBH_DevState_IsAttached(phost))
+    if (!USBH_LL_Attached(phost))
     {
 #ifdef CONFIG_USBH_SYSRESET_AFTER_DISCONNECT
       NVIC_SystemReset();
@@ -411,7 +411,7 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
   switch (phost->gState)
   {
   case HOST_IDLE:
-    if (USBH_DevState_IsConnected(phost))
+    if (phost->device.is_connected)
     {
       /* Wait for 200 ms after connection */
       phost->gState = HOST_DEV_WAIT_FOR_ATTACHMENT;
@@ -426,25 +426,28 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     break;
 
   case HOST_DEV_WAIT_FOR_ATTACHMENT:
-    if (!USBH_DevState_IsConnected(phost))
+    if (!phost->device.is_connected)
     {
-      USBH_DevState_Reset(phost);
+      // USBH_DevState_Reset(phost);
+      phost->device.is_connected = 0;
       phost->gState = HOST_IDLE;
     }
-    else if (USBH_DevState_IsAttached(phost))
+    else if (USBH_LL_Attached(phost))
     {
       phost->gState = HOST_DEV_ATTACHED;
     }
     else if (HAL_GetTick() - phost->gStateTimer > 500) {
-      USBH_DevState_Reset(phost);
+      // USBH_DevState_Reset(phost);
+      phost->device.is_connected = 0;
       phost->gState = HOST_IDLE;
     }
     break;
 
   case HOST_DEV_ATTACHED:
-    if (!USBH_DevState_IsConnected(phost))
+    if (!phost->device.is_connected)
     {
-      USBH_DevState_Reset(phost);
+      // USBH_DevState_Reset(phost);
+      phost->device.is_connected = 0;
       phost->gState = HOST_IDLE;
     }
 
@@ -686,7 +689,8 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
     /**
      * force new connect detection
      */
-    USBH_DevState_Reset(phost);
+    // USBH_DevState_Reset(phost);
+    phost->device.is_connected = 0;
     phost->gState = HOST_IDLE;
     break;
 

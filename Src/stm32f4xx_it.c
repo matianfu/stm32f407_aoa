@@ -70,7 +70,7 @@ void OTG_FS_IRQHandler(void)
 }
 
 extern void uart_ll_print(void);
-extern void USBH_HCD_DevStateTask(void);
+extern void USBH_DebounceTask(void);
 
 /**
 * @brief This function handles System tick timer.
@@ -79,8 +79,8 @@ void SysTick_Handler(void)
 {
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
-//   uart_ll_print();
-  USBH_HCD_DevStateTask();
+  uart_ll_print();
+  USBH_DebounceTask();
 }
 
 /**
