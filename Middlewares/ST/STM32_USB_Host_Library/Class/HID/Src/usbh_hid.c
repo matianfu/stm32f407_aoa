@@ -49,13 +49,13 @@
 static void suppress_in_pipe_debug_print(uint8_t pipenum)
 {
 	debug_hal_hcd_hc_submitrequest_print = 0;
-	debug_hc_hcintx_mask[pipenum] = 0;
+	DebugConfig.channel_hcintx_mask[pipenum] = 0;
 }
 
 static void unsupress_in_pipe_debug_print(uint8_t pipenum)
 {
   debug_hal_hcd_hc_submitrequest_print = DEBUG_HAL_HCD_HC_SUBMITREQUEST_DEFAULT;
-  debug_hc_hcintx_mask[pipenum] = DEBUG_HC_HCINTX_MASK_DEFAULT;
+  DebugConfig.channel_hcintx_mask[pipenum] = DebugConfig.channel_hcintx_default;
 }
 
 extern int hid_report_raw_event(struct hid_device *hid, int type, uint8_t *data, int size);

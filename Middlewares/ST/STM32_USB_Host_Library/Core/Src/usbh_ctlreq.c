@@ -889,8 +889,19 @@ static USBH_StatusTypeDef USBH_HandleControl (USBH_HandleTypeDef *phost)
     {
       phost->pUser(phost, HOST_USER_UNRECOVERED_ERROR);
       phost->Control.errorcount = 0;
+
+      USBH_ErrLog("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
       USBH_ErrLog("Control error");
-      phost->requestCoreReset = 1;
+
+      if (DebugConfig.dont_request_core_reset_after_control_error)
+      {
+
+      }
+      else
+      {
+        phost->requestCoreReset = 1;
+      }
+
       status = USBH_FAIL;
     }
     break;

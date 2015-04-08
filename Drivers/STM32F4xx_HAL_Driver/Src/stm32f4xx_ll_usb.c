@@ -1685,6 +1685,8 @@ HAL_StatusTypeDef USB_HC_Halt(USB_OTG_GlobalTypeDef *USBx , uint8_t hc_num)
 {
   uint32_t count = 0;
 
+  USBH_PutMessage("USBH_HC_Halt");
+
   /* Check for space in the request queue to issue the halt. */
   // if (((USBx_HC(hc_num)->HCCHAR) & (HCCHAR_CTRL << 18)) || ((USBx_HC(hc_num)->HCCHAR) & (HCCHAR_BULK << 18)))
   if ((((USBx_HC(hc_num)->HCCHAR) & USB_OTG_HCCHAR_EPTYP) == (HCCHAR_CTRL << 18)) ||
@@ -1769,7 +1771,7 @@ HAL_StatusTypeDef USB_DoPing(USB_OTG_GlobalTypeDef *USBx , uint8_t ch_num)
 HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
 {
   uint8_t i;
-  uint32_t count = 0;
+  volatile uint32_t count;
   uint32_t value;
   
   USB_DisableGlobalInt(USBx);
@@ -1786,7 +1788,7 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
     value |=  USB_OTG_HCCHAR_CHDIS;
     value &= ~USB_OTG_HCCHAR_CHENA;
 
-    if (DebugConfig.no_clean_after_port_down) {
+    if (DebugConfig.malicious_attack_channel_clean_up) {
       value &= ~USB_OTG_HCCHAR_EPDIR;
     }
     USBx_HC(i)->HCCHAR = value;
@@ -1801,15 +1803,17 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
     value |= USB_OTG_HCCHAR_CHDIS;
     value |= USB_OTG_HCCHAR_CHENA;  
     
-    if (DebugConfig.no_clean_after_port_down) {
+    if (DebugConfig.malicious_attack_channel_clean_up) {
       value &= ~USB_OTG_HCCHAR_EPDIR;
     }
 
 
     USBx_HC(i)->HCCHAR = value;
+
+    count = 0;
     do 
     {
-      if (++count > 1000) 
+      if (++count > 10000)
       {
         USBH_PutMessage("!!! USB_StopHost Halt Channel Timeout");
         break;

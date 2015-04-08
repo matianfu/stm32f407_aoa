@@ -16,23 +16,23 @@
 
 
 // uint32_t debug_hc_haint_mask = 0;                       /** init as none enabled **/
-uint32_t debug_hc_hcintx_mask[16] = {
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT,
-    DEBUG_HC_HCINTX_MASK_DEFAULT};                      /** init as none enabled **/
+//uint32_t debug_hc_hcintx_mask[16] = {
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT,
+//    DEBUG_HC_HCINTX_MASK_DEFAULT};                      /** init as none enabled **/
 
 static struct hcint_t hcint[16];
 static struct hcint_t hcint_last = {0};
@@ -58,7 +58,7 @@ void hc_helper_prepare_reports(HCD_HandleTypeDef *_hhcd, uint32_t _interrupt)
   {
     if (interrupt & (1 << i))
     {
-      hc_report_channel[i] = (debug_hc_hcintx_mask[i] & (USBx_HC(i)->HCINT));
+      hc_report_channel[i] = (DebugConfig.channel_hcintx_mask[i] & (USBx_HC(i)->HCINT));
     }
     else {
       hc_report_channel[i] = 0;

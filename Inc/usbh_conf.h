@@ -100,9 +100,11 @@
  /* DEBUG macros */  
 
 #if (USBH_DEBUG_LEVEL > 0)
-#define  USBH_UsrLog(...)	printf("%08u  ", (unsigned int)HAL_GetTick());\
+#define  USBH_UsrLog(...)	  printf("%08u  ", (unsigned int)HAL_GetTick());\
  	 	 	 	 	 	 	printf(__VA_ARGS__);\
  	 	 	 	 	 	 	printf(NEW_LINE);
+
+
 #else
 #define USBH_UsrLog(...)   
 #endif 

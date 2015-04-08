@@ -664,8 +664,14 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
      * Do clean up here (rather than in hcd irq) make
      * usb core unstable.
      */
-    if (DebugConfig.no_clean_after_port_down)
+    if (DebugConfig.do_nothing_after_disconnect)
     {
+    }
+    else if (DebugConfig.do_only_disable_global_int_after_disconnect)
+    {
+      // TODO, but seems meaningless
+    }
+    else {
       USBH_LL_Stop(phost);
     }
 
