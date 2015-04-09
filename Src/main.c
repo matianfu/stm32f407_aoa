@@ -43,6 +43,8 @@
 #include "kinput.h"
 #include "hid.h"
 
+#include "version.h"
+
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN 0 */
@@ -65,9 +67,6 @@ static char world[] = "Copyright 2015 Actnova, Inc.";
 int main(void)
 {
 
-#ifdef GENSTR_GIT_HASH
-char * genstr_git_hash = GENSTR_GIT_HASH;
-#endif
   /* USER CODE BEGIN 1 */
 #ifdef SEMIHOSTING
 	initialise_monitor_handles();
@@ -101,9 +100,7 @@ char * genstr_git_hash = GENSTR_GIT_HASH;
   printf("%s" NEW_LINE, hello);
   printf("%s" NEW_LINE, world);
 
-#ifdef GENSTR_GIT_HASH
-  printf("Source Git Hash: %s" NEW_LINE, genstr_git_hash);
-#endif
+
 
   MX_USART3_UART_Init();
   MX_USB_HOST_Init();

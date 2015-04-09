@@ -100,6 +100,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Inc/usbh_conf.h</locationURI>
 		</link>
 		<link>
+			<name>Inc/version.h</name>
+			<type>1</type>
+			<locationURI>/home/ma/stm32/stm32f407_aoa/Inc/version.h</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/ST</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>

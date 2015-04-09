@@ -3,6 +3,7 @@
 #include "usbh_core.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
+#include "version.h"
 
 /*
  * buffers for PRINT REG macros
@@ -1504,6 +1505,10 @@ int usb_host_cmd(const char* cmd)
       printf(NEW_LINE "<< CHANNEL %d >>" NEW_LINE, i);
       print_usb_channel_registers(i);
     }
+  }
+  else if (0 == strcmp(cmd, "version"))
+  {
+    PrintGitVersionControl();
   }
   else
   {
