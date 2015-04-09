@@ -1,0 +1,6 @@
+.PHONY: genstr_git
+
+genstr_git:
+	$(eval GENSTR_GIT_HASH = -DGENSTR_GIT_HASH="\"$(shell git rev-parse HEAD)\"")
+	# $$GENSTR_GIT_HASH is ${GENSTR_GIT_HASH}
+	

@@ -59,8 +59,8 @@ void MX_USB_HOST_Process(void);
 extern void initialise_monitor_handles(void);
 #endif
 
-static char hello[] = "================ System Starts ================" NEW_LINE;
-static char world[] = "Copyright 2015 Actnova, Inc." NEW_LINE;
+static char hello[] = "================ System Starts ================";
+static char world[] = "Copyright 2015 Actnova, Inc.";
 
 int main(void)
 {
@@ -102,7 +102,7 @@ char * genstr_git_hash = GENSTR_GIT_HASH;
   printf("%s" NEW_LINE, world);
 
 #ifdef GENSTR_GIT_HASH
-  printf("Git Hash: %s" NEW_LINE, genstr_git_hash);
+  printf("Source Git Hash: %s" NEW_LINE, genstr_git_hash);
 #endif
 
   MX_USART3_UART_Init();
