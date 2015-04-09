@@ -1,8 +1,12 @@
 .PHONY: genstr_git
 
 genstr_git:
+	$(eval GENSTR_GIT_CAUTHOR = -DGENSTR_GIT_CAUTHER="\"$(shell git log -1 --format='%cn (%ce)')\"")
+	# GENSTR_GIT_CAUTHOR = ${GENSTR_GIT_CAUTHOR}
+	$(eval GENSTR_GIT_CDATE = -DGENSTR_GIT_CDATE="\"$(shell git log -1 --format='%cd')\"")
+	# GENSTR_GIT_CDATE = ${GENSTR_GIT_CDATE}
 	$(eval GENSTR_GIT_BRANCH = -DGENSTR_GIT_BRANCH="\"$(shell git rev-parse --abbrev-ref HEAD)\"")
-	# GENSTR_GIT_BRANCH is ${GENSTR_GIT_BRANCH}
+	# GENSTR_GIT_BRANCH = ${GENSTR_GIT_BRANCH}
 	$(eval GENSTR_GIT_HASH = -DGENSTR_GIT_HASH="\"$(shell git rev-parse HEAD)\"")
-	# GENSTR_GIT_HASH is ${GENSTR_GIT_HASH}
+	# GENSTR_GIT_HASH = ${GENSTR_GIT_HASH}
 	
