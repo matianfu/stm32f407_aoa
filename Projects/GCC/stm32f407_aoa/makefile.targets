@@ -1,6 +1,8 @@
 .PHONY: genstr_git
 
 genstr_git:
+	$(eval GENSTR_GIT_BRANCH = -DGENSTR_GIT_BRANCH="\"$(shell git rev-parse --abbrev-ref HEAD)\"")
+	# GENSTR_GIT_BRANCH is ${GENSTR_GIT_BRANCH}
 	$(eval GENSTR_GIT_HASH = -DGENSTR_GIT_HASH="\"$(shell git rev-parse HEAD)\"")
-	# $$GENSTR_GIT_HASH is ${GENSTR_GIT_HASH}
+	# GENSTR_GIT_HASH is ${GENSTR_GIT_HASH}
 	
