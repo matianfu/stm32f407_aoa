@@ -45,35 +45,33 @@
 #define USB_ACCESSORY_AUDIO_PRODUCT_ID     	0x2D04
 #define USB_ACCESSORY_AUDIO_ADB_PRODUCT_ID 	0x2D05
 
-#define ACCESSORY_STRING_MANUFACTURER   	0
-#define ACCESSORY_STRING_MODEL          	1
-#define ACCESSORY_STRING_DESCRIPTION    	2
-#define ACCESSORY_STRING_VERSION        	3
-#define ACCESSORY_STRING_URI            	4
-#define ACCESSORY_STRING_SERIAL         	5
+#define ACCESSORY_STRING_MANUFACTURER   	  0
+#define ACCESSORY_STRING_MODEL          	  1
+#define ACCESSORY_STRING_DESCRIPTION    	  2
+#define ACCESSORY_STRING_VERSION        	  3
+#define ACCESSORY_STRING_URI            	  4
+#define ACCESSORY_STRING_SERIAL         	  5
 
 //AOA 1.0
-#define ACCESSORY_GET_PROTOCOL          	51
-#define ACCESSORY_SEND_STRING           	52
-#define ACCESSORY_START                 	53
+#define ACCESSORY_GET_PROTOCOL          	  51
+#define ACCESSORY_SEND_STRING           	  52
+#define ACCESSORY_START                 	  53
 
 //AOA 2.0
-#define ACCESSORY_REGISTER_HID          	54
-#define ACCESSORY_UNREGISTER_HID        	55
-#define ACCESSORY_SET_HID_REPORT_DESC   	56
-#define ACCESSORY_SEND_HID_EVENT        	57
-#define ACCESSORY_SET_AUDIO_MODE        	58
+#define ACCESSORY_REGISTER_HID          	  54
+#define ACCESSORY_UNREGISTER_HID        	  55
+#define ACCESSORY_SET_HID_REPORT_DESC   	  56
+#define ACCESSORY_SEND_HID_EVENT        	  57
+#define ACCESSORY_SET_AUDIO_MODE        	  58
 
-#define USBH_ADK_DATA_SIZE					      64
-#define USBH_ADK_NAK_RETRY_LIMIT 			    1
-
-//added by fan
+#define USBH_AOA_DATA_SIZE					        64
+#define USBH_AOA_NAK_RETRY_LIMIT 			      1
 
 /*
  * This is interface class
  */
-#define USB_ADK_CLASS                   	0xff
-#define AOA_CODE							            0XFF
+#define USB_AOA_CLASS                   	  0xFF
+
 /**
  * @}
  */
@@ -129,14 +127,17 @@ typedef enum
 
 typedef enum
 {
-  AOA_SEND_DATA = 0, AOA_SEND_DATA_WAIT,
+  AOA_SEND_IDLE = 0, AOA_SEND_DATA, AOA_SEND_DATA_WAIT,
 } AOA_OutStateTypeDef;
+
+typedef void (*AOA_RecvCallback)(USBH_HandleTypeDef *phost, uint8_t * buf, int size);
+typedef void (*AOA_SendDoneCallback)(USBH_HandleTypeDef *phost, uint8_t * buf, int size);
 
 /* Structure for ADK process */
 typedef struct
 {
-  uint8_t inbuff[USBH_ADK_DATA_SIZE];
-  uint8_t outbuff[USBH_ADK_DATA_SIZE];
+  uint8_t inbuff[USBH_AOA_DATA_SIZE];
+  uint8_t* outbuff;
 
   uint16_t inSize;
   uint16_t outSize;
@@ -152,7 +153,11 @@ typedef struct
   uint16_t BulkInEpSize;
   uint16_t BulkOutEpSize;
 
+  AOA_RecvCallback  recvCallback;
+  AOA_SendDoneCallback sendDoneCallback;
+
 } AOA_HandleTypeDef;
+
 /**
  * @}
  */
@@ -160,12 +165,11 @@ typedef struct
 /** @defgroup USBH_ADK_CORE_Exported_FunctionsPrototype
  * @{
  */
-void USBH_ADK_Init(uint8_t* manufacture, uint8_t* model, uint8_t* description,
-    uint8_t* version, uint8_t* uri, uint8_t* serial);
-USBH_StatusTypeDef USBH_ADK_write(USBH_HandleTypeDef *phost, uint8_t *buff,
-    uint16_t len);
-uint16_t USBH_ADK_read(USBH_HandleTypeDef *phost, uint8_t *buff, uint16_t len);
-// ADK_State USBH_ADK_getStatus(void);
+
+USBH_StatusTypeDef AOA_RegisterCallbacks(USBH_HandleTypeDef *phost, AOA_RecvCallback recvCB,
+    AOA_SendDoneCallback sendDoneCB);
+USBH_StatusTypeDef AOA_UnregisterCallbacks(USBH_HandleTypeDef *phost);
+USBH_StatusTypeDef AOA_SendData(USBH_HandleTypeDef *phost, uint8_t* buff, int size);
 
 AOA_HandShakeResultTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost);
 

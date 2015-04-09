@@ -59,11 +59,15 @@ void MX_USB_HOST_Process(void);
 extern void initialise_monitor_handles(void);
 #endif
 
-static char hello[] = NEW_LINE NEW_LINE "================ System Starts ================" ;
+static char hello[] = "================ System Starts ================" NEW_LINE;
+static char world[] = "Copyright 2015 Actnova, Inc." NEW_LINE;
 
 int main(void)
 {
 
+#ifdef GENSTR_GIT_HASH
+char * genstr_git_hash = GENSTR_GIT_HASH;
+#endif
   /* USER CODE BEGIN 1 */
 #ifdef SEMIHOSTING
 	initialise_monitor_handles();
@@ -94,8 +98,12 @@ int main(void)
 
   setbuf(stdout, NULL);
   Command_Init();
-  printf("%s", hello);
+  printf("%s" NEW_LINE, hello);
+  printf("%s" NEW_LINE, world);
 
+#ifdef GENSTR_GIT_HASH
+  printf("Git Hash: %s" NEW_LINE, genstr_git_hash);
+#endif
 
   MX_USART3_UART_Init();
   MX_USB_HOST_Init();

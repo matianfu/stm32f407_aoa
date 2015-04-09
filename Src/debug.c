@@ -4,9 +4,10 @@ char __DEBUG_LL_PRINT_BUF[256];
 
 DebugConfigTypeDef DebugConfig = {
 
-    .print_hcd_event = 1,
+    .print_hcd_event = 0,
     .print_debouncer_event = 1,
     .print_device_descriptor = 0,
+    .print_aoa_recvdata = 1,
 
     .handle_control_level = 0,
 

@@ -682,6 +682,12 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
       reset_core = 1;
     }
     
+    /** this should be called before active class unset **/
+    if(phost->pUser != NULL)
+    {
+      phost->pUser(phost, HOST_USER_DISCONNECTION);
+    }
+
     /* Re-Initilaize Host for new Enumeration */
     if(phost->pActiveClass != NULL)
     {
@@ -697,10 +703,7 @@ USBH_StatusTypeDef  USBH_Process(USBH_HandleTypeDef *phost)
 
     DeInitStateMachine(phost);
 
-    if(phost->pUser != NULL)
-    {
-      phost->pUser(phost, HOST_USER_DISCONNECTION);
-    }
+
 
     /**
      * for debug

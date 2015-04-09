@@ -194,9 +194,6 @@ typedef enum
 
 #define POSITION_VAL(VAL)     (__CLZ(__RBIT(VAL))) 
 
-#ifndef	NEW_LINE
-#define NEW_LINE			  "\r\n"
-#endif
 
 
 /**

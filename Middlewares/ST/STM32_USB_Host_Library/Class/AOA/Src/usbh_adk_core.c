@@ -35,7 +35,7 @@
 #include "usbh_core_helper.h"
 
 /**
- * This functions are for AOA Class
+ * These functions are for AOA Class
  */
 static USBH_StatusTypeDef USBH_AOA_InterfaceInit(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef USBH_AOA_InterfaceDeInit(USBH_HandleTypeDef *phost);
@@ -58,7 +58,7 @@ static __ALIGN_BEGIN AOA_HandleTypeDef AOA_Handle_2 __ALIGN_END;
 USBH_ClassTypeDef USBH_AOA_CLASS_1 =
 {
   .Name = "AOA",
-  .ClassCode = USB_ADK_CLASS,
+  .ClassCode = USB_AOA_CLASS,
   .Init = USBH_AOA_InterfaceInit,
   .DeInit = USBH_AOA_InterfaceDeInit,
   .Requests = USBH_AOA_ClassRequest,
@@ -70,7 +70,7 @@ USBH_ClassTypeDef USBH_AOA_CLASS_1 =
 USBH_ClassTypeDef USBH_AOA_CLASS_2 =
 {
   .Name = "AOA",
-  .ClassCode = USB_ADK_CLASS,
+  .ClassCode = USB_AOA_CLASS,
   .Init = USBH_AOA_InterfaceInit,
   .DeInit = USBH_AOA_InterfaceDeInit,
   .Requests = USBH_AOA_ClassRequest,
@@ -175,7 +175,7 @@ static USBH_StatusTypeDef USBH_AOA_InterfaceInit(USBH_HandleTypeDef * phost)
     }
 
     aoa->inState = AOA_RECV_DATA;
-    aoa->outState = AOA_SEND_DATA;
+    aoa->outState = AOA_SEND_IDLE;
     aoa->inSize = 0;
     aoa->outSize = 0;
 
@@ -231,6 +231,14 @@ static USBH_StatusTypeDef USBH_AOA_InterfaceDeInit(USBH_HandleTypeDef *phost)
  */
 static USBH_StatusTypeDef USBH_AOA_ClassRequest(USBH_HandleTypeDef *phost)
 {
+  /**
+   * don't know why but in official hid example, this callback
+   * is called by class driver, rather than usb core.
+   */
+  if (phost->pUser)
+  {
+    phost->pUser(phost, HOST_USER_CLASS_ACTIVE);
+  }
   return USBH_OK;
 }
 
@@ -243,7 +251,7 @@ static USBH_StatusTypeDef USBH_AOA_InHandle(USBH_HandleTypeDef *phost)
   switch (aoa->inState)
   {
   case AOA_RECV_DATA:
-    USBH_BulkReceiveData(phost, aoa->inbuff, USBH_ADK_DATA_SIZE,
+    USBH_BulkReceiveData(phost, aoa->inbuff, USBH_AOA_DATA_SIZE,
         aoa->hc_num_in);
 
     aoa->inState = AOA_RECV_DATA_WAIT;
@@ -256,15 +264,23 @@ static USBH_StatusTypeDef USBH_AOA_InHandle(USBH_HandleTypeDef *phost)
       size = USBH_LL_GetLastXferSize(phost, aoa->hc_num_in);
 
       if (size > 0) {
-        if (printable(aoa->inbuff, size)) {
-          aoa->inbuff[size] = '\0';
-          USBH_UsrLog("AOA: in %u bytes, \"%s\"", (unsigned int)size, aoa->inbuff);
+
+        if (DebugConfig.print_aoa_recvdata)
+        {
+          if (printable(aoa->inbuff, size)) {
+            aoa->inbuff[size] = '\0';
+            USBH_UsrLog("AOA: in %u bytes, \"%s\"", (unsigned int)size, aoa->inbuff);
+          }
+          else {
+            USBH_UsrLog("AOA: in %u bytes, %s", (unsigned int)size, bytes2bin(aoa->inbuff, size));
+          }
         }
-        else {
-          USBH_UsrLog("AOA: in %u bytes, %s", (unsigned int)size, bytes2bin(aoa->inbuff, size));
+
+        if (aoa->recvCallback)
+        {
+          aoa->recvCallback(phost, aoa->inbuff, size);
         }
-        memmove(aoa->outbuff, aoa->inbuff, size);
-        aoa->outSize = size;
+
         aoa->inState = AOA_RECV_DATA;
       }
     }
@@ -281,13 +297,12 @@ static USBH_StatusTypeDef USBH_AOA_OutHandle(USBH_HandleTypeDef *phost)
 
   switch (aoa->outState)
   {
+  case AOA_SEND_IDLE:
+    break;
   case AOA_SEND_DATA:
-    if (aoa->outSize > 0)
-    {
       USBH_BulkSendData(phost, aoa->outbuff, aoa->outSize,
           aoa->hc_num_out, 0);
       aoa->outState = AOA_SEND_DATA_WAIT;
-    }
     break;
   case AOA_SEND_DATA_WAIT:
     URB_Status = USBH_LL_GetURBState(phost, aoa->hc_num_out);
@@ -295,20 +310,46 @@ static USBH_StatusTypeDef USBH_AOA_OutHandle(USBH_HandleTypeDef *phost)
     {
     case USBH_URB_DONE:
       aoa->outbuff[aoa->outSize] = '\0';
-      USBH_UsrLog("AOA: out %d bytes, \"%s\"", aoa->outSize, aoa->outbuff)
-      ;
-      aoa->outSize = 0;
-      aoa->outState = AOA_SEND_DATA;
-      break;
-    case USBH_URB_NOTREADY:
+      DEBUG_LOG("AOA: out %d bytes, \"%s\"", aoa->outSize, aoa->outbuff);
 
+      if (aoa->sendDoneCallback)
+      {
+        aoa->sendDoneCallback(phost, aoa->outbuff, aoa->outSize);
+      }
+
+      aoa->outbuff = NULL;
+      aoa->outSize = 0;
+      aoa->outState = AOA_SEND_IDLE;
+      break;
+
+    case USBH_URB_NOTREADY:
+      DEBUG_LOG("AOA: OUT URB_NOTREADY. Retry");
       aoa->outState = AOA_SEND_DATA;
       break;
+
     case USBH_URB_STALL:
-      // TODO
+      // TODO These codes are not tested
+      /* Issue Clear Feature */
+      if (USBH_ClrFeature(phost, aoa->BulkOutEp) == USBH_OK)
+      {
+        aoa->outState = AOA_SEND_DATA;
+        DEBUG_LOG("AOA: OUT URB_STALL. Clear feature on EP. Retry.");
+      }
       break;
+
     case USBH_URB_ERROR:
-      // TODO
+      aoa->outbuff[aoa->outSize] = '\0';
+      DEBUG_LOG("AOA: SEND Fail");
+
+      if (aoa->sendDoneCallback)
+      {
+        aoa->sendDoneCallback(phost, aoa->outbuff, -1);
+      }
+
+      aoa->outbuff = NULL;
+      aoa->outSize = 0;
+      aoa->outState = AOA_SEND_IDLE;
+
       break;
     default:
       break;
@@ -592,104 +633,62 @@ AOA_HandShakeResultTypeDef USBH_AOA_Handshake(USBH_HandleTypeDef * phost)
   return AOA_HANDSHAKE_BUSY;
 }
 
-/**
- * @brief  USBH_ADK_write
- *         Send data to Android device.
- * @param  pdev: Selected device
- * @param  buff: send data
- * @param  len : send data length
- * @retval USBH_StatusTypeDef
- */
-USBH_StatusTypeDef USBH_ADK_write(USBH_HandleTypeDef *phost, uint8_t *buff,
-    uint16_t len)
+USBH_StatusTypeDef AOA_RegisterCallbacks(USBH_HandleTypeDef *phost,
+    AOA_RecvCallback recvCB, AOA_SendDoneCallback sendDoneCB)
 {
-  AOA_HandleTypeDef* aoa = phost->pActiveClass->pData;
-  memcpy(aoa->outbuff, buff, len);
-  aoa->outSize = len;
+  AOA_HandleTypeDef* aoa;
+
+  if (phost == NULL || phost->pActiveClass == NULL
+      || phost->pActiveClass->pData == NULL)
+    return USBH_FAIL;
+
+  aoa = phost->pActiveClass->pData;
+
+  aoa->recvCallback = recvCB;
+  aoa->sendDoneCallback = sendDoneCB;
+
   return USBH_OK;
 }
 
-USBH_StatusTypeDef USBH_ADK_send(USBH_HandleTypeDef *phost, uint8_t *buff,
-    uint16_t len)
+USBH_StatusTypeDef AOA_UnregisterCallbacks(USBH_HandleTypeDef *phost)
 {
-//	URB_STATE URB_Status;
-//	HC_STATUS HCD_Status;
-//	uint32_t HCD_GXferCnt;
-//
-//	URB_Status = HCD_GetURB_State(pdev , aoa->hc_num_out);
-//	HCD_Status = HCD_GetHCState(pdev , aoa->hc_num_out);
-//	HCD_GXferCnt = HCD_GetXferCnt(pdev , aoa->hc_num_out);
+  AOA_HandleTypeDef* aoa;
 
-//  if (len > 0)
-//  {
-//    USBH_BulkSendData(phost, buff, len, aoa->hc_num_out, 1);
-////		aoa->outSize = 0;
-//    aoa->state = ADK_GET_DATA;
-//  }
+  if (phost == NULL || phost->pActiveClass == NULL
+      || phost->pActiveClass->pData == NULL)
+    return USBH_FAIL;
+
+  aoa = phost->pActiveClass->pData;
+
+  aoa->recvCallback = NULL;
+  aoa->sendDoneCallback = NULL;
+
   return USBH_OK;
 }
 
-/**
- * @brief  USBH_ADK_read
- *         Receive data from  Android device.
- * @param  pdev: Selected device
- * @param  buff: receive data
- * @param  len : receive data buffer length
- * @retval received data length
- */
-# if 0
-uint16_t USBH_ADK_read(USB_OTG_CORE_HANDLE *pdev, uint8_t *buff, uint16_t len)
+USBH_StatusTypeDef AOA_SendData(USBH_HandleTypeDef *phost, uint8_t* buff, int size)
 {
-  uint32_t xfercount;
-  xfercount = HCD_GetXferCnt(pdev, aoa->hc_num_in);
-  if( xfercount > 0 )
-  {
-    memcpy(buff, aoa->inbuff, len);
-    aoa->inSize = 0;
-  }
-  return (uint16_t)xfercount;
+  AOA_HandleTypeDef* aoa;
+
+  if (phost == NULL ||
+      phost->pActiveClass == NULL ||
+      phost->pActiveClass->pData == NULL ||
+      buff == NULL ||
+      (((uint32_t)buff) % 4) != 0 ||      /* alignment */
+      size <= 0 ||
+      size > 64)
+    return USBH_FAIL;
+
+  aoa = phost->pActiveClass->pData;
+
+  if (aoa->outState != AOA_SEND_IDLE)
+    return USBH_BUSY;
+
+  aoa->outbuff = buff;
+  aoa->outSize = size;
+  aoa->outState = AOA_SEND_DATA;
+
+  return USBH_OK;
 }
 
-#else 
-uint16_t USBH_ADK_read(USBH_HandleTypeDef *phost, uint8_t *buff, uint16_t len)
-{
-  AOA_HandleTypeDef* aoa = phost->pActiveClass->pData;
-  uint32_t xfercount;
-  uint32_t l = 0;
 
-  xfercount = USBH_LL_GetLastXferSize(phost, aoa->hc_num_in); //     HCD_GetXferCnt(pdev, aoa->hc_num_in);
-  if (xfercount >= len)
-  {
-
-    l = len;
-    memcpy(buff, aoa->inbuff, len);
-    aoa->inSize = 0;
-  }
-  else if (xfercount != 0)
-  {
-    l = xfercount;
-    memcpy(buff, aoa->inbuff, xfercount);
-    aoa->inSize = 0;
-  }
-  return (uint16_t) l;
-}
-
-#endif
-
-//added by fan
-
-//void USBH_ADK_ClearCount(USBH_HandleTypeDef *phost)
-//{
-//	HCD_ClearXferCnt(phost, aoa->hc_num_in);
-//}
-
-/**
- * @brief  USBH_ADK_getStatus
- *         Return aoa->state
- * @param  None
- * @retval aoa->state
- */
-//ADK_State USBH_ADK_getStatus(void)
-//{
-//  return aoa->state;
-//}

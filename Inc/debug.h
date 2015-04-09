@@ -3,8 +3,7 @@
 
 #include <stdint.h>
 
-#define  ASSERT(eval)                                       if ((!eval)) \
-  printf("assert fail:" " #eval " "@ %s, %s, %d\r\n",  __FILE__, __func__, __LINE__)
+
 
 /*
  * Do NVIC_SystemReset after usb disconnect
@@ -25,6 +24,7 @@ typedef struct {
   int print_hcd_event;
   int print_debouncer_event;
   int print_device_descriptor;
+  int print_aoa_recvdata;
 
   int handle_control_level;
 
@@ -72,9 +72,21 @@ void restore_debug_defaults(void);
 extern char __DEBUG_LL_PRINT_BUF[256];
 extern void USBH_PutMessage(const char* buf);
 
+#ifndef NEW_LINE
+#define NEW_LINE                "\r\n"
+#endif
+
+#define ASSERT(eval)            do { if ((!eval))                                       \
+                                printf("assert fail:" " #eval " "@ %s, %s, %d\r\n",     \
+                                __FILE__, __func__, __LINE__); } while (0)
+
 #define DEBUG_LL_LOG(...)       do { snprintf(__DEBUG_LL_PRINT_BUF, 255, __VA_ARGS__);  \
                                 __DEBUG_LL_PRINT_BUF[255] = '\0';                       \
                                 USBH_PutMessage(__DEBUG_LL_PRINT_BUF); } while (0)
+
+#define DEBUG_LOG(...)          do { printf("%08u  ", (unsigned int)HAL_GetTick());     \
+                                printf(__VA_ARGS__);                                    \
+                                printf(NEW_LINE); } while (0)
 
 #endif /* __DEBUG_H__ */
 

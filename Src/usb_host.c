@@ -69,17 +69,61 @@ static __ALIGN_BEGIN AOA_HandShakeDataTypeDef handshakeData __ALIGN_END =
 { .deviceInfo = &deviceInfo, };
 
 /*
+ * AOA callbacks
+ */
+static void AOA_Receive(USBH_HandleTypeDef *phost, uint8_t * buf, int size);
+static void AOA_SendDone(USBH_HandleTypeDef *phost, uint8_t * buf, int size);
+
+/*
 * user callbak declaration
 */ 
-static void USBH_UserProcess1  (USBH_HandleTypeDef *phost, uint8_t id);
+static void USBH_UserProcess_HS  (USBH_HandleTypeDef *phost, uint8_t id);
 // static void USBH_UserProcess2  (USBH_HandleTypeDef *phost, uint8_t id);
+
+static __ALIGN_BEGIN uint8_t aoa_outbuff[64] __ALIGN_END;
+static int aoa_out_size;
+static int send_retry;
+
+static void AOA_Receive(USBH_HandleTypeDef *phost, uint8_t * buff, int size)
+{
+  USBH_StatusTypeDef status;
+
+  memmove(aoa_outbuff, buff, size);
+  aoa_out_size = size;
+  status = AOA_SendData(phost, buff, size);
+
+  if (status == USBH_OK)
+  {
+    DEBUG_LOG("Send begin.");
+  }
+  if (status == USBH_BUSY)
+  {
+    send_retry = 5;
+  }
+}
+
+static void AOA_SendDone(USBH_HandleTypeDef *phost, uint8_t * buf, int size)
+{
+  if (size < 0)
+  {
+    DEBUG_LOG("Send Fail.");
+    send_retry = 3;
+  }
+  else
+  {
+    DEBUG_LOG("Send OK.");
+    send_retry = 0;
+  }
+}
+
+
 
 /* init function */				        
 void MX_USB_HOST_Init(void)
 {
 
   /* Init Host Library,Add Supported Class and Start the library*/
-  USBH_Init(&hUsbHostHS, USBH_UserProcess1, HOST_HS);
+  USBH_Init(&hUsbHostHS, USBH_UserProcess_HS, HOST_HS);
 
   // USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS);
   USBH_RegisterClass(&hUsbHostHS, USBH_HID_CLASS);
@@ -101,17 +145,14 @@ void MX_USB_HOST_Init(void)
 void MX_USB_HOST_Process() 
 {
   /* USB Host Background task */
-    USBH_ProcessEvent(&hUsbHostHS);
+  USBH_ProcessEvent(&hUsbHostHS);
     // USBH_Process(&hUsbHostFS);
 }
 
 /*
  * user callback definition
 */ 
-
-
-
-static void USBH_UserProcess1(USBH_HandleTypeDef *phost, uint8_t id)
+static void USBH_UserProcess_HS(USBH_HandleTypeDef *phost, uint8_t id)
 {
   AOA_HandShakeResultTypeDef r;
   /* USER CODE BEGIN 2 */
@@ -121,10 +162,14 @@ static void USBH_UserProcess1(USBH_HandleTypeDef *phost, uint8_t id)
     break;
 
   case HOST_USER_DISCONNECTION:
+
+    AOA_UnregisterCallbacks(phost);
     Appli_state = APPLICATION_DISCONNECT;
     break;
 
   case HOST_USER_CLASS_ACTIVE:
+
+    AOA_RegisterCallbacks(phost, AOA_Receive, AOA_SendDone);
     Appli_state = APPLICATION_READY;
     break;
 
@@ -169,7 +214,6 @@ static void USBH_UserProcess1(USBH_HandleTypeDef *phost, uint8_t id)
         break;
       case AOA_HANDSHAKE_ERROR:
         USBH_UsrLog("AOA Handshake fail, error")
-        ;
         Abort_state = ABORT_HANDLE_HANDSHAKE_DONE;
         break;
 

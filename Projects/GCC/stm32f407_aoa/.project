@@ -165,6 +165,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Src/usbh_conf.c</locationURI>
 		</link>
 		<link>
+			<name>Src/version.c</name>
+			<type>1</type>
+			<locationURI>/home/ma/stm32/stm32f407_aoa/Src/version.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/CMSIS/Device</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
