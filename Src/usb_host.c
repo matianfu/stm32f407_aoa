@@ -68,7 +68,34 @@ static __ALIGN_BEGIN AOA_DeviceInfoTypeDef deviceInfo __ALIGN_END
 static __ALIGN_BEGIN AOA_HandShakeDataTypeDef handshakeData __ALIGN_END =
 { .deviceInfo = &deviceInfo, };
 
-//AOAFunctionTypDef Function
+
+#define NUM_FUN   3
+AOAFunctionTypDef AOA_Fun[3] = {
+		{
+				"PING\r\n",
+				Fun_PingCallBack
+		},
+		{
+				"SCAN",
+				Fun_ScanCallBack
+		},
+		{
+				"CODE",
+				Fun_CodeCallBack
+		},
+		{
+				"BATVOL\r\n"
+				Fun_BatVolCallBack
+		},
+		{
+				"BATCAP\r\n",
+				Fun_BatCapCallBack
+		},
+		{
+				"BATPCT\r\n"
+
+		}
+};
 
 /*
  * AOA callbacks
@@ -102,6 +129,8 @@ static void AOA_Receive(USBH_HandleTypeDef *phost, uint8_t * buff, int size)
   {
     send_retry = 5;
   }
+
+  memcmp
 }
 
 static void AOA_SendDone(USBH_HandleTypeDef *phost, uint8_t * buf, int size)
