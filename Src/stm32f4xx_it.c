@@ -39,6 +39,8 @@
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_usart2_tx;
 extern DMA_HandleTypeDef hdma_usart2_rx;
+extern DMA_HandleTypeDef hdma_usart3_rx;
+extern DMA_HandleTypeDef hdma_usart3_tx;
 
 extern  TIM_HandleTypeDef htim2;
 
@@ -97,6 +99,22 @@ void DMA1_Stream5_IRQHandler(void) {
   HAL_DMA_IRQHandler(&hdma_usart2_rx);
 }
 
+/**
+* @brief This function handles DMA1 Stream1 global interrupt.
+*/
+void DMA1_Stream1_IRQHandler(void)
+{
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream1_IRQn);
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+}
+/**
+* @brief This function handles DMA1 Stream3 global interrupt.
+*/
+void DMA1_Stream3_IRQHandler(void)
+{
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream3_IRQn);
+  HAL_DMA_IRQHandler(&hdma_usart3_tx);
+}
 /**
 * @brief This function handles USB On The Go HS global interrupt.
 */
