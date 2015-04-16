@@ -100,6 +100,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Src/debug.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/debug.c</locationURI>
+		</link>
+		<link>
 			<name>Src/dma.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/dma.c</locationURI>
@@ -153,6 +158,11 @@
 			<name>Src/usbh_conf.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/usbh_conf.c</locationURI>
+		</link>
+		<link>
+			<name>Src/version.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/version.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/Device</name>
@@ -385,6 +395,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd_helper.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd_helper.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c</locationURI>
@@ -533,6 +548,11 @@
 			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core_helper.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core_helper.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ctlreq.c</name>
