@@ -49,6 +49,13 @@ typedef enum {
   APPLICATION_READY,
   APPLICATION_DISCONNECT,
 }ApplicationTypeDef;
+
+typedef void (*AOA_FunCallbace)(void);
+
+typedef struct{
+	uint8_t* cmd;
+	AOA_FunCallbace fun;
+}AOAFunctionTypDef;
 		
 void MX_USB_HOST_Init(void);
 void MX_USB_HOST_Process(void);

@@ -68,6 +68,8 @@ static __ALIGN_BEGIN AOA_DeviceInfoTypeDef deviceInfo __ALIGN_END
 static __ALIGN_BEGIN AOA_HandShakeDataTypeDef handshakeData __ALIGN_END =
 { .deviceInfo = &deviceInfo, };
 
+//AOAFunctionTypDef Function
+
 /*
  * AOA callbacks
  */
