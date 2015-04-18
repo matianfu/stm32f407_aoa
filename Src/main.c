@@ -42,7 +42,7 @@
 #include "gpio.h"
 #include "kinput.h"
 #include "hid.h"
-
+#include "scan.h"
 #include "version.h"
 
 /* Private variables ---------------------------------------------------------*/
@@ -92,7 +92,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_UART4_Init();
+//  MX_UART4_Init();
   MX_USART2_UART_Init();
 
   setbuf(stdout, NULL);
@@ -102,8 +102,9 @@ int main(void)
 
 
 
-  MX_USART3_UART_Init();
+
   MX_USB_HOST_Init();
+  Scanner_Init();
 
   /* USER CODE BEGIN 2 */
 
@@ -116,6 +117,7 @@ int main(void)
     uart_hl_print();
     Process_Command();
     MX_USB_HOST_Process();
+    Scanner_Handle();
   }
   /* USER CODE END 3 */
 

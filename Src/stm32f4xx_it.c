@@ -35,6 +35,7 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
+#include "scan.h"
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_usart2_tx;
@@ -83,6 +84,11 @@ void SysTick_Handler(void)
   HAL_SYSTICK_IRQHandler();
   uart_ll_print();
   USBH_DebounceTask();
+  if(scanner_infor.status==SCANNER_BUSY)
+  {
+  	scanner_infor.timeout++;
+  }
+
 }
 
 /**
