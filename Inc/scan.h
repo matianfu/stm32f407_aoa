@@ -3,6 +3,8 @@
 
 #include "stm32f4xx_hal.h"
 #define MAXIMUM_BARCODE_LENGTH 				(256)	/** CR/LF trailing included **/
+#define SCANNER_BUFF_SIZE               (256) // must be 256
+
 
 typedef struct {
 
@@ -34,6 +36,7 @@ void EnableScannerTrig(void);
 void DisableScannerTig(void);
 void Scanner_Handle(void);
 void Scanner_Handle(void);
+void restart_uart3_receive_dma(void);
 
 #endif
 

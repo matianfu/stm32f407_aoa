@@ -40,6 +40,7 @@
 #include "usbh_hid.h"
 #include "usbh_adk_core.h"
 #include "scan.h"
+#include "usart.h"
 
 typedef enum {
   ABORT_HANDLE_INIT,
@@ -153,6 +154,7 @@ static void Fun_ScanCallBack(USBH_HandleTypeDef *phost)
 		scanner_infor.timeout = 0;
 		scanner_infor.status = SCANNER_BUSY;
 		EnableScannerTrig();
+		restart_uart3_receive_dma();
 #endif
 	  if(USBH_OK != AOA_SendData(phost, ResOK, (sizeof(ResOK)/4+1)*4))
 	  {

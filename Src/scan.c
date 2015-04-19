@@ -70,7 +70,7 @@ void Scanner_Handle(void)
 	uint32_t Count ;
 	UART_HandleTypeDef* h = &huart3;
 
-#if 0
+#if 1
 	if(scanner_infor.status !=SCANNER_BUSY)
 		return;
 	if(scanner_infor.timeout>=3000)//3s
@@ -160,6 +160,24 @@ void Scanner_Handle(void)
 #endif
 }
 
+
+void restart_uart3_receive_dma(void)
+{
+	/** suspend, disable tc intr before clear EN bit **/
+	HAL_UART_DMAPause(&huart3);
+	__HAL_DMA_DISABLE_IT(huart3.hdmarx, DMA_IT_TC);
+	__HAL_DMA_DISABLE(huart3.hdmarx);	/** this clear DMA_SxCR_EN bit**/
+
+//		__HAL_DMA_SET_COUNTER(h->hdmarx, 256);
+	HAL_UART_Receive_DMA(&huart3, scan_buf, SCANNER_BUFF_SIZE);
+
+
+	/** clear tc flag and resume **/
+	__HAL_DMA_CLEAR_FLAG(huart3.hdmarx, __HAL_DMA_GET_TC_FLAG_INDEX(huart3.hdmarx));
+	__HAL_DMA_ENABLE(huart3.hdmarx);
+	__HAL_DMA_ENABLE_IT(huart3.hdmarx, DMA_IT_TC);
+	HAL_UART_DMAResume(&huart3);
+}
 
 /** tab is not included **/
 static bool isDisplayableChar(uint8_t chr) {
