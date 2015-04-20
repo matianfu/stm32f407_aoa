@@ -42,6 +42,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
+#include "usbh_def.h"
 
 typedef enum {
   APPLICATION_IDLE = 0,  
@@ -49,6 +50,19 @@ typedef enum {
   APPLICATION_READY,
   APPLICATION_DISCONNECT,
 }ApplicationTypeDef;
+
+typedef void (*AOA_FunCallbace)(USBH_HandleTypeDef *phost);
+
+typedef struct{
+	const char* cmd;
+	AOA_FunCallbace fun;
+}AOAFunctionTypDef;
+
+typedef struct{
+	uint16_t retry;
+	uint16_t len;
+	uint8_t temp[256];
+}RetryTypeDef;
 		
 void MX_USB_HOST_Init(void);
 void MX_USB_HOST_Process(void);

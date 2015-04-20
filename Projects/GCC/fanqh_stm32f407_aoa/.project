@@ -55,6 +55,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Inc/adc.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Inc/adc.h</locationURI>
+		</link>
+		<link>
 			<name>Inc/dma.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Inc/dma.h</locationURI>
@@ -63,6 +68,11 @@
 			<name>Inc/gpio.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Inc/gpio.h</locationURI>
+		</link>
+		<link>
+			<name>Inc/scan.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Inc/scan.h</locationURI>
 		</link>
 		<link>
 			<name>Inc/stm32f4xx_hal_conf.h</name>
@@ -100,6 +110,16 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Src/adc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/adc.c</locationURI>
+		</link>
+		<link>
+			<name>Src/debug.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/debug.c</locationURI>
+		</link>
+		<link>
 			<name>Src/dma.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/dma.c</locationURI>
@@ -113,6 +133,11 @@
 			<name>Src/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/main.c</locationURI>
+		</link>
+		<link>
+			<name>Src/scan.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/scan.c</locationURI>
 		</link>
 		<link>
 			<name>Src/stm32f4xx_it.c</name>
@@ -145,9 +170,19 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Src/usb_host.c</locationURI>
 		</link>
 		<link>
+			<name>Src/usb_host_helper.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/usb_host_helper.c</locationURI>
+		</link>
+		<link>
 			<name>Src/usbh_conf.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/usbh_conf.c</locationURI>
+		</link>
+		<link>
+			<name>Src/version.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/version.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/Device</name>
@@ -245,6 +280,16 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h</locationURI>
@@ -340,6 +385,16 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</locationURI>
@@ -378,6 +433,11 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd_helper.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_hcd_helper.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c</name>
@@ -528,6 +588,11 @@
 			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core_helper.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_core_helper.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_USB_Host_Library/Core/Src/usbh_ctlreq.c</name>

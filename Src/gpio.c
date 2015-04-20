@@ -35,7 +35,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "gpio.h"
+#include "stm32f4xx_it.h"
 /* USER CODE BEGIN 0 */
+
 
 /* USER CODE END 0 */
 
@@ -55,14 +57,16 @@
 */
 void MX_GPIO_Init(void)
 {
-
+#if 0
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
   __GPIOH_CLK_ENABLE();
   __GPIOA_CLK_ENABLE();
   __GPIOB_CLK_ENABLE();
+  __GPIOC_CLK_ENABLE();
   __GPIOD_CLK_ENABLE();
+
 
   /*Configure GPIO pin : PD8 */
   GPIO_InitStruct.Pin = GPIO_PIN_8;
@@ -76,6 +80,70 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
+#endif
+
+  VBUS_Switch_Gpio_Init();
+  Boost5V_Gpio_Init();
+
+}
+
+void VBUS_Switch_Gpio_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct;
+  /*Configure GPIO pin : PC3 */
+  VBUS_SWITCH_GPIO_CLK_ENABLE();
+  GPIO_InitStruct.Pin = VBUS_SWITCH_GPIO;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(VBUS_SWITCH_PORT, &GPIO_InitStruct);
+}
+
+void Enable_VUSB_Switch(void)
+{
+	HAL_GPIO_WritePin(VBUS_SWITCH_PORT, VBUS_SWITCH_GPIO, GPIO_PIN_SET);
+}
+void Disable_VBUS_Switch(void)
+{
+	HAL_GPIO_WritePin(VBUS_SWITCH_PORT, VBUS_SWITCH_GPIO, GPIO_PIN_RESET);
+}
+
+
+
+void Boost5V_Gpio_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct;
+  /*Configure GPIO pin : PC3 */
+  BOOST5V_GPIO_CLK_ENABLE();
+  GPIO_InitStruct.Pin = BOOST5V_GPIO;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(BOOST5V_PORT, &GPIO_InitStruct);
+}
+
+void Enable_Boost5V(void)
+{
+	HAL_GPIO_WritePin(BOOST5V_PORT, BOOST5V_GPIO, GPIO_PIN_SET);
+}
+void Disable_Boost5V(void)
+{
+	HAL_GPIO_WritePin(BOOST5V_PORT, BOOST5V_GPIO, GPIO_PIN_RESET);
+}
+
+void Vbus_OverflowFlag_Gpio_Init(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct;
+  /*Configure GPIO pin : PC3 */
+  BOOST5V_GPIO_CLK_ENABLE();
+  GPIO_InitStruct.Pin = VBUS_OVFLAG_GPIO;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(VBUS_OVFLAG_PORT, &GPIO_InitStruct);
+
+  /* Enable and set EXTI Line0 Interrupt to the lowest priority */
+  HAL_NVIC_SetPriority(VBUS_OVFLAG_IRQ, 2, 0);
+//  HAL_NVIC_EnableIRQ(VBUS_OVFLAG_IRQHandler);
 }
 
 /* USER CODE BEGIN 2 */
