@@ -49,6 +49,7 @@
 void OTG_FS_IRQHandler(void);
 void SysTick_Handler(void);
 void OTG_HS_IRQHandler(void);
+void VBUS_OVFLAG_IRQHandler(void);
 
 #ifdef __cplusplus
 }

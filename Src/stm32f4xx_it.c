@@ -37,6 +37,7 @@
 #include "stm32f4xx_it.h"
 #include "scan.h"
 #include "adc.h"
+#include "gpio.h"
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_usart2_tx;
@@ -130,6 +131,12 @@ void OTG_HS_IRQHandler(void)
 {
   HAL_NVIC_ClearPendingIRQ(OTG_HS_IRQn);
   HAL_HCD_IRQHandler(&hhcd_USB_OTG_HS);
+}
+
+void VBUS_OVFLAG_IRQHandler(void)
+{
+	HAL_NVIC_ClearPendingIRQ(VBUS_OVFLAG_IRQ);
+	HAL_NVIC_ClearPendingIRQ(VBUS_OVFLAG_IRQ);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -104,10 +104,8 @@ int main(void)
   printf("%s" NEW_LINE, hello);
   printf("%s" NEW_LINE, world);
 
-
-
-
   MX_USB_HOST_Init();
+  MX_USART3_UART_Init();
   Scanner_Init();
   PWM_Init();
   ADC_Init();

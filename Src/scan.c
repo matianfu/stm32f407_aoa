@@ -30,7 +30,6 @@ void Scanner_Init(void)
   scanner_infor.status = SCANNER_IDLE;
   /* GPIO Ports Clock Enable */
   __GPIOC_CLK_ENABLE();
-  MX_USART3_UART_Init();
 
   /*Configure GPIO pin : PC8 */
   GPIO_InitStruct.Pin = SCANNER_TRIG_PIN;
