@@ -7,6 +7,8 @@
 #include "dma.h"
 #include "stdbool.h"
 #include "usbh_def.h"
+#include "time.h"
+#include "usbh_conf.h"
 
 
 #define SCANNER_TRIG_PORT  GPIOC
@@ -108,6 +110,9 @@ void Scanner_Handle(void)
 		if(CheckBarcode(&scanner_infor))
 		{
 			scanner_infor.status =SCANNER_OK;
+			EnablePWM();
+			HAL_Delay(100);
+			DisablePWM();
 		}
 		else
 		{

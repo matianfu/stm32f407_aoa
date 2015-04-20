@@ -41,6 +41,7 @@
 #include "usbh_adk_core.h"
 #include "scan.h"
 #include "usart.h"
+#include "adc.h"
 
 typedef enum {
   ABORT_HANDLE_INIT,
@@ -262,15 +263,26 @@ static void Fun_CodeCallBack(USBH_HandleTypeDef *phost)
 }
 static void Fun_BatVolCallBack(USBH_HandleTypeDef *phost)
 {
-  if(USBH_OK != AOA_SendData(phost, ResNull, (sizeof(ResNull)/4+1)*4))
-  {
-  	retrydata.len = (sizeof(ResNull)/4 +1)*4 ;
-  	memcpy(retrydata.temp, ResNull, retrydata.len); //retry shold creat a queue
-  	retrydata.retry = 3;
-  }
+	static char tmp[8];
+
+	if(BatteryInfor.vol>600)
+	{
+		snprintf(tmp, 8, "%dmV", BatteryInfor.vol);
+		if(USBH_OK != AOA_SendData(phost, (uint8_t*)tmp, 8))
+		{
+			retrydata.len = 8 ;
+			memcpy(retrydata.temp, tmp, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+	}
+	else
+	{
+		AOA_SendData(phost, ResNull, (sizeof(ResNull)/4+1)*4);
+	}
 }
 static void Fun_BatCapCallBack(USBH_HandleTypeDef *phost)
 {
+
   if(USBH_OK != AOA_SendData(phost, ResNull, (sizeof(ResNull)/4+1)*4))
   {
   	retrydata.len = (sizeof(ResNull)/4 +1)*4 ;
@@ -280,12 +292,21 @@ static void Fun_BatCapCallBack(USBH_HandleTypeDef *phost)
 }
 static void Fun_BatPctCallBack(USBH_HandleTypeDef *phost)
 {
-  if(USBH_OK != AOA_SendData(phost, ResNull, (sizeof(ResNull)/4+1)*4))
-  {
-  	retrydata.len = (sizeof(ResNull)/4 +1)*4 ;
-  	memcpy(retrydata.temp, ResNull, retrydata.len); //retry shold creat a queue
-  	retrydata.retry = 3;
-  }
+  static 	char tmp[8];
+	if(BatteryInfor.pct>5)
+	{
+		snprintf(tmp, 8, "%d%%", BatteryInfor.pct);
+		if(USBH_OK != AOA_SendData(phost, (uint8_t*)tmp, 8))
+		{
+			retrydata.len = 8 ;
+			memcpy(retrydata.temp, tmp, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+	}
+	else
+	{
+		AOA_SendData(phost, ResNull, (sizeof(ResNull)/4+1)*4);
+	}
 }
 static void AOA_Receive(USBH_HandleTypeDef *phost, uint8_t * buff, int size)
 {

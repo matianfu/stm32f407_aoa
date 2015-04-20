@@ -36,6 +36,7 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
 #include "scan.h"
+#include "adc.h"
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_usart2_tx;
@@ -88,6 +89,7 @@ void SysTick_Handler(void)
   {
   	scanner_infor.timeout++;
   }
+  BatteryInfor.timeCount ++;
 
 }
 

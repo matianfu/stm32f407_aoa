@@ -55,6 +55,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Inc/adc.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Inc/adc.h</locationURI>
+		</link>
+		<link>
 			<name>Inc/dma.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Inc/dma.h</locationURI>
@@ -103,6 +108,11 @@
 			<name>Middlewares/ST</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Src/adc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/adc.c</locationURI>
 		</link>
 		<link>
 			<name>Src/debug.c</name>
@@ -270,6 +280,16 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h</locationURI>
@@ -363,6 +383,16 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</name>

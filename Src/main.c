@@ -44,6 +44,8 @@
 #include "hid.h"
 #include "scan.h"
 #include "version.h"
+#include "time.h"
+#include "adc.h"
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -63,6 +65,8 @@ extern void initialise_monitor_handles(void);
 
 static char hello[] = "================ System Starts ================";
 static char world[] = "Copyright 2015 Actnova, Inc.";
+
+uint16_t vol;
 
 int main(void)
 {
@@ -105,7 +109,8 @@ int main(void)
 
   MX_USB_HOST_Init();
   Scanner_Init();
-
+  PWM_Init();
+  ADC_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -118,6 +123,9 @@ int main(void)
     Process_Command();
     MX_USB_HOST_Process();
     Scanner_Handle();
+    Battery_Process();
+
+
   }
   /* USER CODE END 3 */
 
