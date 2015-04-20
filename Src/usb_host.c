@@ -39,6 +39,9 @@
 #include "usbh_msc.h"
 #include "usbh_hid.h"
 #include "usbh_adk_core.h"
+#include "scan.h"
+#include "usart.h"
+#include "adc.h"
 
 typedef enum {
   ABORT_HANDLE_INIT,
@@ -68,28 +71,273 @@ static __ALIGN_BEGIN AOA_DeviceInfoTypeDef deviceInfo __ALIGN_END
 static __ALIGN_BEGIN AOA_HandShakeDataTypeDef handshakeData __ALIGN_END =
 { .deviceInfo = &deviceInfo, };
 
+static __ALIGN_BEGIN uint8_t aoa_outbuff[64] __ALIGN_END;
+static int aoa_out_size;
+static int send_retry;
+RetryTypeDef retrydata;
+uint8_t ResNotSupport[] = "NOT SUPPORT";
+//ping
+ uint8_t ResPong[] = "PONG";
+//scan
+ uint8_t ResError[] = "ERROR";
+uint8_t ResBusy[] = "BUSY";
+
+uint8_t ResOK[] = "OK";
+//code
+uint8_t ResNull[] = "NULL";
+uint8_t ResTimeout[] = "TIMEOUT";
+uint8_t ResFail[] = "FAIL";
+
+
 /*
  * AOA callbacks
  */
 static void AOA_Receive(USBH_HandleTypeDef *phost, uint8_t * buf, int size);
 static void AOA_SendDone(USBH_HandleTypeDef *phost, uint8_t * buf, int size);
-
 /*
 * user callbak declaration
-*/ 
+*/
 static void USBH_UserProcess_HS  (USBH_HandleTypeDef *phost, uint8_t id);
 // static void USBH_UserProcess2  (USBH_HandleTypeDef *phost, uint8_t id);
+static void Fun_PingCallBack(USBH_HandleTypeDef *phost);
+static void Fun_ScanCallBack(USBH_HandleTypeDef *phost);
+static void Fun_CodeCallBack(USBH_HandleTypeDef *phost);
+static void Fun_BatVolCallBack(USBH_HandleTypeDef *phost);
+static void Fun_BatCapCallBack(USBH_HandleTypeDef *phost);
+static void Fun_BatPctCallBack(USBH_HandleTypeDef *phost);
 
-static __ALIGN_BEGIN uint8_t aoa_outbuff[64] __ALIGN_END;
-static int aoa_out_size;
-static int send_retry;
+#define NUM_FUN   6
+AOAFunctionTypDef AOA_FunArray[NUM_FUN] = {
+		{
+				"PING",
+				Fun_PingCallBack
+		},
+		{
+				"SCAN",
+				Fun_ScanCallBack
+		},
+		{
+				"CODE",
+				Fun_CodeCallBack
+		},
+		{
+				"BATVOL",
+				Fun_BatVolCallBack
+		},
+		{
+				"BATCAP",
+				Fun_BatCapCallBack
+		},
+		{
+				"BATPCT",
+				Fun_BatPctCallBack
+		}
+};
 
+static void Fun_PingCallBack(USBH_HandleTypeDef *phost)
+{
+  if(USBH_OK != AOA_SendData(phost, ResPong, (sizeof(ResPong)/4+1)*4))
+  {
+  	retrydata.len = (sizeof(ResPong)/4 +1)*4 ;
+  	memcpy(retrydata.temp, ResPong, retrydata.len); //retry shold creat a queue
+  	retrydata.retry = 3;
+  }
+}
+static void Fun_ScanCallBack(USBH_HandleTypeDef *phost)
+{
+	switch (scanner_infor.status)
+	{
+	case SCANNER_IDLE:
+	case SCANNER_OK:
+	case SCANNER_TIMEOUT:
+	case SCANNER_FAIL:
+#if 1
+		scanner_infor.timeout = 0;
+		scanner_infor.status = SCANNER_BUSY;
+		EnableScannerTrig();
+		restart_uart3_receive_dma();
+#endif
+	  if(USBH_OK != AOA_SendData(phost, ResOK, (sizeof(ResOK)/4+1)*4))
+	  {
+	  	retrydata.len = (sizeof(ResOK)/4 +1)*4 ;
+	  	memcpy(retrydata.temp, ResOK, retrydata.len); //retry shold creat a queue
+	  	retrydata.retry = 3;
+	  }
+		break;
+
+	case SCANNER_BUSY:
+		if (USBH_OK != AOA_SendData(phost, ResBusy, (sizeof(ResBusy) / 4 +1) * 4))
+		{
+			retrydata.len = (sizeof(ResBusy) / 4+1) * 4;
+			memcpy(retrydata.temp, ResBusy, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		break;
+	case SCANNER_ERROR:
+		if (USBH_OK != AOA_SendData(phost, ResError, (sizeof(ResBusy) / 4 +1) * 4))
+		{
+			retrydata.len = (sizeof(ResError) / 4 +1) * 4;
+			memcpy(retrydata.temp, ResError, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		break;
+	default:
+		scanner_infor.status = SCANNER_BUSY;
+		if (USBH_OK != AOA_SendData(phost, ResError, (sizeof(ResBusy) / 4+ 1) * 4))
+		{
+			retrydata.len = (sizeof(ResError) / 4 +1) * 4;
+			memcpy(retrydata.temp, ResError, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		break;
+	}
+}
+static void Fun_CodeCallBack(USBH_HandleTypeDef *phost)
+{
+	switch (scanner_infor.status)
+	{
+	case SCANNER_IDLE:
+		if (USBH_OK != AOA_SendData(phost, ResNull, (sizeof(ResNull) / 4 +1) * 4))
+		{
+			retrydata.len = (sizeof(ResNull) / 4 +1) * 4;
+			memcpy(retrydata.temp, ResNull, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		break;
+	case SCANNER_OK:
+		if (USBH_OK != AOA_SendData(phost, scanner_infor.barcode.code, (scanner_infor.barcode.length / 4 +1) * 4))
+		{
+			retrydata.len = (scanner_infor.barcode.length / 4 +1) * 4;
+			memcpy(retrydata.temp, scanner_infor.barcode.code, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		else
+		{
+			scanner_infor.status = SCANNER_IDLE;
+		}
+		break;
+	case SCANNER_BUSY:
+		if (USBH_OK != AOA_SendData(phost, ResBusy, (sizeof(ResBusy) / 4 +1) * 4))
+		{
+			retrydata.len = (sizeof(ResBusy) / 4 +1) * 4;
+			memcpy(retrydata.temp, ResBusy, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		break;
+	case SCANNER_TIMEOUT:
+		if (USBH_OK != AOA_SendData(phost, ResTimeout, (sizeof(ResTimeout) / 4 +1) * 4))
+		{
+			retrydata.len = (sizeof(ResTimeout) / 4 +1) * 4;
+			memcpy(retrydata.temp, ResTimeout, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		break;
+	case SCANNER_FAIL:
+		if (USBH_OK != AOA_SendData(phost, ResFail, (sizeof(ResFail) / 4) * 4+1))
+		{
+			retrydata.len = (sizeof(ResFail) / 4 +1) * 4;
+			memcpy(retrydata.temp, ResFail, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		break;
+	case SCANNER_ERROR:
+		if (USBH_OK != AOA_SendData(phost, ResError, (sizeof(ResError) / 4+1) * 4))
+		{
+			retrydata.len = (sizeof(ResError) / 4 +1) * 4;
+			memcpy(retrydata.temp, ResError, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		break;
+	default:
+		printf("********************unknown scanner status\r\n");
+		if (USBH_OK != AOA_SendData(phost, ResError, (sizeof(ResError) / 4+1) * 4))
+		{
+			retrydata.len = (sizeof(ResError) / 4 +1) * 4;
+			memcpy(retrydata.temp, ResError, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+		break;
+
+	}
+
+}
+static void Fun_BatVolCallBack(USBH_HandleTypeDef *phost)
+{
+	static char tmp[8];
+
+	if(BatteryInfor.vol>600)
+	{
+		snprintf(tmp, 8, "%dmV", BatteryInfor.vol);
+		if(USBH_OK != AOA_SendData(phost, (uint8_t*)tmp, 8))
+		{
+			retrydata.len = 8 ;
+			memcpy(retrydata.temp, tmp, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+	}
+	else
+	{
+		AOA_SendData(phost, ResNull, (sizeof(ResNull)/4+1)*4);
+	}
+}
+static void Fun_BatCapCallBack(USBH_HandleTypeDef *phost)
+{
+
+  if(USBH_OK != AOA_SendData(phost, ResNull, (sizeof(ResNull)/4+1)*4))
+  {
+  	retrydata.len = (sizeof(ResNull)/4 +1)*4 ;
+  	memcpy(retrydata.temp, ResNull, retrydata.len); //retry shold creat a queue
+  	retrydata.retry = 3;
+  }
+}
+static void Fun_BatPctCallBack(USBH_HandleTypeDef *phost)
+{
+  static 	char tmp[8];
+	if(BatteryInfor.pct>5)
+	{
+		snprintf(tmp, 8, "%d%%", BatteryInfor.pct);
+		if(USBH_OK != AOA_SendData(phost, (uint8_t*)tmp, 8))
+		{
+			retrydata.len = 8 ;
+			memcpy(retrydata.temp, tmp, retrydata.len); //retry shold creat a queue
+			retrydata.retry = 3;
+		}
+	}
+	else
+	{
+		AOA_SendData(phost, ResNull, (sizeof(ResNull)/4+1)*4);
+	}
+}
 static void AOA_Receive(USBH_HandleTypeDef *phost, uint8_t * buff, int size)
 {
-  USBH_StatusTypeDef status;
+	uint8_t i;
+	AOAFunctionTypDef *pCMDFun;
+//  USBH_StatusTypeDef status;
 
   memmove(aoa_outbuff, buff, size);
   aoa_out_size = size;
+
+  pCMDFun =AOA_FunArray;
+  for(i=0; i<NUM_FUN; i++)
+  {
+  	if(0 == memcmp(pCMDFun->cmd, aoa_outbuff, aoa_out_size))
+  	{
+  		(*pCMDFun->fun)(phost);
+  		memset(aoa_outbuff, 0, aoa_out_size);
+  		return;
+  	}
+  	pCMDFun++;
+  }
+  if(USBH_OK != AOA_SendData(phost, ResNotSupport, (sizeof(ResNotSupport)/4)*4))
+  {
+  	retrydata.len = (sizeof(ResNotSupport)/4)*4 ;
+  	memcpy(retrydata.temp, ResNotSupport, retrydata.len); //retry shold creat a queue
+  	retrydata.retry = 3;
+  }
+  memset(aoa_outbuff, 0, aoa_out_size);
+
+
+#if 0
   status = AOA_SendData(phost, buff, size);
 
   if (status == USBH_OK)
@@ -100,6 +348,7 @@ static void AOA_Receive(USBH_HandleTypeDef *phost, uint8_t * buff, int size)
   {
     send_retry = 5;
   }
+#endif
 }
 
 static void AOA_SendDone(USBH_HandleTypeDef *phost, uint8_t * buf, int size)

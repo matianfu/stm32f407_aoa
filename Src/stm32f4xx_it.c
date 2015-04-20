@@ -35,10 +35,15 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx.h"
 #include "stm32f4xx_it.h"
+#include "scan.h"
+#include "adc.h"
+#include "gpio.h"
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_usart2_tx;
 extern DMA_HandleTypeDef hdma_usart2_rx;
+extern DMA_HandleTypeDef hdma_usart3_rx;
+extern DMA_HandleTypeDef hdma_usart3_tx;
 
 extern  TIM_HandleTypeDef htim2;
 
@@ -81,6 +86,12 @@ void SysTick_Handler(void)
   HAL_SYSTICK_IRQHandler();
   uart_ll_print();
   USBH_DebounceTask();
+  if(scanner_infor.status==SCANNER_BUSY)
+  {
+  	scanner_infor.timeout++;
+  }
+  BatteryInfor.timeCount ++;
+
 }
 
 /**
@@ -98,12 +109,34 @@ void DMA1_Stream5_IRQHandler(void) {
 }
 
 /**
+* @brief This function handles DMA1 Stream1 global interrupt.
+*/
+void DMA1_Stream1_IRQHandler(void)
+{
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream1_IRQn);
+  HAL_DMA_IRQHandler(&hdma_usart3_rx);
+}
+/**
+* @brief This function handles DMA1 Stream3 global interrupt.
+*/
+void DMA1_Stream3_IRQHandler(void)
+{
+  HAL_NVIC_ClearPendingIRQ(DMA1_Stream3_IRQn);
+  HAL_DMA_IRQHandler(&hdma_usart3_tx);
+}
+/**
 * @brief This function handles USB On The Go HS global interrupt.
 */
 void OTG_HS_IRQHandler(void)
 {
   HAL_NVIC_ClearPendingIRQ(OTG_HS_IRQn);
   HAL_HCD_IRQHandler(&hhcd_USB_OTG_HS);
+}
+
+void VBUS_OVFLAG_IRQHandler(void)
+{
+	HAL_NVIC_ClearPendingIRQ(VBUS_OVFLAG_IRQ);
+	HAL_NVIC_ClearPendingIRQ(VBUS_OVFLAG_IRQ);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

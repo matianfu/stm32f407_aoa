@@ -42,7 +42,31 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+
+ //NCP380LSN10AAT1G  Enable GPIO  PC2
+ #define   VBUS_SWITCH_GPIO                 GPIO_PIN_2
+ #define   VBUS_SWITCH_PORT   							 GPIOC
+ #define   VBUS_SWITCH_GPIO_CLK_ENABLE()    __GPIOC_CLK_ENABLE()
+
+
+ //TPS63010 Enable GPIO  PC1
+ #define   BOOST5V_GPIO                 GPIO_PIN_1
+ #define   BOOST5V_PORT   							 GPIOC
+ #define   BOOST5V_GPIO_CLK_ENABLE()    __GPIOC_CLK_ENABLE()
+
+ //TPS63010 Enable GPIO  PC1
+ #define   VBUS_OVFLAG_GPIO                 GPIO_PIN_3
+ #define   VBUS_OVFLAG_PORT   						 GPIOC
+ #define   VBUS_OVFLAG__CLK_ENABLE()    	   __GPIOC_CLK_ENABLE()
+ #define   VBUS_OVFLAG_IRQ                  EXTI3_IRQn
+ #define   VBUS_OVFLAG_IRQHandler           EXTI3_IRQHandler
 void MX_GPIO_Init(void);
+void VBUS_Switch_Gpio_Init(void);
+void Enable_VUSB_Switch(void);
+void Boost5V_Gpio_Init(void);
+void Enable_Boost5V(void);
+void Disable_Boost5V(void);
+void Vbus_OverflowFlag_Gpio_Init(void);
 #ifdef __cplusplus
 }
 #endif

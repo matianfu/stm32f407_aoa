@@ -42,8 +42,10 @@
 #include "gpio.h"
 #include "kinput.h"
 #include "hid.h"
-
+#include "scan.h"
 #include "version.h"
+#include "time.h"
+#include "adc.h"
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -63,6 +65,8 @@ extern void initialise_monitor_handles(void);
 
 static char hello[] = "================ System Starts ================";
 static char world[] = "Copyright 2015 Actnova, Inc.";
+
+uint16_t vol;
 
 int main(void)
 {
@@ -92,7 +96,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_UART4_Init();
+//  MX_UART4_Init();
   MX_USART2_UART_Init();
 
   setbuf(stdout, NULL);
@@ -100,11 +104,11 @@ int main(void)
   printf("%s" NEW_LINE, hello);
   printf("%s" NEW_LINE, world);
 
-
-
-  MX_USART3_UART_Init();
   MX_USB_HOST_Init();
-
+  MX_USART3_UART_Init();
+  Scanner_Init();
+  PWM_Init();
+  ADC_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -116,6 +120,10 @@ int main(void)
     uart_hl_print();
     Process_Command();
     MX_USB_HOST_Process();
+    Scanner_Handle();
+    Battery_Process();
+
+
   }
   /* USER CODE END 3 */
 
@@ -137,7 +145,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 25;
+  RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
