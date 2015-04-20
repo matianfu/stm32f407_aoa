@@ -57,6 +57,8 @@ extern void Process_Command(void);
 void SystemClock_Config(void);
 void MX_USB_HOST_Process(void);
 
+__weak void task(){};
+
 #ifdef SEMIHOSTING
 extern void initialise_monitor_handles(void);
 #endif
@@ -113,6 +115,7 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
+    task();
     uart_hl_print();
     Process_Command();
     MX_USB_HOST_Process();
