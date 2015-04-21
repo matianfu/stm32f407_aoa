@@ -110,6 +110,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Src/adc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/adc.c</locationURI>
+		</link>
+		<link>
 			<name>Src/debug.c</name>
 			<type>1</type>
 			<locationURI>/home/ma/stm32/stm32f407_aoa/Src/debug.c</locationURI>
@@ -128,6 +133,11 @@
 			<name>Src/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/main.c</locationURI>
+		</link>
+		<link>
+			<name>Src/scan.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/scan.c</locationURI>
 		</link>
 		<link>
 			<name>Src/stm32f4xx_it.c</name>
@@ -368,6 +378,16 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</name>
