@@ -123,8 +123,8 @@ int main(void)
     uart_hl_print();
     Process_Command();
     MX_USB_HOST_Process();
-    Scanner_Handle();
-    Battery_Process();
+    // Scanner_Handle();
+    // Battery_Process();
 
 
   }
@@ -148,7 +148,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLM = 25; // multiply 1MHz
   RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;

@@ -22,7 +22,7 @@ static Continuation* delay(Continuation* co,
   this->duration = duration;
   this->start = HAL_GetTick();
 
-  while(HAL_GetTick() - this->start > this->duration)
+  while(HAL_GetTick() - this->start < this->duration)
   {
     YIELD();
   }
@@ -46,10 +46,10 @@ static Continuation* periodical(Continuation* co)
 
 static Continuation* peri = 0;
 
-extern void test_cpp_io();
+extern void test_closure();
 
 void task()
 {
   peri = periodical(peri);
-  test_cpp_io();
+  test_closure();
 };

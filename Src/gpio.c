@@ -57,7 +57,7 @@
 */
 void MX_GPIO_Init(void)
 {
-#if 0
+
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
@@ -82,11 +82,11 @@ void MX_GPIO_Init(void)
 
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_SET);
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_1, GPIO_PIN_SET);
-#endif
 
+/*
   VBUS_Switch_Gpio_Init();
   Boost5V_Gpio_Init();
-
+*/
 }
 
 void VBUS_Switch_Gpio_Init(void)
