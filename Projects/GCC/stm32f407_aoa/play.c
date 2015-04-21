@@ -46,7 +46,10 @@ static Continuation* periodical(Continuation* co)
 
 static Continuation* peri = 0;
 
+extern void test_cpp_io();
+
 void task()
 {
   peri = periodical(peri);
+  test_cpp_io();
 };
